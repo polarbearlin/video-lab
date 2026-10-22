@@ -9,7 +9,42 @@ html,body{margin:0;background:#1a1410;overflow:hidden}
 #gl{position:absolute;inset:0}
 #ov{position:absolute;inset:0}
 #grain{position:absolute;inset:0;background:url(/assets/textures/grain/grain_film35_2048.png);mix-blend-mode:overlay;opacity:.3;pointer-events:none}
+#ui{position:absolute;inset:0;pointer-events:none}
+#ui1{display:none}
+.u1c{position:absolute;overflow:hidden;background:#f2f2f7}
+.u1in{position:absolute;left:0;top:0;width:1080px;height:1920px;transform:scale(var(--s));transform-origin:0 0;background:#f2f2f7;color:#1c1c1e;font-family:Sans}
+.u1bar{display:flex;justify-content:space-between;align-items:center;padding:56px 70px 0;font:600 40px Sans;height:84px}
+.u1isl{width:250px;height:72px;background:#000;border-radius:40px}
+.u1nav{padding:64px 60px 0;font:500 52px Sans;color:#ff9f0a}
+.u1title{padding:16px 60px 36px;font:800 128px Sans}
+.u1group{margin:0 48px;background:#fff;border-radius:36px;overflow:hidden}
+.u1row{display:flex;justify-content:space-between;align-items:center;padding:44px 52px;border-bottom:2px solid #e5e5ea}
+.u1lab{font:600 60px Sans}
+.u1sub{font:400 40px Sans;color:#8e8e93;margin-top:16px;max-width:680px;line-height:1.4}
+.u1tog{width:168px;height:100px;border-radius:50px;background:#e5e5ea;position:relative;flex:none}
+.u1knob{position:absolute;left:6px;top:6px;width:88px;height:88px;border-radius:50%;background:#fff;box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.u1pill{font:700 54px Sans;color:#fff;background:#ff9f0a;padding:10px 30px;border-radius:30px}
+.u1card{margin:40px 48px 0;background:#fff;border-radius:36px;padding:40px 52px 30px;opacity:0}
+.u1ct{font:700 54px Sans;margin-bottom:16px}
+#u1hand{position:absolute;left:0;top:0}
+#u1fly{position:absolute;border-radius:50%;display:none;box-shadow:0 0 40px rgba(255,180,80,.6)}
+#therm{position:absolute;inset:0;display:none}
+#hud{position:absolute;inset:0;display:none}
+#ui3{position:absolute;inset:0;display:none;perspective:2400px}
+.u3g{position:absolute;inset:0;background:#efe9df radial-gradient(#cfc5b5 2px,transparent 2.5px) 0 0/48px 48px}
+.u3card{position:absolute;left:90px;top:380px;width:900px;height:1200px;transform-style:preserve-3d;transform-origin:450px 600px}
+.u3face,.u3back{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px}
+.u3face{background:#f7f2ea;box-shadow:0 30px 70px rgba(60,40,20,.16)}
+.u3back{background:#d9b98a url(/assets/stock/tex/Paper004_1080.jpg) 0 0/600px;transform:rotateY(180deg)}
+.u3line{position:absolute;top:150px;height:8px;background:#ff5a1f;border-radius:4px}
+.u3title{position:absolute;top:30px;left:0;right:0;height:120px;overflow:hidden;text-align:center;font:900 84px Serif;color:#161412}
+.u3title span{display:inline-block}
+.u3row{position:absolute;left:64px;font:700 62px Serif;color:#161412;display:flex;align-items:center;gap:30px;transform-origin:left center;white-space:nowrap}
+.u3row b{color:#e0572a;font-weight:900}
+.u3tick{width:84px;height:84px;border-radius:50%;background:#ff5a1f;color:#fff;font:900 52px Sans;display:flex;align-items:center;justify-content:center;flex:none}
+.u3note{position:absolute;left:178px;top:930px;font:400 38px Sans;color:#7a6f60}
+#u3dot{position:absolute;width:28px;height:28px;border-radius:50%;background:#ff5a1f;display:none}
 </style></head>
-<body><div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><div id="ov"></div><div id="grain"></div></div>
+<body><div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><div id="ui"></div><div id="ov"></div><div id="grain"></div></div>
 <script type="module" src="charge.js"></script>
 </body></html>
