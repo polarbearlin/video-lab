@@ -26,6 +26,22 @@ function uvFit(geo) {   // ShapeGeometry 的 UV 铺满 0–1
   for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - b.min.x) / (b.max.x - b.min.x), (p.getY(i) - b.min.y) / (b.max.y - b.min.y));
   uv.needsUpdate = true; return geo;
 }
+// 本地 Agent 用 Blender 建的手机（assets/models/phone_agent/phone/phone.glb）：米制、Y 向上、屏幕朝 +Z、原点在机身中心
+async function loadPhoneGLB() {
+  const gltf = await new P3.GLTFLoader().loadAsync('/assets/models/phone_agent/phone/' + (new URLSearchParams(location.search).get('lo') ? 'phone_lo.glb' : 'phone.glb'));
+  const root = gltf.scene, g = new THREE.Group(); root.scale.setScalar(PH.H / .1476); g.add(root);
+  scrTex = canvasTex(620, 1306, () => {}); scr3 = scrTex.userData;
+  const tune = { Frame: { color: '#8f9296', metalness: 1, roughness: .26 }, BackGlass: { color: '#cbc6bd', roughness: .5 }, FrontGlass: { roughness: .04 }, CameraPlateau: { roughness: .3 }, LensRing: { metalness: 1, roughness: .2 }, LensGlass: { roughness: .03 }, Buttons: { metalness: 1, roughness: .3 } };
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    o.castShadow = true;
+    if (o.name === 'Screen' || [].concat(o.material).some((m) => m.name === 'Screen')) {
+      o.material = new THREE.MeshBasicMaterial({ map: scrTex, toneMapped: false }); P3.screen = o; return;
+    }
+    [].concat(o.material).forEach((m) => { Object.assign(m, tune[m.name] || {}); if (tune[m.name]?.color) m.color = new THREE.Color(tune[m.name].color); m.envMap = envTex; m.envMapIntensity = 1.2; m.needsUpdate = true; });
+  });
+  return g;
+}
 function makePhone() {
   const { W, H, D } = PH, g = new THREE.Group();
   const env = (m) => { m.envMap = envTex; m.envMapIntensity = 1.2; return m; };
@@ -63,7 +79,7 @@ function makePhone() {
 // ---------- 屏幕内容（画布，每帧重画）
 function scrBase(g, W, H, bg = '#0f151c') { g.clearRect(0, 0, W, H); g.fillStyle = bg; g.fillRect(0, 0, W, H); }
 function drawScreen3(t) {
-  const { g } = scr3, W = 620, H = 1280; g.textAlign = 'left';
+  const { g } = scr3, W = 620, H = scr3.c.height; g.textAlign = 'left';
   const mode = t < 36.4 ? 'night' : t < 46.4 ? 'set' : t < 51.0 ? 'game' : t < 62 ? 'game' : t < 72 ? 'home' : 'end';
   if (mode === 'night') {
     const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#22303f'); gr.addColorStop(1, '#0b1016'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
@@ -116,12 +132,13 @@ async function initP3() {
   const { RenderPass } = await import('/node_modules/three/examples/jsm/postprocessing/RenderPass.js');
   const { BokehPass } = await import('/node_modules/three/examples/jsm/postprocessing/BokehPass.js');
   const { OutputPass } = await import('/node_modules/three/examples/jsm/postprocessing/OutputPass.js');
+  ({ GLTFLoader: P3.GLTFLoader } = await import('/node_modules/three/examples/jsm/loaders/GLTFLoader.js'));
   const pm = new THREE.PMREMGenerator(renderer); envTex = pm.fromScene(new RoomEnvironment(), .04).texture;
   comp3 = new EffectComposer(renderer); comp3.renderTarget1.samples = comp3.renderTarget2.samples = 4;
   comp3.addPass(new RenderPass(scene, camera));
   bokeh = new BokehPass(scene, camera, { focus: 100, aperture: .0004, maxblur: .012 }); comp3.addPass(bokeh);
   comp3.addPass(new OutputPass());
-  P3.phone = makePhone(); scene.add(P3.phone);
+  P3.phone = await loadPhoneGLB().catch((e) => { console.warn('GLB 失败，用代码手机', e); return makePhone(); }); scene.add(P3.phone);
   // 白色影棚：地面 + 远处的背景板（景深把接缝虚掉）
   const white = new THREE.MeshStandardMaterial({ color: '#e2ded8', roughness: .9 });
   const fl = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), white); fl.rotation.x = -Math.PI / 2; fl.position.set(STU, 0, 0); fl.receiveShadow = true; scene.add(fl);
