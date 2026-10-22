@@ -1,0 +1,55 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>一句话 · 一条片</title>
+<style>
+@font-face{font-family:Sans;src:url(/assets/fonts/NotoSansSC.ttf);font-weight:100 900}
+@font-face{font-family:Serif;src:url(/assets/fonts/NotoSerifSC.ttf);font-weight:200 900}
+@font-face{font-family:Ins;src:url(/assets/fonts/InstrumentSerif-Regular.ttf)}
+@font-face{font-family:InsI;src:url(/assets/fonts/InstrumentSerif-Italic.ttf)}
+html,body{margin:0;background:#000;overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:#efe9df}
+#ground{position:absolute;inset:-200px;background:radial-gradient(circle at 50% 45%,#f7f2ea 0,#efe9df 45%,#e4dccf 100%)}
+#dots{position:absolute;inset:-400px;background-image:radial-gradient(#cfc5b5 2px,transparent 2.5px);background-size:48px 48px;opacity:.55}
+#world{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0}
+#world>*{position:absolute;left:0;top:0;box-sizing:border-box}
+#bar{background:#fff;border-radius:40px;box-shadow:0 18px 50px rgba(60,40,20,.16),0 2px 0 rgba(0,0,0,.04);overflow:hidden}
+#typed{position:absolute;left:52px;top:50%;transform:translateY(-50%);font:600 46px Sans;color:#161412;white-space:nowrap}
+#tcaret{display:inline-block;width:5px;height:52px;background:#ff5a1f;vertical-align:-10px;margin-left:4px;border-radius:2px}
+#send{position:absolute;right:22px;top:50%;width:104px;height:104px;margin-top:-52px;border-radius:50%;background:#161412}
+#send svg{position:absolute;inset:0;margin:auto}
+#dot{background:#ff5a1f;border-radius:6px}
+.chip{background:#161412;color:#f7f2ea;font:700 30px Sans;padding:0 22px;border-radius:30px;display:flex;align-items:center;white-space:nowrap}
+.chip small{font:400 24px InsI;color:#ff9a6b;margin-right:12px}
+.chip.hot{background:#ff5a1f;color:#fff}
+.wv{position:absolute;left:0;top:0;background:#161412;border-radius:3px}
+.card{border-radius:28px;overflow:hidden;box-shadow:0 30px 60px rgba(60,40,20,.22)}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+.lab{color:#161412;font:800 40px Sans;text-align:center;white-space:nowrap}
+#phone{background:#161412;overflow:hidden;box-shadow:0 40px 90px rgba(40,25,10,.3)}
+#scr{position:absolute;display:block}
+#hand{width:90px;height:110px}
+#words{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+#words div{font:900 230px Serif;color:#fff7ec;letter-spacing:8px;text-shadow:0 12px 40px rgba(0,0,0,.4)}
+#mark{font:400 190px/1 Ins;color:#161412;white-space:nowrap;letter-spacing:-2px}
+#sub{font:600 40px Sans;color:#5b534a;letter-spacing:6px;white-space:nowrap}
+#grain{position:absolute;inset:0;background:url(/assets/textures/grain/grain_film35_2048.png);mix-blend-mode:multiply;opacity:.1;pointer-events:none}
+</style></head>
+<body><div id="stage">
+<div id="ground"></div><div id="dots"></div>
+<div id="world">
+  <div id="wave"></div>
+  <div id="line" style="background:#ff5a1f;border-radius:5px"></div>
+  <div class="card" id="cardL"><img src="img/mag.jpg"></div>
+  <div class="card" id="cardR"><img src="img/ink.jpg"></div>
+  <div class="lab" id="labL">杂志编辑</div><div class="lab" id="labR">国风水墨</div><div class="lab" id="labC">纸雕剧场</div>
+  <div id="phone"><canvas id="scr" width="540" height="960"></canvas></div>
+  <div id="bar"><div id="typed"><span id="tt"></span><span id="tcaret"></span></div>
+    <div id="send"><svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+  <div id="dot"></div>
+  <div id="mark">video lab</div><div id="sub">一句话 · 做一条片</div>
+  <svg id="hand" viewBox="0 0 90 110"><path d="M8 4 L8 84 L28 66 L42 98 L56 92 L42 60 L70 60 Z" fill="#161412" stroke="#fff" stroke-width="6" stroke-linejoin="round"/></svg>
+</div>
+<div id="words"><div id="w"></div></div>
+<div id="grain"></div>
+</div>
+<script src="example-onetake-ui.js"></script>
+</body></html>
