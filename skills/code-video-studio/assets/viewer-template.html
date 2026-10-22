@@ -1,0 +1,106 @@
+<title>样片放映室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* 放映室：深色暖灰幕布，视频是主角；朱红只标「最新」 */
+:root {
+  --bg: #17130f; --panel: #221c16; --line: #3a3128; --fg: #efe7da; --muted: #a39684; --accent: #d8573c;
+  --display: "Noto Serif SC", "Songti SC", serif;
+  --body: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 48px; }
+header { display: grid; gap: 8px; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+h1 { font-family: var(--display); font-weight: 900; font-size: clamp(30px, 6vw, 46px); margin: 0; letter-spacing: .04em; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 62ch; }
+section { display: grid; gap: 18px; }
+h2 { font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h2 small { font-family: var(--body); font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: .06em; }
+.grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid.vertical { grid-template-columns: repeat(auto-fit, minmax(260px, 340px)); }
+figure { margin: 0; display: grid; gap: 10px; min-width: 0; }
+video { width: 100%; max-width: 100%; display: block; background: #000; border: 1px solid var(--line); }
+.v916 video { aspect-ratio: 9 / 16; }
+.v169 video { aspect-ratio: 16 / 9; }
+figcaption { display: grid; gap: 4px; }
+.name { font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tag { font-size: 12px; font-weight: 500; padding: 1px 8px; border: 1px solid var(--line); color: var(--muted); }
+.tag.new { border-color: var(--accent); color: var(--accent); }
+.meta { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.note { font-size: 14px; color: var(--fg); opacity: .86; }
+footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>样片放映室</h1>
+    <p>打工人社保课和往期短片的样片都在这里，点开就能播放，声音需要先点一下播放。要保存到手机，请用聊天里发给你的下载卡片。</p>
+  </header>
+
+  <section aria-labelledby="pie72">
+    <h2 id="pie72">老板画饼 · 完整第一段 <small>歌曲 0:00–1:12 · 竖屏 1080×1920</small></h2>
+    <div class="grid vertical">
+      <figure class="v916">
+        <video controls playsinline preload="metadata" poster="paper72.jpg" src="paper72.mp4"></video>
+        <figcaption>
+          <span class="name">纸雕微缩剧场 · 72 秒 <span class="tag new">最新</span></span>
+          <span class="meta">72 秒 · 前奏对白 + 主歌一 + 副歌两遍</span>
+          <span class="note">老板递饼被推飞，小陈进城租房、放下笔不签自愿书；第二遍副歌饼被戳破，横幅换成「按月 不能塌」。</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="pie">
+    <h2 id="pie">老板画饼 · 第一节副歌 <small>歌曲 0:41–0:57 · 竖屏 1080×1920</small></h2>
+    <div class="grid vertical">
+      <figure class="v916">
+        <video controls playsinline preload="metadata" poster="paper.jpg" src="paper.mp4"></video>
+        <figcaption>
+          <span class="name">纸雕微缩剧场 <span class="tag">第 3 版</span></span>
+          <span class="meta">16 秒 · 3D 纸艺光影</span>
+          <span class="note">牛皮纸舞台加暖色台灯，人物和道具像立体书一样立起来，老板画的饼会弹出墙面。</span>
+        </figcaption>
+      </figure>
+      <figure class="v916">
+        <video controls playsinline preload="metadata" poster="editorial.jpg" src="editorial.mp4"></video>
+        <figcaption>
+          <span class="name">杂志编辑排版 <span class="tag">第 3 版</span></span>
+          <span class="meta">16 秒 · 米白、墨黑、朱红</span>
+          <span class="note">大号宋体踩着节拍出现，红笔现场画饼，结尾 12 个月依次点亮。</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section aria-labelledby="past">
+    <h2 id="past">往期样片 <small>网页版已压缩画质</small></h2>
+    <div class="grid">
+      <figure class="v916" style="max-width:340px">
+        <video controls playsinline preload="metadata" poster="gas.jpg" src="gas.mp4"></video>
+        <figcaption>
+          <span class="name">闻到煤气味 <span class="tag">第 1 版</span></span>
+          <span class="meta">79 秒 · 生活安全课 01</span>
+        </figcaption>
+      </figure>
+      <figure class="v169">
+        <video controls playsinline preload="metadata" poster="libai.jpg" src="libai.mp4"></video>
+        <figcaption>
+          <span class="name">李白的一生 <span class="tag">水墨</span></span>
+          <span class="meta">40 秒 · 横屏 1920×1080</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <footer>画面、配乐和音效均由代码生成；纸张材质来自 ambientCG（CC0），实物照片来自 Flickr（CC0 / CC BY）。</footer>
+</div>
+
+<script>
+  // 同一时间只播一个
+  const vids = [...document.querySelectorAll('video')];
+  vids.forEach((v) => v.addEventListener('play', () => vids.forEach((o) => { if (o !== v) o.pause(); })));
+</script>
