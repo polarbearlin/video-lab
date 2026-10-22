@@ -309,7 +309,7 @@ function overlay(t) {
 }
 
 window.renderAt = async (t) => {
-  if (t >= 30) { renderP2(t); return; }
+  if (t >= 30) { V3D ? renderP3(t) : renderP2(t); return; }
   setCam(t); animate(t);
   renderer.render(scene, camera); overlay(t);
 };

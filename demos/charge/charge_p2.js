@@ -223,7 +223,7 @@ function tempAt(t) { if (t < 51.8) return 31; if (t < 54.2) return lerp(31, 43.6
 function drawThermal(t) {
   const on = t >= 51.0 && t < 62.25;
   therm.style.display = hud.style.display = on ? 'block' : 'none'; if (!on) return;
-  const cold = t >= 57.4, [px, py] = projPt(new THREE.Vector3(SX, 26, 10));
+  const cold = t >= 57.4, [px, py] = projPt(THERM_PT);
   og.drawImage(canvas, 0, 0, 270, 480);
   const id = og.getImageData(0, 0, 270, 480), d = id.data, heat = cold ? 0 : prog(tempAt(t), 31, 43.6);
   for (let y = 0; y < 480; y++) for (let x = 0; x < 270; x++) {
@@ -287,7 +287,7 @@ function drawUI3(t) {
   const groundA = 1 - prog(t, 71.0, 71.5);
   ui3.querySelector('.u3g').style.opacity = t < 61.75 ? prog(t, 61.6, 61.75) : groundA;
   // 点 → 线 → 标题从线后升起
-  const [px, py] = projPt(new THREE.Vector3(SX, 26, 10));
+  const [px, py] = projPt(THERM_PT);
   const dot = ui3.querySelector('#u3dot'), mv = eIO(prog(t, 62.15, 62.5)), dx = lerp(px, 540, mv), dy = lerp(py, 520, mv);
   dot.style.cssText = `display:${t < 62.6 ? 'block' : 'none'};left:${dx - 14}px;top:${dy - 14}px`;
   const line = ui3.querySelector('#u3line'), lw = eIO(prog(t, 62.5, 62.9)) * 820;
