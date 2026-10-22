@@ -1,0 +1,1 @@
+{"name":"libai","private":true,"type":"module","dependencies":{"puppeteer-core":"25.12.0","three":"^0.170.0"}}
