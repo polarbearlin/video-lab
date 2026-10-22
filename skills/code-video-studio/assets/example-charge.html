@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>充到80%为什么变慢</title>
+<style>
+@font-face{font-family:Serif;src:url(/assets/fonts/NotoSerifSC.ttf);font-weight:200 900}
+@font-face{font-family:Sans;src:url(/assets/fonts/NotoSansSC.ttf);font-weight:100 900}
+@font-face{font-family:InsI;src:url(/assets/fonts/InstrumentSerif-Italic.ttf)}
+html,body{margin:0;background:#1a1410;overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+#gl{position:absolute;inset:0}
+#ov{position:absolute;inset:0}
+#grain{position:absolute;inset:0;background:url(/assets/textures/grain/grain_film35_2048.png);mix-blend-mode:overlay;opacity:.3;pointer-events:none}
+</style></head>
+<body><div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><div id="ov"></div><div id="grain"></div></div>
+<script type="module" src="example-charge.js"></script>
+</body></html>
