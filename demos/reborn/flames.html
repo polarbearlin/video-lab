@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>彭格列七色 · 配色样张</title>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<style>
+@font-face{font-family:Sans;src:url(/assets/fonts/NotoSansSC.ttf);font-weight:100 900}
+@font-face{font-family:Serif;src:url(/assets/fonts/NotoSerifSC.ttf);font-weight:200 900}
+@font-face{font-family:InsI;src:url(/assets/fonts/InstrumentSerif-Italic.ttf)}
+html,body{margin:0;background:#111;overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+#gl{position:absolute;inset:0}
+#ov{position:absolute;inset:0;pointer-events:none}
+#grain{position:absolute;inset:0;background:url(/assets/textures/grain/grain_film35_2048.png);mix-blend-mode:overlay;opacity:.16;pointer-events:none}
+.tag{position:absolute;left:72px;top:96px;font:400 44px InsI;letter-spacing:2px}
+.kanji{position:absolute;left:52px;top:120px;font:900 380px/1 Sans;paint-order:stroke fill;-webkit-text-stroke:22px #fffaf0;transform:rotate(-5deg);transform-origin:left top}
+.en{position:absolute;left:470px;top:190px;font:400 150px/1 InsI;paint-order:stroke fill;-webkit-text-stroke:10px #fffaf0}
+.name{position:absolute;left:480px;top:370px;font:900 66px Sans;color:#fffaf0;padding:10px 30px;border-radius:14px;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(0,0,0,.18)}
+.cap{position:absolute;left:50%;bottom:210px;transform:translateX(-50%) rotate(1.5deg);background:#fffaf0;font:700 62px Serif;padding:22px 48px;border-radius:10px;white-space:nowrap;box-shadow:0 10px 0 rgba(0,0,0,.18)}
+</style></head>
+<body><div id="stage"><canvas id="gl" width="1080" height="1920"></canvas><div id="ov"></div><div id="grain"></div></div>
+<script type="module" src="flames.js"></script>
+</body></html>
