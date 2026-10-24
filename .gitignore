@@ -9,3 +9,6 @@ assets/fonts/
 lib/audio/samples/
 *.skill
 *.zip
+demos/charge/blender/build/
+node_modules
+assets/fonts

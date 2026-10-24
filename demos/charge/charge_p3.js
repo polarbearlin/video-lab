@@ -232,7 +232,7 @@ function renderP3(t) {
   bokeh.uniforms.aperture.value = zone === 'studio' ? .0011 : .0007;
   bokeh.uniforms.maxblur.value = zone === 'studio' ? .016 : .01;
   THERM_PT = P3.phone.position.clone();
-  comp3.render();
+  if (window.__EXPORT) camera.updateMatrixWorld(); else comp3.render();
   drawUI1Hand3(t); drawThermal(t); overlay2(t);
   if (zone === 'studio') document.getElementById('grain').style.opacity = .06;
 }
@@ -246,3 +246,49 @@ function drawUI1Hand3(t) {   // 影棚里点开关的手指（叠层，对准 3D
   const [tx, ty] = projPt(tgt), u = eIO(prog(t, 37.1, 37.85)), away = eIO(prog(t, 38.3, 38.9));
   h.style.transform = `translate(${lerp(980, tx - 8, u) + 400 * away}px,${lerp(1500, ty - 4, u) + 400 * away}px) scale(${1 - .15 * Math.sin(Math.PI * prog(t, 37.9, 38.15))})`;
 }
+
+// ================= 导出给 Blender（blender/export_web.mjs 调用）=================
+// 每帧：动画物体的本地 TRS、镜头、焦点、光的分区、手机在屏幕上的位置；屏幕 / 台钟 / 窗户 / 计划卡的画布图片
+const BAKE = {};
+function bakeNodes() {   // 要逐帧记录的物体（standee 有 hinge 和 mesh 两层）
+  const L = [['phone', P3.phone], ['plan', P3.plan], ['title', P3.title], ['card0', P3.cards[0]], ['card1', P3.cards[1]], ['card2', P3.cards[2]],
+    ['sun', S2.sun], ['moon', S2.moon], ['hands', P3.hands], ['lifter', S2.lifter], ['steam0', S2.steam[0]], ['steam1', S2.steam[1]], ['steam2', S2.steam[2]],
+    ['teaser', S2.teaser], ['note', S2.note], ['clock', S2.clock], ['window', S2.win]];
+  const out = [];
+  L.forEach(([n, o]) => { if (o.hinge) { o.hinge.name = n + '_hinge'; o.mesh.name = n; out.push(o.hinge, o.mesh); } else { o.name = n; out.push(o); } });
+  return out;
+}
+window.__exportStep = (t) => {
+  window.__EXPORT = true;
+  renderP3(t);
+  if (!BAKE.nodes) { BAKE.nodes = bakeNodes(); BAKE.frames = []; }
+  const fr = { t, cam: [...camera.position.toArray(), ...camera.getWorldDirection(new THREE.Vector3()).toArray()], fov: camera.fov,
+    focus: bokeh.uniforms.focus.value, zone: scene.background.getHexString(), key: [...key.position.toArray(), ...key.target.position.toArray(), key.color.getHexString(), key.intensity],
+    hemi: [hemi.color.getHexString(), hemi.groundColor.getHexString(), hemi.intensity], lamp: S2.lamp.intensity, therm: projPt(THERM_PT), nodes: {} };
+  BAKE.nodes.forEach((o) => {
+    let vis = o.visible; for (let p = o.parent; p && p !== scene; p = p.parent) vis = vis && p.visible;
+    fr.nodes[o.name] = [...o.position.toArray(), ...o.quaternion.toArray(), ...o.scale.toArray(), vis ? 1 : 0];
+  });
+  fr.phoneWorld = (P3.phone.updateMatrixWorld(true), P3.phone.matrixWorld.toArray());
+  BAKE.frames.push(fr);
+  const img = (tex, type = 'image/png', q) => tex.image.toDataURL(type, q);
+  return { screen: img(scrTex, 'image/jpeg', .92), clock: img(clockTex), window: img(winTex, 'image/jpeg', .9), plan: P3.plan.visible ? img(P3.planTex) : null };
+};
+window.__exportScene = async () => {   // 静态纸雕场景 + 动画物体 → 一个 glb（动画按帧烘焙）
+  const { GLTFExporter } = await import('/node_modules/three/examples/jsm/exporters/GLTFExporter.js');
+  const fps = 30, F = BAKE.frames, times = F.map((f, i) => i / fps), tracks = [];
+  BAKE.nodes.forEach((o) => {
+    const P = [], Q = [], Sc = [];
+    F.forEach((f) => { const v = f.nodes[o.name]; P.push(v[0], v[1], v[2]); Q.push(v[3], v[4], v[5], v[6]); const k = v[10] ? 1 : 1e-4; Sc.push(v[7] * k, v[8] * k, v[9] * k); });
+    tracks.push(new THREE.VectorKeyframeTrack(o.name + '.position', times, P), new THREE.QuaternionKeyframeTrack(o.name + '.quaternion', times, Q), new THREE.VectorKeyframeTrack(o.name + '.scale', times, Sc));
+  });
+  const clip = new THREE.AnimationClip('bake', -1, tracks);
+  // 不导出：手机（Blender 里直接用 phone.glb）、电池内部场景、前 30 秒的道具、不可见物体
+  const hidden = [];
+  scene.traverse((o) => { if (o.isLight || o.isCamera) return; if (o === P3.phone || (o.isMesh && o.position && (o.getWorldPosition(new THREE.Vector3()).x > 290 && o.getWorldPosition(new THREE.Vector3()).x < 520))) { if (o.visible) { hidden.push(o); o.visible = false; } } });
+  BAKE.nodes.forEach((o) => { if (o !== P3.phone) o.visible = true; });
+  const glb = await new GLTFExporter().parseAsync(scene, { binary: true, animations: [clip], onlyVisible: true, maxTextureSize: 2048 });
+  hidden.forEach((o) => o.visible = true);
+  const b = new Uint8Array(glb); let s = ''; for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode.apply(null, b.subarray(i, i + 32768));
+  return { glb: btoa(s), frames: F.map((f) => { const { nodes, ...rest } = f; return rest; }) };
+};

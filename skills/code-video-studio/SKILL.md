@@ -9,6 +9,10 @@ description: 用代码制作自媒体短视频（歌曲 MV、知识科普、热�
 
 完整代码仓库：`polarbearlin/video-lab`（私有）。参考源：https://github.com/Vincentwei1021/mg-styles-15
 
+## 第 -1 步：导演简报（所有项目）
+
+开做前写一页 `brief.md`：观众只记住哪一件事、哪些是不能编的事实（真实界面、数据、品牌）、哪些可以创作、参考借什么、什么算不合格、交付几个版本。缺真实素材就停下来问，不画以假乱真的替代品。长任务按关卡推进（简报 → 素材 → 风格总览 → 节拍截图 → 全片 → 自查）。见 `references/director-brief.md`。
+
 ## 第 0 步：选题和文案优先（科普类）
 
 文案和节奏是重中之重，表现形式其次。用户给题材时，先读 `references/topic-and-copy.md`：
@@ -59,6 +63,7 @@ C. ...
 ## 第 3 步：制作
 
 - 选纸雕微缩剧场：读 `references/paper-diorama.md`，以 `assets/example-paper-diorama.js` 为骨架改。
+- 需要真 3D 质感（产品特写、玻璃金属、角色、霓虹夜景）：读 `references/blender-3d.md`。Blender 场景用 Python 脚本从零生成，timeline.py 统一驱动画面和声音；云端只能写脚本和低清试渲，正式渲染要用户本地显卡。
 - 选其他风格：按 `references/styles.md` 里该风格的技术路线写。2D 风格用 SVG 字符串每帧重建最简单；3D 用 Three.js。
 - 所有随机数用固定种子；不要用真实时钟或 CSS 过渡；图片在 `renderAt` 里等加载完再截图。
 - 字幕：逐字按唱到的时间浮现，带底板，长句自动折两行。左上角放栏目角标（全局图层，不参与转场）。

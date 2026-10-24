@@ -1,5 +1,7 @@
 # 交给本地 Agent：《充到 80%》3D 手机版接入与渲染
 
+> **更新（推荐用 Blender 版）**：后 45 秒已经做好 Blender 管线（真实光线追踪、玻璃金属、景深、运动模糊），手机直接用 `assets/models/phone_agent/phone/phone.glb`。按 `demos/charge/blender/README.md` 操作即可：导出 → 预览截图 → 全片渲染 → 合成。下面的 three.js 网页渲染方案保留作备选。
+
 > 把这整份文件交给本地 Agent（Claude Code / Codex 等）。它负责：接入 Blender 手机模型 → 出 8 张关键帧 → 渲染完整 75 秒 → 拼接。
 
 ## 0. 背景（给 Agent 看）

@@ -224,6 +224,7 @@ function drawThermal(t) {
   const on = t >= 51.0 && t < 62.25;
   therm.style.display = hud.style.display = on ? 'block' : 'none'; if (!on) return;
   const cold = t >= 57.4, [px, py] = projPt(THERM_PT);
+  if (!window.__EXPORT) {   // 导出给 Blender 时，热成像调色交给 compose.py，这里只画扫描线、雪和 HUD
   og.drawImage(canvas, 0, 0, 270, 480);
   const id = og.getImageData(0, 0, 270, 480), d = id.data, heat = cold ? 0 : prog(tempAt(t), 31, 43.6);
   for (let y = 0; y < 480; y++) for (let x = 0; x < 270; x++) {
@@ -236,13 +237,14 @@ function drawThermal(t) {
     d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2];
   }
   og.putImageData(id, 0, 0);
+  }
   tg.clearRect(0, 0, 1080, 1920); tg.save();
   const scanY = 1920 * eIO(prog(t, 51.0, 51.8));
   // 61.6–62.2：整幅热图收进准星中心的一个点
   const col = eIO(prog(t, 61.6, 62.2));
   if (col > 0) { const r = lerp(2300, 0, col); tg.beginPath(); tg.arc(px, py, Math.max(.1, r), 0, 7); tg.clip(); }
   tg.beginPath(); tg.rect(0, 0, 1080, scanY); tg.clip();
-  tg.imageSmoothingEnabled = true; tg.filter = 'blur(2px)'; tg.drawImage(off, 0, 0, 1080, 1920); tg.filter = 'none';
+  if (!window.__EXPORT) { tg.imageSmoothingEnabled = true; tg.filter = 'blur(2px)'; tg.drawImage(off, 0, 0, 1080, 1920); tg.filter = 'none'; }
   tg.restore();
   if (t < 51.85) { tg.fillStyle = 'rgba(255,255,255,.9)'; tg.fillRect(0, scanY - 3, 1080, 6); tg.fillStyle = 'rgba(255,200,120,.25)'; tg.fillRect(0, scanY - 40, 1080, 40); }
   if (cold) {   // 雪
