@@ -12,3 +12,4 @@ lib/audio/samples/
 demos/charge/blender/build/
 node_modules
 assets/fonts
+demos/deepseek/build/
