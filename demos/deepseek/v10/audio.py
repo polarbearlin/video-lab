@@ -78,5 +78,6 @@ n = int(1.0 * SR); tt = np.arange(n) / SR; ir = rng.standard_normal((n, 2)) * np
 ir = sosfilt(butter(2, 5500, 'low', fs=SR, output='sos'), ir, axis=0); ir /= np.sqrt((ir ** 2).sum(0))
 mix = music + 1.4 * sfx + np.stack([fftconvolve(send[:, c], ir[:, c])[:N] for c in range(2)], 1) * .8
 mix = np.tanh(1.2 * mix) / np.tanh(1.2); mix *= 10 ** (-1.5 / 20) / np.abs(mix).max()
-fade = np.ones(N); fade[-int(.4 * SR):] = np.linspace(1, 0, int(.4 * SR)); mix *= fade[:, None]
+fade = np.ones(N); fade[-int(.4 * SR):] = np.linspace(1, 0, int(.4 * SR))
+if not os.environ.get('NOFADE'): mix *= fade[:, None]   # NOFADE=1：接后 60 秒时不要淡出
 out = os.path.join(HERE, '..', 'build', 'v10_audio.wav'); sf.write(out, mix, SR); print(out)
