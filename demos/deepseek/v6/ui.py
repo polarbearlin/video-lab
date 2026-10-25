@@ -83,7 +83,7 @@ def stock():
 <div class="a" style="left:40px;top:30px;font-size:22px;color:#9aa3b5">美股 · 纳斯达克　2025-01-27</div>
 <div class="a" style="left:40px;top:66px;font-size:46px;font-weight:900">英伟达 <span style="font-size:28px;color:#9aa3b5;font-weight:500">NVDA</span></div>
 <div class="a" style="left:40px;top:130px;font-size:52px;font-weight:900;color:#1fc77e">118.42 <span style="font-size:32px">−16.97%</span></div>
-<div class="a" style="right:40px;top:80px;text-align:right;font-size:24px;color:#9aa3b5">单日市值蒸发<br><b style="font-size:44px;color:#1fc77e">约 5890 亿美元</b></div>
+<div class="a" style="left:460px;top:80px;font-size:24px;color:#9aa3b5">单日市值蒸发<br><b style="font-size:44px;color:#1fc77e">约 5890 亿美元</b></div>
 <svg class="a" style="left:0;top:0" width="{W}" height="{H}">{grid}{svg}</svg>
 <div class="a" style="left:0;top:720px;width:{W}px;display:flex;justify-content:space-around;font-size:22px;color:#9aa3b5"><span style="color:#fff">日K</span><span>周K</span><span>月K</span><span>分时</span><span>五日</span></div></div>""")
     # 最后一根绿柱在图上的位置（给 3D 滑梯对齐用），写进一个小文件
