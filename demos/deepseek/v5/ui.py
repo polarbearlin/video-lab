@@ -72,5 +72,55 @@ def seg_e():
 <img class="av" src="{AV}" style="width:56px;height:56px;border:2px solid #4d6bfe"><div><div style="font-size:16px;color:#fb7299;font-weight:700">大肥鱼本鲸 回复 @网友</div>
 <div style="font-size:28px;font-weight:900">真不是机器人</div></div></div>""")
 
+# ======================================================================= 真实界面（GPT 生成的高细节截图，demos/deepseek/ref/screens/）
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+SCR = DS / 'ref/screens'
+def font(px, w=500):
+    f = ImageFont.truetype(str(DS / '../../assets/fonts/NotoSansSC.ttf'), px)
+    try: f.set_variation_by_axes([w])
+    except Exception: pass
+    return f
+def up(name, k=2):
+    """放大 k 倍 + 轻微锐化（贴到大屏幕上更清楚）"""
+    im = Image.open(SCR / f'{name}.png').convert('RGB')
+    return im.resize((im.width * k, im.height * k), Image.LANCZOS).filter(ImageFilter.UnsharpMask(2, 60, 2))
+def bubble(d, box, fill, r=28): d.rounded_rectangle(box, radius=r, fill=fill)
+def real_screens():
+    # 段 B：DeepSeek 平板 + 主人发的消息 + 正在思考
+    im = up('ds_chat_tablet'); d = ImageDraw.Draw(im); k = 2
+    f = font(30 * k, 500); t = '帮我写个周报'; tw = d.textlength(t, font=f)
+    x1 = 1480 * k; bubble(d, (x1 - tw - 64 * k, 150 * k, x1, 222 * k), (77, 107, 254)); d.text((x1 - tw - 32 * k, 162 * k), t, font=f, fill='white')
+    logo = Image.open(SCR / 'ds_chat_tablet.png').crop((846, 46, 912, 100)).resize((66 * k, 54 * k), Image.LANCZOS)
+    im.paste(logo, (440 * k, 262 * k)); d.text((524 * k, 270 * k), '思考中 · · ·', font=font(28 * k, 400), fill=(150, 160, 185))
+    im.save(OUT / 'scr_chat_b.png')
+    # 服务器繁忙弹窗（DeepSeek 深色风格）
+    W, H = 1000, 440; p = Image.new('RGB', (W, H), (30, 34, 48)); d = ImageDraw.Draw(p)
+    d.rounded_rectangle((0, 0, W - 1, H - 1), radius=40, outline=(70, 78, 104), width=4)
+    d.polygon([(70, 150), (110, 80), (150, 150)], fill=(255, 176, 64)); d.text((103, 98), '!', font=font(46, 800), fill=(30, 34, 48))
+    d.text((180, 78), '服务器繁忙', font=font(64, 800), fill='white'); d.text((182, 170), '请稍后再试', font=font(40, 400), fill=(160, 168, 190))
+    d.rounded_rectangle((640, 300, 940, 390), radius=45, fill=(77, 107, 254)); d.text((728, 314), '重试', font=font(44, 700), fill='white')
+    p.save(OUT / 'scr_busy.png')
+    # 段 E：评论区
+    up('bili_comments').save(OUT / 'scr_comments.png')
+    # 深度思考框：逐字出现
+    base = up('think_box'); f = font(66 * 2, 500)
+    for n in BT.think_steps():
+        im = base.copy(); d = ImageDraw.Draw(im); x0, y, line = 110 * 2, 210 * 2, ''
+        for ch in BT.THINK[:n]:
+            if d.textlength(line + ch, font=f) > 1300 * 2: d.text((x0, y), line, font=f, fill=(90, 96, 112)); y += 100 * 2; line = ''
+            line += ch
+        d.text((x0, y), line, font=f, fill=(90, 96, 112))
+        im.save(OUT / f'scr_think{n:02d}.png')
+    # 你是不是 AI（B站深色评论卡）+ 她的回复卡
+    def card(path, name, text, av_fill, me=False):
+        W, H = 1520, 400; c = Image.new('RGB', (W, H), (36, 38, 44) if not me else (37, 48, 90)); d = ImageDraw.Draw(c)
+        if me:
+            a = Image.open(SCR / 'bili_comments.png').crop((40, 176, 152, 288)).resize((200, 200)); m = Image.new('L', (200, 200), 0); ImageDraw.Draw(m).ellipse((0, 0, 199, 199), fill=255); c.paste(a, (60, 100), m)
+        else: d.ellipse((60, 100, 260, 300), fill=av_fill); d.text((118, 140), '?', font=font(110, 800), fill='white')
+        d.text((310, 80), name, font=font(56, 700), fill=(251, 114, 153) if me else (160, 166, 176)); d.text((310, 170), text, font=font(110, 900), fill='white')
+        c.save(OUT / path)
+    card('scr_q.png', '网友 · 刚刚', '你是不是 AI？', (120, 128, 150))
+    card('scr_reply.png', '大肥鱼本鲸 回复 @网友', '真不是机器人', None, me=True)
+
 if __name__ == '__main__':
-    seg_b(); seg_e(); print('ok →', OUT)
+    seg_b(); seg_e(); real_screens(); print('ok →', OUT)
