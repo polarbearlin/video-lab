@@ -134,12 +134,12 @@ def overlay(W, H, chapter=None, big=False, nav=True, title=None):
         if big:   # 大号步骤名
             r = int(52 * s); cx, cy = int(W / 2 - 300 * s), int(H * .2)
             d.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(251, 114, 153)); f = font(int(64 * s), 900); d.text((cx - 18 * s, cy - 46 * s), str(n), font=f, fill='white')
-            d.text((cx + 80 * s, cy - 70 * s), f'第 {n} 步', font=font(int(34 * s), 600), fill=(255, 220, 230))
+            d.text((cx + 80 * s, cy - 70 * s), f'第 {n} 步', font=font(int(34 * s), 700), fill=(255, 230, 238), stroke_width=int(2 * s), stroke_fill=(20, 24, 50))
             d.text((cx + 80 * s, cy - 30 * s), name, font=font(int(86 * s), 900), fill='white', stroke_width=int(2 * s), stroke_fill=(20, 24, 50))
         else:     # 缩到左上角的进度
             x, y = int(40 * s), int(36 * s)
             for i in range(5): d.rounded_rectangle((x + i * 34 * s, y, x + i * 34 * s + 26 * s, y + 6 * s), radius=3 * s, fill=(251, 114, 153) if i <= chapter else (110, 110, 130))
-            d.text((x + 182 * s, y - 14 * s), f'{n}/5  {name}', font=font(int(26 * s), 700), fill='white')
+            d.text((x + 182 * s, y - 14 * s), f'{n}/5  {name}', font=font(int(26 * s), 700), fill='white', stroke_width=int(2 * s), stroke_fill=(20, 24, 50))
     if nav:       # 底部导航
         y = H - int(46 * s); d.rectangle((0, y, W, H), fill=(14, 14, 20, 200))
         seg = W / 5
