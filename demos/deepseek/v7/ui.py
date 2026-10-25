@@ -127,8 +127,8 @@ CHAPTERS = ['我是谁', '我火过', '我在 B站', '我每天', '这条片子�
 def overlay(W, H, chapter=None, big=False, nav=True, title=None):
     im = Image.new('RGBA', (W, H), (0, 0, 0, 0)); d = ImageDraw.Draw(im); s = W / 1920
     if title:   # 片头大标题
-        f = font(int(120 * s), 900); tw = d.textlength(title[0], font=f); d.text(((W - tw) / 2, H * .36), title[0], font=f, fill='white', stroke_width=int(3 * s), stroke_fill=(20, 24, 50))
-        f2 = font(int(44 * s), 700); tw = d.textlength(title[1], font=f2); d.text(((W - tw) / 2, H * .36 + 150 * s), title[1], font=f2, fill=(200, 210, 255))
+        f = font(int(120 * s), 900); tw = d.textlength(title[0], font=f); d.text(((W - tw) / 2, H * .14), title[0], font=f, fill='white', stroke_width=int(3 * s), stroke_fill=(20, 24, 50))
+        f2 = font(int(44 * s), 700); tw = d.textlength(title[1], font=f2); d.text(((W - tw) / 2, H * .14 + 150 * s), title[1], font=f2, fill=(200, 210, 255))
     if chapter is not None:
         n = chapter + 1; name = CHAPTERS[chapter]
         if big:   # 大号步骤名

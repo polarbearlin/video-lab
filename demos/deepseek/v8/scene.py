@@ -109,7 +109,7 @@ def mat_desk():
     m = bpy.data.materials.new('desk'); m.use_nodes = True; nt = m.node_tree; bs = nt.nodes['Principled BSDF']
     tc = nt.nodes.new('ShaderNodeTexCoord'); mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (.15, 1.2, 1)
     wv = nt.nodes.new('ShaderNodeTexWave'); wv.inputs['Scale'].default_value = .5; wv.inputs['Distortion'].default_value = 2.5; wv.inputs['Detail'].default_value = 3; wv.inputs['Detail Scale'].default_value = .6
-    cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (*lin('#3a2418'), 1); cr.color_ramp.elements[1].color = (*lin('#6b4a34'), 1)
+    cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (*lin('#4a2f1f'), 1); cr.color_ramp.elements[1].color = (*lin('#9a6a46'), 1)
     nt.links.new(tc.outputs['Object'], mp.inputs['Vector']); nt.links.new(mp.outputs[0], wv.inputs['Vector']); nt.links.new(wv.outputs['Color'], cr.inputs[0])
     nt.links.new(cr.outputs[0], bs.inputs['Base Color']); bs.inputs['Roughness'].default_value = .38
     return m
@@ -143,7 +143,9 @@ plate.rotation_euler = (R(90), 0, R(-14)); PLATE_LOC = plate.location.copy()
 u, v0, v1 = [float(x) for x in open(os.path.join(UI6, 'stock_slide.txt')).read().split()]
 STOP, SBOT = V(P.at('stock', u, v0 - .05, .45)), V(P.at('stock', u, v1 + .05, .02))   # 缓一点的坡（约 30°），躺着滑才看得出来
 dv = STOP - SBOT; ang = math.atan2(dv.z, math.hypot(dv.x, dv.y))
-box('slide', (.13, dv.length, .03), (STOP + SBOT) / 2, mat_col('slide_m', '#1fc77e', .25, emit=3.5), bevel=.01, rot=(ang, 0, 0))
+slide = box('slide', (.13, dv.length, .03), SBOT, mat_col('slide_m', '#1fc77e', .25, emit=3.5), bevel=.01)
+for v in slide.data.vertices: v.co.y += dv.length / 2       # 原点挪到下端：绿柱先从屏幕里竖起来，再朝上方倒下变成滑梯
+SLIDE_ANG = ang
 DOWN = (SBOT - STOP).normalized(); NRM = V((1, 0, 0)).cross(DOWN).normalized()
 if NRM.z < 0: NRM = -NRM
 Q_SLIDE = Matrix((NRM, (-DOWN).cross(NRM), -DOWN)).transposed().to_quaternion() @ Quaternion((0, 0, 1), R(-20))   # 仰面、脚朝前滑
@@ -154,6 +156,19 @@ dfy = bpy.data.objects.new('DFY', None); sc.collection.objects.link(dfy); dfy.ro
 for o in bpy.context.selected_objects:
     if o.parent is None: o.parent = dfy
     if o.type == 'MESH': o.scale = (CH, CH, CH)
+# 手办质感：Tripo 导出的材质粗糙度 0.9（几乎全哑光），改成光滑的 PVC + 一层清漆，颜色稍微提亮提饱和
+HER = bpy.data.collections.new('HER'); sc.collection.children.link(HER)
+for o in [o for o in bpy.data.objects if o.parent == dfy and o.type == 'MESH']:
+    HER.objects.link(o)
+    for m in o.data.materials:
+        nt = m.node_tree; bs = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED')
+        bs.inputs['Roughness'].default_value = .38
+        for k, v in (('Coat Weight', .6), ('Coat Roughness', .12), ('Specular IOR Level', .6)):
+            if k in bs.inputs: bs.inputs[k].default_value = v
+        tex = next((n for n in nt.nodes if n.type == 'TEX_IMAGE'), None)
+        if tex and bs.inputs['Base Color'].is_linked:
+            hs = nt.nodes.new('ShaderNodeHueSaturation'); hs.inputs['Saturation'].default_value = 1.15; hs.inputs['Value'].default_value = 1.12
+            nt.links.new(tex.outputs['Color'], hs.inputs['Color']); nt.links.new(hs.outputs[0], bs.inputs['Base Color'])
 def yawq(d): return Quaternion((0, 0, 1), R(d))
 def place(center, q, sx=1., sz=1.):
     return V(center) + q @ V((0, 0, -CEN * sz)), q, (sx, sx, sz)
@@ -244,11 +259,14 @@ cd.sensor_fit = 'VERTICAL'; cd.sensor_height = 24; cd.clip_start = .02; cd.dof.u
 def spot(name, e, hexc):
     ld = bpy.data.lights.new(name, 'SPOT'); ld.energy = e; ld.spot_size = R(60); ld.spot_blend = .7; ld.shadow_soft_size = .04; ld.color = lin(hexc)
     o = bpy.data.objects.new(name, ld); sc.collection.objects.link(o); return o
-KEY_L, RIM_L = spot('key', 140, '#ffd9b8'), spot('rim', 30, '#c58bff')
+KEY_L, RIM_L = spot('key', 220, '#fff0e0'), spot('rim', 260, '#b9c8ff')
 # 暖色太阳光：照亮整张木桌，让设备有'放在桌上'的空间感（从左后方来，玻璃上的反光不会进镜头）
 _sl = bpy.data.lights.new('sun', 'SUN'); _sl.energy = 1.6; _sl.color = lin('#ffcf9e'); _sl.angle = R(8); _sl.specular_factor = 0
 _so = bpy.data.objects.new('sun', _sl); sc.collection.objects.link(_so); _so.rotation_euler = (R(55), 0, R(150))
-for _l in (KEY_L, RIM_L): _l.data.spot_size = R(26); _l.data.spot_blend = .9   # 窄光束：只照她，不在屏幕上打一大片光
+for _l in (KEY_L, RIM_L):
+    _l.data.spot_size = R(24); _l.data.spot_blend = .8
+    try: _l.light_linking.receiver_collection = HER   # 灯光链接：这两盏灯只照她，屏幕上不会出现光斑
+    except Exception: pass
 def cam_target(spec, hc):
     if spec == 'her': return hc
     if spec[0] == 'mix': return V(P.at(spec[1], spec[2], spec[3], .1)).lerp(hc, spec[4])
@@ -283,6 +301,9 @@ for f in range(1, P.N + 1):
     key(card, f, loc=CARD_LOC + V((0, 0, .01 * math.sin(t * 3))), scale=(s, s, s))
     a, z = P.PLATE_DROP
     key(plate, f, loc=PLATE_LOC + V((0, 0, -9 if t < a else 1.6 * (1 - clamp01((t - a) / (z - a)) ** 2))))
+    # 英伟达绿柱：被顶飞时从屏幕里竖起来 → 落地前倒下变成滑梯
+    rise = smooth((t - P.LAUNCH) / .35); fall = smooth((t - (P.SLIDE_LAND - .35)) / .25)
+    key(slide, f, rot=(R(90) + (SLIDE_ANG - R(90)) * fall, 0, 0), scale=(1, max(.001, rise), 1))
     # 界面状态
     chat_iu.frame_offset = FR['chat'][f - 1]; chat_iu.keyframe_insert('frame_offset', frame=f)
     store_iu.frame_offset = FR['store'][f - 1]; store_iu.keyframe_insert('frame_offset', frame=f)
@@ -302,8 +323,9 @@ for f in range(1, P.N + 1):
     cd.lens = cd.sensor_height / (2 * math.tan(R(fov) / 2)); cd.keyframe_insert('lens', frame=f)
     cd.dof.focus_distance = (pos - last_c).length; cd.dof.keyframe_insert('focus_distance', frame=f)
     p = V((look.x, look.y, 0))
-    for o, off in ((KEY_L, (.8, -1.2, 1.6)), (RIM_L, (-.6, 1.2, 1.8))):
-        o.location = p + V(off); o.rotation_euler = (V((last_c.x, last_c.y, .1)) - o.location).to_track_quat('-Z', 'Y').to_euler()
+    cdir = (pos - last_c); cdir.z = 0; cdir = cdir.normalized() if cdir.length > 1e-3 else V((0, -1, 0)); side = V((-cdir.y, cdir.x, 0))
+    for o, off in ((KEY_L, cdir * 1.1 + side * .6 + V((0, 0, 1.4))), (RIM_L, -cdir * .9 - side * .4 + V((0, 0, .9)))):   # 主光在镜头一侧斜上方，轮廓光在她背后
+        o.location = last_c + off; o.rotation_euler = (last_c - o.location).to_track_quat('-Z', 'Y').to_euler()
         o.keyframe_insert('location', frame=f); o.keyframe_insert('rotation_euler', frame=f)
 
 # 逐帧都有关键帧：插值改线性（只影响运动模糊子帧）
