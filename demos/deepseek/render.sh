@@ -2,7 +2,7 @@
 # 《大肥鱼，不是机器人》30 秒 · 本地一键渲染（Mac 用 Metal 显卡跑 EEVEE）
 #   bash demos/deepseek/render.sh stills    先出 9 张预览图 + 总览图（几分钟）
 #   bash demos/deepseek/render.sh preview   半分辨率整片小样（检查动作和节奏）
-#   bash demos/deepseek/render.sh full      1080×1920 整片 + 配乐 + 字幕（已渲染的帧会跳过，中断了重跑即可）
+#   bash demos/deepseek/render.sh full      全分辨率整片（横屏 1920×1080） + 配乐 + 字幕（已渲染的帧会跳过，中断了重跑即可）
 #   bash demos/deepseek/render.sh upload    把成片和总览图传到 GitHub Release
 # Blender 不在默认位置时：BLENDER=/path/to/blender bash demos/deepseek/render.sh full
 set -e

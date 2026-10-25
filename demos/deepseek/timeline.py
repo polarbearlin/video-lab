@@ -8,6 +8,9 @@ HERE = pathlib.Path(__file__).resolve().parent
 FPS, DUR, BPM = 30, 30.0, 120
 N = int(DUR * FPS)                       # 900 帧
 fr = lambda t: int(round(t * FPS)) + 1   # 秒 → 帧号（第 1 帧 = 0 秒）
+RES = (1920, 1080)                       # 横屏；改回竖屏写 (1080, 1920)、FOV_K = 1.0
+BIAS_K = (0.5, 0.4, -0.06)               # 横屏垂直空间少：看向点的偏移收小，并让她在画面里稍微靠上（避开底部字幕）
+FOV_K = 0.9                              # 镜头视角整体缩放（横屏画面更宽，垂直方向稍微收一点）
 CHAR_H = 0.42                            # 她的身高（米）；界面板 1.3–1.6 米宽
 
 # ---------------- 舞台：一整张大桌面上平铺的界面板（图片上方朝 +Y，镜头在 -Y 一侧往下看）
@@ -195,8 +198,8 @@ def cam_track(ch):
         k = smooth((t - a[0]) / (b[0] - a[0])) if b[0] > a[0] else 0
         off, fov, bias = lerp(a[1], b[1], k), lerp(a[2], b[2], k), lerp(a[3], b[3], k)
         off = tuple(v * CAM_K for v in off)
-        tx, ty = sm[f][0] + bias[0], sm[f][1] + bias[1]
-        out.append(dict(loc=(tx + off[0], ty + off[1], off[2]), look=(tx, ty, CHAR_H * .45), fov=fov))
+        tx, ty = sm[f][0] + bias[0] * BIAS_K[0], sm[f][1] + bias[1] * BIAS_K[1] + BIAS_K[2]
+        out.append(dict(loc=(tx + off[0], ty + off[1], off[2]), look=(tx, ty, CHAR_H * .45), fov=fov * FOV_K))
     return out
 
 def build():
@@ -209,7 +212,7 @@ def build():
         k = (t - DROP['t_fall']) / (DROP['t_land'] - DROP['t_fall'])
         d['drop_z'] = None if k < 0 else (2.2 * (1 - k * k) if k < 1 else 0.0)
         frames.append(d)
-    return dict(fps=FPS, n=N, bpm=BPM, char_h=CHAR_H, panels=PANELS, drop=DROP, subs=SUBS,
+    return dict(fps=FPS, n=N, bpm=BPM, res=RES, char_h=CHAR_H, panels=PANELS, drop=DROP, subs=SUBS,
                 states={p: sorted({s for _, s in lst}) for p, lst in STATES.items()},
                 events=sfx_events(), frames=frames)
 

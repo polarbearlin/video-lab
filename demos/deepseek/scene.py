@@ -39,7 +39,7 @@ for eng in ('BLENDER_EEVEE_NEXT', 'BLENDER_EEVEE'):
     try: sc.render.engine = eng; break
     except TypeError: pass
 sc.render.fps = FPS; sc.frame_start, sc.frame_end = 1, N
-sc.render.resolution_x, sc.render.resolution_y = 1080, 1920
+sc.render.resolution_x, sc.render.resolution_y = J.get('res', (1080, 1920))
 sc.render.resolution_percentage = A.scale or (50 if A.preview else 100)
 ee = sc.eevee
 ee.taa_render_samples = A.samples or (16 if A.preview else 64)
@@ -63,7 +63,7 @@ def mat_screen(name, path, seq=False, emit=1.0):
         img.source = 'SEQUENCE'; iu = tex.image_user
         iu.frame_duration = N; iu.frame_start = 1; iu.frame_offset = 0; iu.use_auto_refresh = True
     em = nt.nodes.new('ShaderNodeEmission'); em.inputs['Strength'].default_value = emit
-    bs = nt.nodes.new('ShaderNodeBsdfPrincipled'); bs.inputs['Base Color'].default_value = (0, 0, 0, 1); bs.inputs['Roughness'].default_value = .28
+    bs = nt.nodes.new('ShaderNodeBsdfPrincipled'); bs.inputs['Base Color'].default_value = (0, 0, 0, 1); bs.inputs['Roughness'].default_value = .5
     add = nt.nodes.new('ShaderNodeAddShader')
     nt.links.new(tex.outputs['Color'], em.inputs['Color']); nt.links.new(em.outputs[0], add.inputs[0]); nt.links.new(bs.outputs[0], add.inputs[1])
     nt.links.new(add.outputs[0], out.inputs['Surface'])
@@ -100,9 +100,9 @@ fl.data.materials.append(mat_col('floor_m', '#060a1c', .22))
 import random
 random.seed(7)
 for i in range(140):
-    x, y = random.uniform(-3, 13), random.uniform(2.0, 8); z = random.uniform(-1.6, .6)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=random.uniform(.03, .1), location=(x, y, z), segments=12, ring_count=6)
-    bpy.context.object.data.materials.append(mat_col(f'dot{i}', '#000000', emit=random.uniform(2, 6), emit_hex=random.choice(['#4d6bfe', '#7f95ff', '#fb7299', '#a8b8ff'])))
+    x, y = random.uniform(-3, 13), random.uniform(4.0, 10); z = random.uniform(-2.0, .2)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=random.uniform(.02, .06), location=(x, y, z), segments=12, ring_count=6)
+    bpy.context.object.data.materials.append(mat_col(f'dot{i}', '#000000', emit=random.uniform(1, 3), emit_hex=random.choice(['#4d6bfe', '#7f95ff', '#fb7299', '#a8b8ff'])))
 
 # ---------------- 角色
 bpy.ops.import_scene.gltf(filepath=A.model)
@@ -119,6 +119,7 @@ def area(name, size, energy):
     ld = bpy.data.lights.new(name, 'AREA'); ld.size = size; ld.energy = energy
     o = bpy.data.objects.new(name, ld); sc.collection.objects.link(o); return o
 KEY, RIM, FILL = area('key', 1.2, 45), area('rim', .8, 40), area('fill', 3, 25)
+KEY.data.specular_factor, FILL.data.specular_factor = .25, 0   # 不在界面上反出大白斑
 def aim(o, frm, to): o.location = frm; o.rotation_euler = (Vector(to) - Vector(frm)).to_track_quat('-Z', 'Y').to_euler()
 
 # ---------------- 镜头
