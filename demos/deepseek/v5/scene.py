@@ -48,6 +48,8 @@ def mat_img(name, path, emit=1.0, alpha=False, rough=.5):
     tex.image = bpy.data.images.load(path); tex.interpolation = 'Cubic'
     em = nt.nodes.new('ShaderNodeEmission'); em.inputs['Strength'].default_value = emit
     bs = nt.nodes.new('ShaderNodeBsdfPrincipled'); bs.inputs['Base Color'].default_value = (0, 0, 0, 1); bs.inputs['Roughness'].default_value = rough
+    for k, v in (('Coat Weight', 1.0), ('Coat Roughness', .04)):   # 玻璃面：能反出光斑和灯
+        if k in bs.inputs: bs.inputs[k].default_value = v
     add = nt.nodes.new('ShaderNodeAddShader')
     nt.links.new(tex.outputs['Color'], em.inputs['Color']); nt.links.new(em.outputs[0], add.inputs[0]); nt.links.new(bs.outputs[0], add.inputs[1])
     if alpha:   # 半透明（思考框）
@@ -89,13 +91,30 @@ def box(name, size, loc, mat, bevel=.01):
     return o
 
 w = bpy.data.worlds.new('W'); sc.world = w; w.use_nodes = True
-bg = w.node_tree.nodes['Background']; bg.inputs['Color'].default_value = (*lin('#16224f'), 1)
+bg = w.node_tree.nodes['Background']; bg.inputs['Color'].default_value = (*lin('#140d1e'), 1); bg.inputs['Strength'].default_value = .6
+# 昏暗房间里的彩色灯（景深一虚就是光斑）：暖黄、粉、紫、青
 random.seed(7)
-for i in range(160):   # 远处光斑
-    x, y, z = random.uniform(-4, 14), random.uniform(3, 10), random.uniform(-2, .3)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=random.uniform(.02, .06), location=(x, y, z), segments=10, ring_count=5)
-    bpy.context.object.data.materials.append(mat_col(f'dot{i}', '#000000', emit=random.uniform(1, 3), emit_hex=random.choice(['#4d6bfe', '#7f95ff', '#fb7299'])))
-bpy.ops.mesh.primitive_plane_add(size=80, location=(5, 0, -.45)); bpy.context.object.data.materials.append(mat_col('floor_m', '#060a1c', .22))
+BOKEH = ['#ffb35c', '#ffcf7a', '#ff6fa8', '#b07bff', '#5fd8ff', '#fff1d6']
+for i in range(55):
+    x, y, z = random.uniform(-5, 70), random.uniform(3.5, 12), random.uniform(.35, 3.0)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=random.uniform(.03, .14), location=(x, y, z), segments=12, ring_count=6)
+    bpy.context.object.data.materials.append(mat_col(f'dot{i}', '#000000', emit=random.uniform(2, 7), emit_hex=random.choice(BOKEH)))
+# 桌面：深色木纹（程序纹理）
+def mat_desk():
+    m = bpy.data.materials.new('desk'); m.use_nodes = True; nt = m.node_tree; bs = nt.nodes['Principled BSDF']
+    tc = nt.nodes.new('ShaderNodeTexCoord'); mp = nt.nodes.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (1, 6, 1)
+    wv = nt.nodes.new('ShaderNodeTexWave'); wv.inputs['Scale'].default_value = 1.2; wv.inputs['Distortion'].default_value = 6; wv.inputs['Detail'].default_value = 4
+    cr = nt.nodes.new('ShaderNodeValToRGB'); cr.color_ramp.elements[0].color = (*lin('#120c0a'), 1); cr.color_ramp.elements[1].color = (*lin('#2c1f19'), 1)
+    nt.links.new(tc.outputs['Object'], mp.inputs['Vector']); nt.links.new(mp.outputs[0], wv.inputs['Vector']); nt.links.new(wv.outputs['Color'], cr.inputs[0])
+    nt.links.new(cr.outputs[0], bs.inputs['Base Color']); bs.inputs['Roughness'].default_value = .38
+    return m
+bpy.ops.mesh.primitive_plane_add(size=60, location=(10, 0, -.04)); bpy.context.object.data.materials.append(mat_desk())
+BEZEL = mat_col('bezel', '#0a0a0c', .18, metal=.6)
+def device(name, w, h, loc, mat, border=.05, radius=.07):
+    """真实设备：黑色圆角机身（厚 3.5cm）+ 屏幕（自发光 + 玻璃清漆）"""
+    box(name + '_body', (w + 2 * border, h + 2 * border, .036), Vector(loc) + Vector((0, 0, -.018 + .002)), BEZEL, bevel=radius)
+    bpy.ops.mesh.primitive_plane_add(size=1); o = bpy.context.object; o.name = name; o.scale = (w, h, 1); bpy.ops.object.transform_apply(scale=True)
+    o.data.materials.append(mat); o.location = Vector(loc) + Vector((0, 0, .0025)); return o
 
 # 角色：用四元数控制旋转；「中心点」在身体中间，翻滚时绕中心转
 bpy.ops.import_scene.gltf(filepath=A.model)
@@ -113,11 +132,12 @@ def place(center, q, sx=1., sz=1.):
 
 # 镜头 + 跟着她走的三盏灯
 cd = bpy.data.cameras.new('CAM'); cam = bpy.data.objects.new('CAM', cd); sc.collection.objects.link(cam); sc.camera = cam
-cd.sensor_fit = 'VERTICAL'; cd.sensor_height = 24; cd.clip_start = .02; cd.dof.use_dof = True; cd.dof.aperture_fstop = 2.8
+cd.sensor_fit = 'VERTICAL'; cd.sensor_height = 24; cd.clip_start = .02; cd.dof.use_dof = True; cd.dof.aperture_fstop = 2.0
 def area(name, size, energy, spec=1.):
     ld = bpy.data.lights.new(name, 'AREA'); ld.size = size; ld.energy = energy; ld.specular_factor = spec
     o = bpy.data.objects.new(name, ld); sc.collection.objects.link(o); return o
-KEY, RIM, FILL = area('key', 1.0, 35, .3), area('rim', .8, 35), area('fill', 3, 18, 0)
+KEY, RIM, FILL = area('key', 1.0, 55, .12), area('rim', .8, 45, .35), area('fill', 3, 12, 0)
+KEY.data.color = lin('#ffd9b8'); RIM.data.color = lin('#c58bff')   # 暖色主光 + 紫色轮廓光
 def aim(o, frm, to): o.location = frm; o.rotation_euler = (Vector(to) - Vector(frm)).to_track_quat('-Z', 'Y').to_euler()
 
 KEYS = []   # (帧, 函数)：逐帧设置并打关键帧
@@ -149,10 +169,30 @@ def shake(t, hits, amp=.02, dec=.25):
             v += Vector((math.sin(dt * 71) * e, math.sin(dt * 53 + 1) * e * .5, math.sin(dt * 89 + 2) * e))
     return v
 
+
+def hop_pose(t, t0, t1, p0, p1, h, yaw0, yaw1, flip=0., spin=0., lean=22.):
+    """一次"灵活"的跳：起跳前蓄力下蹲 → 干脆起跳（拉长、往前倾）→ 空中转身/翻 → 落地压扁回弹、往前冲一下再回正。
+    p0/p1 是脚下的点；返回 (身体中心, 朝向, sx, sz)"""
+    p0, p1 = Vector(p0), Vector(p1); d = p1 - p0; d.z = 0; L = d.length
+    dv = d.normalized() if L > 1e-4 else Vector((math.cos(R(yaw1)), math.sin(R(yaw1)), 0))
+    ax = Vector((0, 0, 1)).cross(dv)                       # 前倾 / 后仰的转轴（左方向）
+    if t < t0:                                             # 蓄力
+        a = clamp01((t - (t0 - .12)) / .12); sq = .24 * smooth(a)
+        return p0 + Vector((0, 0, CEN * (1 - sq))), Quaternion(ax, R(-8 * a)) @ yawq(yaw0), 1 + sq * .5, 1 - sq
+    if t < t1:                                             # 空中
+        u = (t - t0) / (t1 - t0); e = 1 - (1 - u) ** 1.6   # 水平方向前快后慢
+        st = .2 * (1 - u) ** 2 + .1 * u ** 4
+        pitch = (lean * math.sin(math.pi * u) if L > .05 else 0) + 360 * flip * smooth(u)
+        q = Quaternion(ax, R(pitch)) @ yawq(yaw0 + (yaw1 - yaw0) * smooth(u) + 360 * spin * smooth(u))
+        return p0.lerp(p1, e) + Vector((0, 0, CEN * (1 + st) + h * 4 * u * (1 - u))), q, 1 - st * .4, 1 + st
+    d2 = t - t1                                            # 落地
+    sq = .3 * math.exp(-d2 * 13) * math.cos(d2 * 28); tf = (14 if L > .05 else 6) * math.exp(-d2 * 8) * math.sin(d2 * 20)
+    return p1 + Vector((0, 0, CEN * (1 - sq))), Quaternion(ax, R(tf)) @ yawq(yaw1), 1 + sq * .5, 1 - sq
+
 # ======================================================================= 段 B：服务器繁忙
-B = BT.B; OB = Vector((20, 0, 0))   # 这一段的场地放在 x=20，和别的段互不干扰
+B = BT.B; OB = Vector((60, 0, 0))   # 这一段的场地放在 x=20，和别的段互不干扰
 chat_m, _ = mat_img('chat_b', os.path.join(UI, 'chat_b.png'), .7)
-chat = slab('chat_b', 1.5, 1.5 * 1500 / 1080, OB, chat_m)
+chat = device('chat_b', 1.5, 1.5 * 1500 / 1080, OB, chat_m)
 btn_m, _ = mat_img('btn', os.path.join(UI, 'btn.png'), 1.1)
 BTN = OB + Vector((-.1, -.25, 0)); BTN_H = .05
 btn = slab('btn', .5, .5 * 160 / 520, BTN + Vector((0, 0, BTN_H)), btn_m, depth=BTN_H, body=mat_col('btn_body', '#2e45b8', .3, emit=.6))
@@ -243,15 +283,28 @@ def seg_b(f, t):
 E = BT.E; OE = Vector((0, 0, 0))
 FW, FH = 1.5, 1.5 * 2400 / 1080
 feed_m, feed_iu = mat_seq('feed', [os.path.join(UI, f'feed{k}.png') for k in range(9)])
-feed = slab('feed', FW, FH, OE, feed_m)
-RAIL_X = OE.x + FW / 2 + .07; Y_TOP, Y_BOT = OE.y + FH / 2 - .35, OE.y - FH / 2 + .3
-box('rail', (.05, FH - .2, .025), (RAIL_X, OE.y, .0125), mat_col('rail_m', '#1a2350', .3, emit=1.5, emit_hex='#3a55e8'))
-thumb = box('thumb', (.12, .42, .05), (RAIL_X, Y_TOP, .05), mat_col('thumb_m', '#e9ecf8', .25, emit=.4, emit_hex='#9fb0ff'), bevel=.02)
+feed = device('feed', FW, FH, OE, feed_m)
+RAIL_X = OE.x + FW / 2 - .07; Y_TOP, Y_BOT = OE.y + FH / 2 - .35, OE.y - FH / 2 + .3
+def mat_rainbow():
+    """发光彩虹轨道：沿长度方向 粉 → 紫 → 蓝 → 青"""
+    m = bpy.data.materials.new('rail'); m.use_nodes = True; nt = m.node_tree; nt.nodes.clear()
+    out = nt.nodes.new('ShaderNodeOutputMaterial'); tc = nt.nodes.new('ShaderNodeTexCoord'); sp = nt.nodes.new('ShaderNodeSeparateXYZ')
+    cr = nt.nodes.new('ShaderNodeValToRGB'); el = cr.color_ramp.elements
+    el[0].color = (*lin('#ff4f9a'), 1); el[1].position = 1; el[1].color = (*lin('#38e1ff'), 1)
+    for p, c in ((.35, '#b25bff'), (.65, '#4d6bfe')): e = el.new(p); e.color = (*lin(c), 1)
+    em = nt.nodes.new('ShaderNodeEmission'); em.inputs['Strength'].default_value = 6
+    nt.links.new(tc.outputs['Generated'], sp.inputs[0]); nt.links.new(sp.outputs['Y'], cr.inputs[0]); nt.links.new(cr.outputs[0], em.inputs['Color']); nt.links.new(em.outputs[0], out.inputs['Surface'])
+    return m
+box('rail', (.035, FH - .25, .02), (RAIL_X, OE.y, .012), mat_rainbow(), bevel=.008)
+# 轨道在屏幕上的柔光（一条更宽的半透明发光带）
+bpy.ops.mesh.primitive_plane_add(size=1, location=(RAIL_X, OE.y, .003)); _g = bpy.context.object; _g.scale = (.16, FH - .2, 1)
+_gm = mat_rainbow(); _gm.node_tree.nodes['Emission'].inputs['Strength'].default_value = .8; _g.data.materials.append(_gm)
+thumb = box('thumb', (.1, .36, .045), (RAIL_X, Y_TOP, .05), mat_col('thumb_m', '#ffffff', .2, emit=2.0, emit_hex='#ffffff'), bevel=.02)
 TH_TOP = .075
 def row_y(i): return OE.y + FH / 2 - (200 + 130 * 2 * 0 + 260 * i + 130) / 2400 * FH   # 第 i 行评论中心（图上 200+260i+130 px）
 q_m, _ = mat_img('q', os.path.join(UI, 'q.png'), 1.1)
 QC = OE + Vector((-.38, -1.12, 0))
-qcard = slab('qcard', .62, .62 * 230 / 760, QC + Vector((0, 0, 8)), q_m, depth=.03, body=mat_col('q_body', '#d8dcea', .4))
+qcard = slab('qcard', .62, .62 * 230 / 760, QC + Vector((0, 0, -5)), q_m, depth=.03, body=mat_col('q_body', '#d8dcea', .4))
 think_m, think_iu = mat_seq('think', [os.path.join(UI, f'think{n:02d}.png') for n in BT.think_steps()], 1.2, alpha=True)
 think = slab('think', .78, .78 * 460 / 1000, (0, 0, -5), think_m, depth=.012, upright=True, body=mat_col('think_body', '#4d6bfe', .3, emit=1.5))
 reply_m, _ = mat_img('reply', os.path.join(UI, 'reply.png'), 1.1)
@@ -280,51 +333,47 @@ def seg_e(f, t):
     k = sum(1 for i in range(8) if ty < row_y(i) + .05)
     key_seq(feed_iu, f, k)
     # --- 她
-    q, sx, sz = yawq(-90), 1., 1.
-    if t < E['hop_off']:
-        lean = 0.
-        if t < s0:   # 蓄力下蹲
-            d = clamp01((t - E['t0']) / (s0 - E['t0'])); sz, sx = 1 - .18 * smooth(d), 1 + .1 * smooth(d)
-        else:
-            vel = 2 * u / (s1 - s0); lean = min(25, 14 * vel)   # 越快越往后仰
-            sz = 1 - .05 * math.sin(t * 30) * u
-        cen = Vector((RAIL_X, ty, TH_TOP + .05 + CEN * sz))
-        q = yawq(-90) @ Quaternion((0, 1, 0), R(-lean)) @ Quaternion((1, 0, 0), R(6 * math.sin(t * 7)))
-    elif t < E['land']:   # 被甩出去：抛物线落到评论区上，空中侧翻半圈
-        T = E['land'] - E['hop_off']; uu = (t - E['hop_off']) / T
-        a = Vector((RAIL_X, Y_BOT, TH_TOP + .05 + CEN)); b = Vector((OE.x + .38, OE.y - 1.26, CEN))
-        cen = a.lerp(b, uu) + Vector((0, 0, .32 * 4 * uu * (1 - uu)))
-        q = yawq(-90 - 90 * smooth(uu)) @ Quaternion((0, 1, 0), R(360 * smooth(uu)))
-        sz, sx = 1.1, .95
-    else:   # 落地打滑：往 -X 滑，身体后仰，越滑越慢，急停时往前一冲再回正
-        T = E['skid_stop'] - E['land']; d = t - E['land']; uu = clamp01(d / T)
-        x0, x1 = OE.x + .38, OE.x + .02
-        x = x0 + (x1 - x0) * (1 - (1 - uu) ** 2)
-        cen = Vector((x, OE.y - 1.26, CEN))
-        if d < T:
-            tilt = 22 * (1 - uu)                          # 打滑时往后仰（重心在后）
-            q = yawq(-115) @ Quaternion((0, 1, 0), R(-tilt))
-            sq = .25 * math.exp(-d * 14) * math.cos(d * 30); sz, sx = 1 - sq, 1 + sq * .5
-        else:
-            d2 = d - T; wob = 14 * math.exp(-d2 * 5) * math.sin(d2 * 16)   # 急停：往前冲再回正
-            face = -115
-            if t > E['think_in'] - .1: face = -115 - 20 * smooth((t - E['think_in']) / .3)   # 转过去看思考框（脸始终偏向镜头）
-            if t > E['look']: face = face + (-90 - face) * smooth((t - E['look']) / .25)    # 僵住，转向镜头
-            q = yawq(face) @ Quaternion((0, 1, 0), R(wob))
-            # 蹦起来去够思考框
-            z = 0.
-            for j, r in enumerate(E['reach']):
-                tt = t - r; air = .26 - .015 * j
-                if 0 <= tt < air: z = max(z, (.1 + .015 * j) * 4 * (tt / air) * (1 - tt / air))
-                if 0 <= tt - air < .1: sz = min(sz, 1 - .15 * math.sin((tt - air) / .1 * math.pi))
-            if E['reach'][0] - .08 < t < E['reach'][-1] + .3: sz = min(sz, 1 + .12 * math.sin((t - E['reach'][0]) * 20))   # 蹦的时候伸长
-            if t > E['look']:   # 僵住：微微缩一下
-                e = t - E['look']; sz = 1 - .08 * math.exp(-e * 4) * math.sin(min(e, .3) / .3 * math.pi)
-            cen = cen + Vector((0, 0, z))
+    TOP = TH_TOP + .002; ME = Vector((OE.x + .02, OE.y - 1.26, 0))
+    LAND_P = Vector((OE.x + .38, OE.y - 1.26, 0))
+    if t < s0 - .02:   # 从屏幕上一跳，跳上滑块
+        cen, q, sx, sz = hop_pose(t, E['t0'] + .05, s0 - .05, (RAIL_X - .4, Y_TOP + .1, 0), (RAIL_X, Y_TOP, TOP), .22, -40, -90, spin=0)
+        cen = cen + Vector((0, 0, TOP * smooth((t - E['t0'] - .05) / (s0 - E['t0'] - .1))))
+    elif t < E['hop_off'] - .1:   # 冲浪：压低重心、往后仰、左右摆，经过每行评论颠一下
+        vel = 2 * u / (s1 - s0)
+        lean = min(28, 10 + 12 * vel); sway = 12 * math.sin(t * 6.5) * (.4 + .6 * u)
+        bump = .012 * abs(math.sin((Y_TOP - ty) / (FH / 9.2) * math.pi))
+        sz = .9 + .03 * math.sin(t * 13); sx = 1.04
+        cen = Vector((RAIL_X, ty, TOP + CEN * sz + bump))
+        q = yawq(-90 + 10 * math.sin(t * 3.3)) @ Quaternion((1, 0, 0), R(sway)) @ Quaternion((0, 1, 0), R(-lean))
+    elif t < E['land'] + .5:   # 到底被甩出去：往前翻一圈，落地
+        cen, q, sx, sz = hop_pose(t, E['hop_off'], E['land'], (RAIL_X, Y_BOT, TOP), LAND_P, .3, -90, -125, flip=1, lean=0)
+        if t > E['land']:   # 落地后接打滑（下面）
+            T = E['skid_stop'] - E['land']; d = t - E['land']; uu = clamp01(d / T)
+            x = LAND_P.x + (ME.x - LAND_P.x) * (1 - (1 - uu) ** 2)
+            spinz = -125 + 25 * smooth(uu)                       # 一边滑一边被甩得转身
+            tilt = 24 * (1 - uu) if d < T else -16 * math.exp(-(d - T) * 6) * math.sin((d - T) * 18)   # 后仰 → 急停往前冲
+            sq = .3 * math.exp(-d * 13) * math.cos(d * 28)
+            cen = Vector((x, ME.y, CEN * (1 - sq))); q = yawq(spinz) @ Quaternion((0, 1, 0), R(-tilt)); sx, sz = 1 + sq * .5, 1 - sq
+    else:
+        face = -100 - 30 * smooth((t - E['think_in']) / .25) if t > E['think_in'] - .05 else -100
+        cen, q, sx, sz = ME + Vector((0, 0, CEN)), yawq(face), 1., 1.
+        # 蹦起来去够思考框：一次比一次急，左右乱扭，伸长身体
+        for j, r in enumerate(E['reach']):
+            air = .25 - .012 * j; t0 = r - air
+            if t0 - .12 <= t < r + .25:
+                yj = face + (18 if j % 2 else -18)
+                cen, q, sx, sz = hop_pose(t, t0, r, ME, ME, .11 + .015 * j, face, yj, lean=0)
+                if t0 <= t < r:   # 在空中往思考框那边探
+                    u2 = (t - t0) / air; q = Quaternion((0, 1, 0), R(-16 * math.sin(math.pi * u2))) @ q; sz *= 1 + .1 * math.sin(math.pi * u2)
+                face = yj
+        if t > E['look']:   # 僵住：猛地转向镜头，然后发抖
+            e = t - E['look']; q = yawq(face + (-88 - face) * smooth(e / .12))
+            cen = ME + Vector((.004 * math.sin(e * 90) * math.exp(-e * 3), 0, CEN))
+            sz = 1 - .1 * math.exp(-e * 5); sx = 1 + .05 * math.exp(-e * 5)
     key_obj(dfy, f, *place(cen, q, sx, sz))
     # --- 问题卡砸下来
     a, b = E['q_drop']
-    z = 8 if t < a else (1.6 * (1 - clamp01((t - a) / (b - a)) ** 2) + .001)
+    z = -5 if t < a else (1.6 * (1 - clamp01((t - a) / (b - a)) ** 2) + .001)
     key_obj(qcard, f, loc=QC + Vector((0, 0, z)))
     # --- 思考框：弹出在她头顶斜上方，她一靠近就往上躲一点
     me = Vector((OE.x + .02, OE.y - 1.26, 0))
@@ -344,7 +393,8 @@ def seg_e(f, t):
     key_obj(reply, f, loc=RP + Vector((rx, 0, .025 if t >= E['reply'] else -5)))
     # --- 镜头
     if t < E['hop_off'] + .1:      # 滑行：侧前方低机位跟拍，带一点倾斜
-        tgt_p = cen + Vector((.3, -1.15, .32)); tgt_l = cen + Vector((-.12, .35, -.12)); fov, roll = 44, -6   # 正前方：她顺着轨道朝镜头冲
+        ang = R(35 - 65 * smooth((t - s0) / (s1 - s0)))   # 一边跟一边绕：从右前方转到左前方
+        off = Quaternion((0, 0, 1), ang) @ Vector((0, -1.1, 0)); tgt_p = cen + off + Vector((0, 0, .3)); tgt_l = cen + Vector((0, .3, -.12)); fov, roll = 44, -6 * math.cos(ang)
     elif t < E['think_in']:        # 打滑急停：镜头被甩过头再弹回
         tgt_p = cen + Vector((.25, -1.15, .4)); tgt_l = cen + Vector((-.2, .15, -.1)); fov, roll = 40, 0
     else:                          # 思考框：猛推，低角度微仰
