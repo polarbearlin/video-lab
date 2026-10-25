@@ -29,7 +29,7 @@ def up(path, k=2):
 
 # ---------------- 她的平面贴纸（从正面渲染图抠出来，加白色描边）
 def sticker():
-    im = Image.open(DS / 'build/chibi_check/chibi_front.png').convert('RGB'); a = np.array(im).astype(int)
+    im = Image.open(DS / 'ref/chibi_front.png').convert('RGB'); a = np.array(im).astype(int)   # 正面渲染图（已放进仓库）
     bg = a[4, 4]; m = (np.abs(a - bg).sum(2) > 30).astype(np.uint8) * 255
     mask = Image.fromarray(m).filter(ImageFilter.MedianFilter(5)); bb = mask.getbbox()
     im, mask = im.crop(bb), mask.crop(bb); pad = 40
@@ -98,7 +98,7 @@ def lock_night():
 def desktop(stats):
     code = (DS / 'v6/scene.py').read_text().splitlines()[60:80]
     code_html = ''.join(f'<div><span style="color:#5c6370">{i + 61:>3}</span>  {re.sub("<", "&lt;", l[:70])}</div>' for i, l in enumerate(code))
-    render = U(DS / 'build/v6keys/key3.png')
+    rp = DS / 'build/v6keys/key3.png'; render = U(rp if rp.exists() else SCR / 'appstore.png')   # 渲染窗口里的画面（没有就用一张界面图代替）
     shot('desktop', 2560, 1600, f"""<div class="a" style="left:0;top:0;width:1280px;height:800px;background:radial-gradient(circle at 30% 30%,#3b2a6b,#14102a 60%,#0b0a18)">
 <div class="a" style="left:0;top:0;width:1280px;height:26px;background:rgba(0,0,0,.35);font-size:13px;color:#ddd;display:flex;align-items:center;gap:22px;padding:0 16px"><b>Finder</b><span>文件</span><span>编辑</span><span>窗口</span><span style="margin-left:auto">10月25日 周六 23:41</span></div>
 <div class="a" style="left:40px;top:60px;width:560px;height:360px;border-radius:12px;background:#1e1f24;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden;font:12px/1.55 Menlo,monospace;color:#c8ccd4">
