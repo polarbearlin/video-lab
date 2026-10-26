@@ -9,6 +9,7 @@ import plan as P, mg
 ap = argparse.ArgumentParser()
 ap.add_argument('--video', default=str(DS / 'build/大肥鱼_自我介绍_完整90秒.mp4')); ap.add_argument('--out', default=str(DS / 'build/大肥鱼_自我介绍_90秒_v12.mp4'))
 ap.add_argument('--audio', default=str(DS / 'build/v12_audio.wav')); ap.add_argument('--sheet', action='store_true')
+ap.add_argument('--hold', type=float, default=0., help='最后一帧（片尾卡）多停几秒')
 A = ap.parse_args()
 W, H = 1920, 1080; OV = DS / 'build/v12ov'; OV.mkdir(parents=True, exist_ok=True)
 
@@ -34,6 +35,6 @@ for f in range(1, P.N + 1):
     else: c.save(dst, compress_level=1)
 if not os.path.exists(A.audio): subprocess.run([sys.executable, str(HERE / 'audio.py')], check=True)
 cmd = ['ffmpeg', '-y', '-loglevel', 'error', '-i', A.video, '-framerate', str(P.FPS), '-i', str(OV / 'o_%04d.png'), '-i', A.audio,
-       '-filter_complex', '[1:v]format=rgba[o];[0:v][o]overlay=0:0:shortest=1[v]', '-map', '[v]', '-map', '2:a',
-       '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k', '-t', str(P.DUR), A.out]
+       '-filter_complex', f'[1:v]format=rgba[o];[0:v][o]overlay=0:0:shortest=1,tpad=stop_mode=clone:stop_duration={A.hold}[v]', '-map', '[v]', '-map', '2:a',
+       '-c:v', 'libx264', '-preset', 'slow', '-crf', '17', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k', '-t', str(P.DUR + A.hold), A.out]
 subprocess.run(cmd, check=True); print(A.out)

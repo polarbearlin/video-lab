@@ -10,6 +10,7 @@ from scipy.signal import fftconvolve, butter, sosfilt
 HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 import plan as P
 P10, P11 = P.P10, P.P11
+SONG = bool(os.environ.get('SFX_ONLY'))   # SFX_ONLY=1：只出音效轨（配 Suno 的歌用），去掉会和歌跑调的有音高的音效
 SR = 48000; N = int(P.DUR * SR); rng = np.random.default_rng(12)
 T = lambda d: np.arange(int(d * SR)) / SR
 mt = lambda m: 440 * 2 ** ((m - 69) / 12)
@@ -105,7 +106,8 @@ def put(buf, sig, t, g=1., pan=0., rev=.2):
     i = int(t * SR)
     if i >= N or i < 0 or g == 0: return
     sig = np.asarray(sig)[:N - i] * g; l, r = np.cos((pan + 1) * np.pi / 4), np.sin((pan + 1) * np.pi / 4)
-    st = np.stack([sig * l, sig * r], 1) * 1.41; buf[i:i + len(sig)] += st; send[i:i + len(sig)] += st * rev
+    st = np.stack([sig * l, sig * r], 1) * 1.41; buf[i:i + len(sig)] += st
+    if not (SONG and buf is not sfx): send[i:i + len(sig)] += st * rev
 
 # ======================================================================= 配乐
 CHORDS = [(53, 57, 60), (48, 52, 55), (50, 53, 57), (46, 50, 53)]          # F – C – Dm – B♭
@@ -163,7 +165,7 @@ put(music, riser(P10.CUT - 1.4), 1.2, .5, 0, .3)                                
 put(music, riser(P10.LIFT[-1] - P10.LIFT[0] + .4), P10.LIFT[0] - .2, .35, 0, .3)               # 电梯往上顶
 put(music, riser(1.0), P11.PORTAL_OPEN[0], .4, 0, .3); put(music, rev_cym(1.2), P11.FLASH[0] - 1.2, .5, 0, .3)
 for j, m in enumerate((53, 57, 60, 65, 69, 72)): put(music, epiano(mt(m + 12), 3.5), P.P11.ENDCARD + .04 * j, .08, (j - 2.5) / 3, .7)
-put(sfx, sparkle(), P11.ENDCARD + .1, .4, 0, .6)
+if not SONG: put(sfx, sparkle(), P11.ENDCARD + .1, .4, 0, .6)
 
 # 侧链：鼓点一下，音乐"让一下"（一呼一吸的律动）
 sc = np.ones(N)
@@ -200,15 +202,15 @@ for t, kind in P.events():
     elif kind == 'kick': put(sfx, bonk(), t, .45); put(sfx, whoosh(.4), t + .02, .3)
     elif kind == 'thud': put(sfx, bonk(), t, .4); put(sfx, kick(.8), t, .3)
     elif kind == 'thud_big': put(sfx, sub_boom(), t, .5); put(sfx, kick(1.), t, .5); put(sfx, crash(1.2), t, .12)
-    elif kind.startswith('lift') and kind != 'lift': i = int(kind[4:]); put(sfx, marimba(mt(72 + [0, 2, 4, 7, 12][i])), t, .3, 0, .3); put(sfx, pop(700 + 150 * i), t, .2)
-    elif kind == 'confetti': put(sfx, sparkle(), t, .35, 0, .5); [put(sfx, pop(1400 + 200 * j), t + .04 * j, .08, rng.uniform(-.7, .7)) for j in range(8)]
+    elif kind.startswith('lift') and kind != 'lift': i = int(kind[4:]); put(sfx, marimba(mt(72 + [0, 2, 4, 7, 12][i])), t, 0 if SONG else .3, 0, .3); put(sfx, pop(700 + 150 * i), t, .2)
+    elif kind == 'confetti': put(sfx, sparkle(), t, 0 if SONG else .35, 0, .5); [put(sfx, pop(1400 + 200 * j), t + .04 * j, .08, rng.uniform(-.7, .7)) for j in range(8)]
     elif kind == 'rain': [put(sfx, pop(rng.uniform(600, 1400)), t + j * .05, .15, rng.uniform(-.6, .6)) for j in range(30)]
-    elif kind == 'portal': put(sfx, bell(mt(79), 1.5), t, .15, 0, .6); put(sfx, bell(mt(86), 1.5), t + .06, .1, 0, .6)
+    elif kind == 'portal' and not SONG: put(sfx, bell(mt(79), 1.5), t, .15, 0, .6); put(sfx, bell(mt(86), 1.5), t + .06, .1, 0, .6)
     elif kind == 'flash': put(sfx, whoosh(.7), t, .45); put(sfx, crash(2.5), t + .3, .15)
-    elif kind == 'chapter': put(sfx, bell(mt(84), 1.), t, .1, 0, .5)
+    elif kind == 'chapter': put(sfx, bell(mt(84), 1.), t, 0 if SONG else .1, 0, .5)
     elif kind == 'slide':
         d = (P11.RIDE[1] - P11.RIDE[0]) if t > 30 else (P10.SLIDE_END - P10.SLIDE_LAND); put(sfx, slide_whistle(1500, 380, d), t, .3, 0, .2)
-    elif kind == 'clone': i = min(6, int(round((t - P11.CLONES[0]) / .3))); put(sfx, pop(900), t, .2, -.4); put(sfx, marimba(mt(CLONE_NOTE[i] + 12)), t, .3, -.3 + .1 * i, .3)
+    elif kind == 'clone': i = min(6, int(round((t - P11.CLONES[0]) / .3))); put(sfx, pop(900), t, .2, -.4); put(sfx, marimba(mt(CLONE_NOTE[i] + 12)), t, 0 if SONG else .3, -.3 + .1 * i, .3)
     elif kind == 'chime': put(sfx, bell(mt(88), 1.), t, .14, .2, .5); put(sfx, bell(mt(93), 1.), t + .12, .12, .2, .5)
     elif kind == 'flip': [put(sfx, tick(), t + .5 * (1 - (j / 14) ** .6), .4, .2 * (-1) ** j) for j in range(14)]; put(sfx, bell(mt(91), 1.2), P11.FLIP[1], .2, 0, .5)
     elif kind == 'tiles': [put(sfx, pop(1300 + 40 * j), t + j * .1, .06, rng.uniform(-.4, .4)) for j in range(30)]
@@ -218,19 +220,21 @@ put(sfx, scratch(), P11.Q_DROP[1] - .1, .55, 0, .1)                             
 put(sfx, crickets(P11.THINK_IN - P11.Q_DROP[1] + .3), P11.Q_DROP[1] + .25, 1., .4, .2)
 for r in P11.REACH: put(sfx, squeak(1000 + 200 * P11.REACH.index(r)), r - .25, .25, -.2, .05)     # 蹦起来去捂：越蹦越急
 for j in range(6): put(sfx, giggle(rng.uniform(1200, 1900)), P11.LAUGH[0] + j * .25, .35, rng.uniform(-.7, .7), .2)   # 小鱼们笑
-put(sfx, sad_trombone(), P11.SLUMP, .3, 0, .35)                                                  # 泄气
+put(sfx, sad_trombone(), P11.SLUMP, 0 if SONG else .3, 0, .35)                                                  # 泄气
 for j in range(7): put(sfx, bonk(), P11.PILE_ON[0] + .13 * j + .45, .2, rng.uniform(-.5, .5))  # 一个个扑上来
 put(sfx, pop(600), P11.HOPS[4][0] - P11.HOPS[4][4]['air'], .5); put(sfx, boing(160, .7), P11.HOPS[4][0] - P11.HOPS[4][4]['air'], .35)   # 蹦出小鱼堆
 put(sfx, crickets(P11.FLIP[0] - P11.NIGHT[1]), P11.NIGHT[1], .7, .5, .3)                         # 深夜蛐蛐
 for k in range(2): put(sfx, snore(), P11.NOTE2 + 1.4 + k * 1.8, .25, -.1, .3)                    # 打呼
 for j in range(7): put(sfx, bird(), P11.DAWN[0] + .8 + j * .55, .45, rng.uniform(-.8, .8), .4)   # 天亮鸟叫
-put(sfx, giggle(1700), P11.SHY[0], .3, 0, .3); put(sfx, sparkle(), P11.HEARTS, .3, 0, .5)        # 被谢谢：害羞
+put(sfx, giggle(1700), P11.SHY[0], .3, 0, .3); put(sfx, sparkle(), P11.HEARTS, 0 if SONG else .3, 0, .5)        # 被谢谢：害羞
 
 # ======================================================================= 混音
 n = int(1.2 * SR); tt = np.arange(n) / SR; ir = rng.standard_normal((n, 2)) * np.exp(-tt * 5.5)[:, None]; ir[:int(.015 * SR)] = 0
 ir = sosfilt(butter(2, 6000, 'low', fs=SR, output='sos'), ir, axis=0); ir /= np.sqrt((ir ** 2).sum(0))
 wet = np.stack([fftconvolve(send[:, c], ir[:, c])[:N] for c in range(2)], 1)
 mix = bed + 1.25 * sfx + wet * .7
+if SONG:   # 只要音效轨：固定增益，不做归一化（和歌混的时候再定音量）
+    st_ = 1.25 * sfx + wet * .7; out = os.path.join(HERE, '..', 'build', 'v12_sfx.wav'); sf.write(out, np.clip(st_, -1, 1), SR); print(os.path.abspath(out)); sys.exit()
 mix = np.tanh(1.3 * mix) / np.tanh(1.3); mix *= 10 ** (-1.0 / 20) / np.abs(mix).max()
 fi = int(.01 * SR); mix[:fi] *= np.linspace(0, 1, fi)[:, None]; fo = int(.6 * SR); mix[-fo:] *= np.linspace(1, 0, fo)[:, None]
 out = os.path.join(HERE, '..', 'build', 'v12_audio.wav'); sf.write(out, mix, SR); print(os.path.abspath(out))
