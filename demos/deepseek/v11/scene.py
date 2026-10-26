@@ -19,7 +19,7 @@ ap.add_argument('--scale', type=int, default=100); ap.add_argument('--samples', 
 A = ap.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
 UI = {k: os.path.join(DS, f'build/v{k}ui') for k in (5, 6, 7, 9, 10, 11)}
 FR = json.load(open(os.path.join(UI[11], 'frames.json')))
-FONT = os.path.join(REPO, 'assets/fonts/NotoSansSC.ttf')
+FONT = os.path.join(REPO, 'assets/fonts/NotoSansSC.ttf'); FUN = os.path.join(REPO, 'assets/fonts/ZCOOLKuaiLe-Regular.ttf')   # 立体大字用静态字体（可变字体做立体字会重影）
 CH = 0.42; CEN = CH * .5; R = math.radians; FPS = P.FPS
 V = lambda *p: Vector(p if len(p) == 3 else p[0])
 def lin(h):
@@ -119,8 +119,8 @@ def portal_disc(name, center, r, rot=(0, 0, 0), strength=2.2):
     em = nt.nodes.new('ShaderNodeEmission'); em.inputs['Strength'].default_value = strength
     nt.links.new(tc.outputs['Object'], mp.inputs['Vector']); nt.links.new(mp.outputs[0], gr.inputs['Vector']); nt.links.new(gr.outputs['Fac'], cr.inputs[0]); nt.links.new(cr.outputs[0], em.inputs['Color']); nt.links.new(em.outputs[0], out.inputs['Surface'])
     o.data.materials.append(m); return o
-def text3d(name, s, loc, size, hexc, rot=(R(90), 0, 0), depth=.18):
-    cu = bpy.data.curves.new(name, 'FONT'); cu.body = s; cu.font = bpy.data.fonts.load(FONT); cu.size = size; cu.extrude = depth; cu.align_x = 'CENTER'; cu.align_y = 'BOTTOM'
+def text3d(name, s, loc, size, hexc, rot=(R(90), 0, 0), depth=.18, font=FONT):
+    cu = bpy.data.curves.new(name, 'FONT'); cu.body = s; cu.font = bpy.data.fonts.load(font); cu.size = size; cu.extrude = depth; cu.align_x = 'CENTER'; cu.align_y = 'BOTTOM'
     o = bpy.data.objects.new(name, cu); sc.collection.objects.link(o); o.data.materials.append(mat_col(name + '_m', hexc, .25, coat=.8)); o.location = loc; o.rotation_euler = rot; return o
 def sphere(name, r, loc, mat, seg=24):
     bpy.ops.mesh.primitive_uv_sphere_add(radius=r, location=loc, segments=seg, ring_count=seg // 2); o = bpy.context.object; o.name = name; o.data.materials.append(mat)
@@ -180,9 +180,8 @@ STOP, SBOT = stock_at(u_, v0 - .05, .45), stock_at(u_, v1 + .05, .02); dv = STOP
 slide = box('slide', (.13, dv.length, .03), SBOT, mat_col('slide_m', '#1fc77e', .25, emit=2.5, coat=.6), bevel=.01)
 for v_ in slide.data.vertices: v_.co.y += dv.length / 2
 slide.rotation_euler = (math.atan2(dv.z, math.hypot(dv.x, dv.y)), 0, 0)
-NUM_LOC = V(6.55, 1.55, 0); text3d('num', '5890 亿美元', NUM_LOC, 1.3, '#0b8f55', rot=(R(90), 0, R(-8)))
-w0, h0 = img_size(os.path.join(UI[9], 'num7s.png'))
-card('numcap', .3 * w0 / h0, .3, NUM_LOC + V(0, -.05, 1.6), mat_img('numcap_m', os.path.join(UI[9], 'num7s.png'), 1.0, coat=0, alpha=True), rot=(R(90), 0, R(-8)))
+NUM_LOC = V(6.55, 1.55, 0); text3d('num', '5890 亿美元', NUM_LOC, 1.3, '#0b8f55', rot=(R(90), 0, R(-8)), font=FUN)
+# （v10 里的"一天蒸发"小卡 2 秒后就收起了，这里不再摆）
 CHAT_C = at('chat', .5, .6); PILE = CHAT_C + V(0, 0, P.PILE_TOP)
 bm = mat_img('bub_m', os.path.join(UI[6], 'bubble.png'), 1.1, coat=.2); bb = mat_col('bub_b', '#3550d8', .3)
 random.seed(3)   # 和 v10 一模一样的随机序列 → "你好"堆的形状完全接得上

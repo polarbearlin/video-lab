@@ -17,7 +17,7 @@ ap.add_argument('--scale', type=int, default=100); ap.add_argument('--samples', 
 A = ap.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
 UI = {k: os.path.join(DS, f'build/v{k}ui') for k in (5, 6, 7, 8, 9, 10)}
 FR = json.load(open(os.path.join(UI[10], 'frames.json')))
-FONT = os.path.join(REPO, 'assets/fonts/NotoSansSC.ttf')
+FONT = os.path.join(REPO, 'assets/fonts/NotoSansSC.ttf'); FUN = os.path.join(REPO, 'assets/fonts/ZCOOLKuaiLe-Regular.ttf')   # 立体大字用静态字体（可变字体做立体字会重影）
 CH = 0.42; CEN = CH * .5; R = math.radians; FPS = P.FPS
 V = lambda *p: Vector(p if len(p) == 3 else p[0])
 def lin(h):
@@ -135,8 +135,8 @@ def whale3d(name, loc, height, yaw=0.):
     o = bpy.data.objects.new(name, cu); sc.collection.objects.link(o); o.data.materials.append(mat_col(name + '_m', '#4d6bfe', .2, coat=1., emit=.25))
     bpy.context.view_layer.objects.active = o; o.select_set(True); bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY'); o.select_set(False)
     s_ = height / 42; o.scale = (s_, s_, s_); o.rotation_euler = (R(90), 0, R(yaw)); o.location = V(*loc, height / 2); return o
-def text3d(name, s, loc, size, hexc, rot=(R(90), 0, 0), depth=.18):
-    cu = bpy.data.curves.new(name, 'FONT'); cu.body = s; cu.font = bpy.data.fonts.load(FONT); cu.size = size; cu.extrude = depth; cu.align_x = 'CENTER'; cu.align_y = 'BOTTOM'
+def text3d(name, s, loc, size, hexc, rot=(R(90), 0, 0), depth=.18, font=FONT):
+    cu = bpy.data.curves.new(name, 'FONT'); cu.body = s; cu.font = bpy.data.fonts.load(font); cu.size = size; cu.extrude = depth; cu.align_x = 'CENTER'; cu.align_y = 'BOTTOM'
     o = bpy.data.objects.new(name, cu); sc.collection.objects.link(o); o.data.materials.append(mat_col(name + '_m', hexc, .25, coat=.8)); o.location = loc; o.rotation_euler = rot; return o
 def key(o, f, loc=None, rot=None, scale=None):
     if loc is not None: o.location = loc; o.keyframe_insert('location', frame=f)
@@ -215,7 +215,7 @@ for v_ in slide.data.vertices: v_.co.y += dv.length / 2
 DOWN = (SBOT - STOP).normalized(); NRM = V(1, 0, 0).cross(DOWN).normalized()
 if NRM.z < 0: NRM = -NRM
 Q_SLIDE = Matrix((NRM, (-DOWN).cross(NRM), -DOWN)).transposed().to_quaternion() @ Quaternion((0, 0, 1), R(-25))
-num = text3d('num', '5890 亿美元', V(*P.NUMBER, 0), 1.3, '#0b8f55', rot=(R(90), 0, R(-8)))
+num = text3d('num', '5890 亿美元', V(*P.NUMBER, 0), 1.3, '#0b8f55', rot=(R(90), 0, R(-8)), font=FUN)
 NUM_LOC = num.location.copy()
 w0, h0 = img_size(os.path.join(UI[9], 'num7s.png'))
 numcap = card('numcap', .3 * w0 / h0, .3, HIDE, mat_img('numcap_m', os.path.join(UI[9], 'num7s.png'), 1.0, coat=0, alpha=True), rot=(R(90), 0, R(-8)))
@@ -403,7 +403,7 @@ for f in range(1, P.N + 1):
     key(slide, f, rot=(R(90) + (SANG - R(90)) * fall, 0, 0), scale=(1, max(.001, rise), 1))
     a, z = P.NUM_DROP
     key(num, f, loc=NUM_LOC + V(0, 0, 50 if t < a else 3.0 * (1 - clamp01((t - a) / (z - a)) ** 2)))
-    s = back_out((t - P.NUM_DROP[1] - .2) / .3) if t > P.NUM_DROP[1] + .2 else .001
+    s = back_out((t - P.NUM_DROP[1] - .2) / .3) * (1 - smooth((t - P.NUM_DROP[1] - 2.2) / .3)) + .001 if t > P.NUM_DROP[1] + .2 else .001   # 停 2 秒就收起，不再卡在画面角落
     key(numcap, f, loc=NUM_LOC + V(0, -.05, 1.6), scale=(s, s, s))
     # "你好"雨 + 弹窗
     for o, rest, t0, rot in RAINB:
