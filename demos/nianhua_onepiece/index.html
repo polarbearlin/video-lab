@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "MaShan"; src: url("../../assets/fonts/MaShanZheng-Regular.ttf"); }
+@font-face { font-family: "WenKai"; src: url("../../assets/fonts/LXGWWenKai-Regular.ttf"); }
+@font-face { font-family: "KuaiLe"; src: url("../../assets/fonts/ZCOOLKuaiLe-Regular.ttf"); }
+html, body { margin: 0; } canvas { display: block; }
+</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="scene.js"></script>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+window.still = async (k) => { keyframe(k, ctx); return true; };
+window.ready = (async () => { for (const f of ['100px "MaShan"', '40px "WenKai"', '70px "KuaiLe"']) await document.fonts.load(f, '海上年画英雄谱哟嚯'); return true; })();
+</script></body></html>
