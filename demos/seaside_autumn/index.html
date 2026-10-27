@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "NotoSC"; src: url("../../assets/fonts/NotoSansSC.ttf"); }
+@font-face { font-family: "WenKai"; src: url("../../assets/fonts/LXGWWenKai-Regular.ttf"); }
+@font-face { font-family: "KuaiLe"; src: url("../../assets/fonts/ZCOOLKuaiLe-Regular.ttf"); }
+html, body { margin: 0; background: #FFF6E5; } canvas { display: block; }
+</style></head>
+<body><canvas id="c" width="1080" height="1920"></canvas>
+<script src="scene.js"></script>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+window.render = async (i) => { frame(i, ctx); return true; };
+window.still = async (k) => { shotStill(k, ctx); return true; };
+window.ready = (async () => { for (const f of ['800 36px "NotoSC"', '500 25px "NotoSC"', '40px "WenKai"', '90px "KuaiLe"']) await document.fonts.load(f, '汐屿秋天十月海风柚子'); return true; })();
+</script></body></html>
