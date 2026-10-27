@@ -210,11 +210,11 @@ function ship(ctx, x, y, s, t) {   // 年画海船：骷髅旗（通用海贼旗
   ctx.restore();
 }
 
-// ---------------------------------------------------------------- 文案（由独立评审三轮打磨后定稿，见 copy.md）
-let COPY = {   // 第 2 轮评审后（平仄按普通话新韵）
+// ---------------------------------------------------------------- 文案
+let COPY = {   // 三轮独立评审后定稿（平仄按普通话新韵），过程见 copy.md
   open:       { top: '海上年画', up: '四海风波藏故事', down: '一张红纸画英雄', seal: '英雄谱', name: '海上年画 · 英雄谱', en: 'Heroes of the Sea · New Year Prints' },
   whitebeard: { top: '老爹', up: '一拳震裂天和海', down: '满船尽是好儿郎', seal: '白胡子', name: '白胡子 · 爱德华·纽盖特', en: 'Whitebeard' },
-  ace:        { top: '火拳', up: '以身挡拳护幼弟', down: '含笑临别谢深情', seal: '火拳', name: '火拳 · 波特卡斯·D·艾斯', en: 'Portgas D. Ace' },
+  ace:        { top: '火拳', up: '以身相挡护幼弟', down: '含笑临别谢深情', seal: '火拳', name: '火拳 · 波特卡斯·D·艾斯', en: 'Portgas D. Ace' },
   shanks:     { top: '红发', up: '一臂押注新时代', down: '草帽托付好少年', seal: '红发', name: '红发 · 香克斯', en: 'Shanks' },
   law:        { top: '外科', up: '一刀切开天下势', down: '半生不忘柯拉松', seal: '死亡外科', name: '死亡外科医生 · 特拉法尔加·罗', en: 'Trafalgar Law' },
   garp:       { top: '爷爷', up: '爱之铁拳打孙子', down: '海军英雄不升官', seal: '卡普', name: '海军中将 · 蒙奇·D·卡普', en: 'Monkey D. Garp' },
