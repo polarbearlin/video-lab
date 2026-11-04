@@ -5,6 +5,8 @@ __pycache__/
 *.mp4
 *.wav
 *.mp3
+# Source clips in materials/midterms are tracked. Rendered outputs stay ignored.
+!materials/midterms/*.mp4
 assets/fonts/
 lib/audio/samples/
 *.skill
