@@ -4,11 +4,11 @@
 
 文件直接放在本目录。压缩包里的 `midterms_materials/` 已拆掉；空的 `work/` 没有入库。
 
-单文件都低于 GitHub 100MB 限制，没有使用 Git LFS。当前最大文件是 `portrait_vance_2025.jpg`（5.32 MB）。
+单文件都低于 GitHub 100MB 限制，没有使用 Git LFS。当前最大文件是 `dvids_video_01.mp4`（17.18 MB）。
 
-`SOURCES.csv` 还登记了三个这次还没到的视频：`dvids_video_01.mp4`、`dvids_video_02.mp4`、`dvids_video_03.mp4`。后续压缩包会追加到本目录。
+`SOURCES.csv` 还登记了两个这次还没到的视频：`dvids_video_02.mp4`、`dvids_video_03.mp4`。后续压缩包会追加到本目录。
 
-当前文件数：**66**（素材与清单 65，加上本说明）。
+当前文件数：**67**（素材与清单 66，加上本说明）。
 
 ## 文件
 
@@ -16,8 +16,9 @@
 
 - `SOURCES.csv` (0.01 MB)
 
-### 视频（2）
+### 视频（3）
 
+- `dvids_video_01.mp4` (17.18 MB)
 - `trump_hoax_1.mp4` (4.03 MB)
 - `trump_hoax_2.mp4` (3.28 MB)
 
