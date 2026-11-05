@@ -26,6 +26,9 @@ function grade() {   // 统一调子：上下压暗，给角标和字幕留底
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   g = ctx.createRadialGradient(W / 2, H / 2, H * 0.45, W / 2, H / 2, H * 1.05); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.45)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
 }
+function coverNames(s, box) {   // 遮挡：盖住与本片无关的第三方姓名（图像内 0–1 坐标）
+  ctx.fillStyle = C.ink2; for (const r of s.cover || []) ctx.fillRect(box.x + r[0] * box.iw, box.y + r[1] * box.ih, r[2] * box.iw, r[3] * box.ih);
+}
 function hlDraw(s, b, k, box) {   // 荧光笔：box 为图像在画面上的位置
   for (const h of s.hl || []) { const p = (k - atOf(b, h.at)) / 0.45; if (p <= 0) continue; const [x, y, w, hh] = h.r;
     ctx.save(); ctx.globalCompositeOperation = 'multiply'; marker(box.x + x * box.iw, box.y + y * box.ih, w * box.iw, hh * box.ih, clamp(p)); ctx.restore(); }
@@ -41,7 +44,7 @@ async function drawShot(s, b, k, k0, k1) {
     const box = { x: iw <= bw ? cx - iw / 2 : clamp(cx - fx * iw, cx + bw / 2 - iw, cx - bw / 2), y: ih <= bh ? cy - ih / 2 : clamp(cy - fy * ih, cy + bh / 2 - ih, cy - bh / 2), iw, ih };
     ctx.save(); ctx.beginPath(); ctx.rect(cx - bw / 2 - 30, cy - bh / 2 - 30, bw + 60, bh + 60); ctx.clip();
     ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.iw, box.ih); ctx.shadowColor = 'transparent';
-    ctx.drawImage(im, box.x, box.y, box.iw, box.ih); hlDraw(s, b, k, box); ctx.restore(); return;
+    ctx.drawImage(im, box.x, box.y, box.iw, box.ih); coverNames(s, box); hlDraw(s, b, k, box); ctx.restore(); return;
   }
   if (s.kind === 'card') {   // 照片卡：深色底，右侧一张带白边的照片，左侧留给叠字
     const im = FIM[s.img]; ctx.fillStyle = C.ink2; ctx.fillRect(0, 0, W, H); if (!im) return;
@@ -49,7 +52,7 @@ async function drawShot(s, b, k, k0, k1) {
     ctx.save(); ctx.translate(bx[0] + bx[2] / 2, bx[1] + bx[3] / 2); ctx.rotate(s.rot ?? -0.018);
     ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 16; ctx.fillStyle = '#F7F5F0'; ctx.fillRect(-iw / 2 - 18, -ih / 2 - 18, iw + 36, ih + 36); ctx.shadowColor = 'transparent';
     ctx.filter = s.mono ? 'grayscale(1) contrast(1.1)' : 'saturate(.9) contrast(1.04)'; ctx.drawImage(im, -iw / 2, -ih / 2, iw, ih); ctx.filter = 'none';
-    hlDraw(s, b, k, { x: -iw / 2, y: -ih / 2, iw, ih }); ctx.restore(); return;
+    coverNames(s, { x: -iw / 2, y: -ih / 2, iw, ih }); hlDraw(s, b, k, { x: -iw / 2, y: -ih / 2, iw, ih }); ctx.restore(); return;
   }
   let im = null;
   if (s.kind === 'video') im = await vframe(s.vid, 1 + Math.floor(((s.in || 0) + k - k0) * 30));
@@ -65,6 +68,7 @@ function overlay(s, b, k, k0) {   // 叠在素材上的信息层
   if (s.cap) { const p = (k - atOf(b, s.capAt ?? s.at)) / 0.5; if (p > 0) alpha(clamp(p * 3), () => { const f = `${s.capSize || 120}px Black`; text(s.cap, 90, 860, f, C.white); ctx.fillStyle = C.marker; ctx.fillRect(90, 884, tw(s.cap, f) * easeOut(p), 10); }); }
   for (const c of s.caps || []) { const p = (k - atOf(b, c.at)) / 0.5; if (p <= 0) continue;   // 多行大字：{ s, at, size, y, col, font }
     alpha(clamp(p * 3), () => { const f = c.font === 'Num' ? `600 ${c.size || 110}px Num` : `${c.size || 110}px Black`; ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.7)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 4;
+      if (s.kind === 'doc' || c.plate) { const sz = c.size || 110, w = tw(c.s, f); ctx.shadowColor = 'transparent'; ctx.fillStyle = 'rgba(10,10,11,.88)'; ctx.fillRect(72, (c.y || 860) - sz * 0.95, w + 36, sz * 1.22); }   // 白底文件上：加深色底板
       text(c.s, 90, c.y || 860, f, c.col === 'marker' ? C.marker : c.col === 'grey' ? '#C9C6C0' : C.white); ctx.restore(); }); }
   if (s.src && s.kind !== 'code') chip(s.src, 90, 1046 - 0, true);
 }
