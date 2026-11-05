@@ -1,0 +1,26 @@
+// ---------- 段落之间：涂黑条横扫 ----------
+function wipe(t) {
+  for (const b of BEATS) { if (b.t <= 0.5) continue; const d = t - b.t; if (d >= -0.14 && d < 0.14) { const p = (d + 0.14) / 0.28, x = lerp(-W * 0.7, W * 1.1, p);
+    ctx.fillStyle = C.ink2; ctx.fillRect(x, 0, W * 0.6, H); ctx.fillStyle = C.marker; ctx.fillRect(x + W * 0.6, 0, 14, H); } }
+}
+function subtitles(t) {
+  const c = CUES.find(c => t >= c.t0 && t < c.t1); if (!c) return;
+  const f = '700 46px NSC', w = tw(c.zh, f), h = 78;
+  ctx.fillStyle = 'rgba(10,10,11,.84)'; ctx.fillRect(W / 2 - w / 2 - 28, 1000 - h, w + 56, h);
+  text(c.zh, W / 2, 1000 - h + 56, f, C.white, 'center');
+}
+window.SUBCHECK = () => CUES.filter(c => tw(c.zh, '700 46px NSC') > 1700).map(c => c.zh);
+window.MISSING = () => BEATS.filter(b => !B[b.id]).map(b => b.id);
+window.DUR = F.dur;
+window.render = async (t) => {
+  FRAME = Math.round(t * FPS); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.filter = 'none'; ctx.globalAlpha = 1;
+  const b = [...BEATS].reverse().find(b => t >= b.t) || BEATS[0];
+  await B[b.id](t - b.t, b);
+  wipe(t); subtitles(t);
+};
+await document.fonts.ready;
+for (const f of ['28px Black', '150px Black', '700 46px NSC', '400 20px NSC', '900 76px Serif', '600 200px Num', 'italic 56px Quote']) await document.fonts.load(f, '爱泼斯坦案 2026 Aa');
+window.READY = true;
+</script>
+</body>
+</html>
