@@ -43,6 +43,14 @@ async function drawShot(s, b, k, k0, k1) {
     ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 40; ctx.shadowOffsetY = 12; ctx.fillStyle = '#fff'; ctx.fillRect(box.x, box.y, box.iw, box.ih); ctx.shadowColor = 'transparent';
     ctx.drawImage(im, box.x, box.y, box.iw, box.ih); hlDraw(s, b, k, box); ctx.restore(); return;
   }
+  if (s.kind === 'card') {   // 照片卡：深色底，右侧一张带白边的照片，左侧留给叠字
+    const im = FIM[s.img]; ctx.fillStyle = C.ink2; ctx.fillRect(0, 0, W, H); if (!im) return;
+    const bx = s.box || [880, 190, 940, 700], r = Math.min(bx[2] / im.naturalWidth, bx[3] / im.naturalHeight) * lerp(1, 1.04, p), iw = im.naturalWidth * r, ih = im.naturalHeight * r;
+    ctx.save(); ctx.translate(bx[0] + bx[2] / 2, bx[1] + bx[3] / 2); ctx.rotate(s.rot ?? -0.018);
+    ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 50; ctx.shadowOffsetY = 16; ctx.fillStyle = '#F7F5F0'; ctx.fillRect(-iw / 2 - 18, -ih / 2 - 18, iw + 36, ih + 36); ctx.shadowColor = 'transparent';
+    ctx.filter = s.mono ? 'grayscale(1) contrast(1.1)' : 'saturate(.9) contrast(1.04)'; ctx.drawImage(im, -iw / 2, -ih / 2, iw, ih); ctx.filter = 'none';
+    hlDraw(s, b, k, { x: -iw / 2, y: -ih / 2, iw, ih }); ctx.restore(); return;
+  }
   let im = null;
   if (s.kind === 'video') im = await vframe(s.vid, 1 + Math.floor(((s.in || 0) + k - k0) * 30));
   else im = FIM[s.img];
