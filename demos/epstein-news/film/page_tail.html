@@ -15,7 +15,7 @@ window.DUR = F.dur;
 window.render = async (t) => {
   FRAME = Math.round(t * FPS); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.filter = 'none'; ctx.globalAlpha = 1;
   const b = [...BEATS].reverse().find(b => t >= b.t) || BEATS[0];
-  await B[b.id](t - b.t, b);
+  if (!(await drawShots(b, t - b.t))) await B[b.id](t - b.t, b);
   wipe(t); subtitles(t);
 };
 await document.fonts.ready;

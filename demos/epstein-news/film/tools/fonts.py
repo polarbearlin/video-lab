@@ -1,6 +1,6 @@
 # 按片中用字从 Google Fonts 取子集字体（OFL），存成 fonts/*.woff2
 import re, json, urllib.request, urllib.parse
-src = open('index.html', encoding='utf-8').read() + open('cues.json', encoding='utf-8').read() + open('film.json', encoding='utf-8').read()
+src = open('index.html', encoding='utf-8').read() + open('cues.json', encoding='utf-8').read() + open('film.json', encoding='utf-8').read() + open('data/shots.json', encoding='utf-8').read()
 chars = ''.join(sorted(set(src) | set(chr(i) for i in range(32, 127)) | set('…—–→·（）【】：，。？！“”°')))
 chars = ''.join(c for c in chars if c.isprintable())
 UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36'
