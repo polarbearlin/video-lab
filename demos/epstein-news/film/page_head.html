@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>国王的弟弟被抓了</title>
+<style>
+@font-face { font-family: 'Black'; src: url(fonts/NotoSansSC-900.woff2) format('woff2'); }
+@font-face { font-family: 'NSC'; src: url(fonts/NotoSansSC-700.woff2) format('woff2'); font-weight: 700; }
+@font-face { font-family: 'NSC'; src: url(fonts/NotoSansSC-400.woff2) format('woff2'); font-weight: 400; }
+@font-face { font-family: 'Serif'; src: url(fonts/NotoSerifSC-900.woff2) format('woff2'); font-weight: 900; }
+@font-face { font-family: 'Serif'; src: url(fonts/NotoSerifSC-500.woff2) format('woff2'); font-weight: 500; }
+@font-face { font-family: 'Num'; src: url(fonts/BarlowCondensed-600.woff2) format('woff2'); }
+@font-face { font-family: 'Quote'; src: url(fonts/SourceSerif4-400i.woff2) format('woff2'); font-style: italic; }
+html, body { margin: 0; background: #0A0A0B; }
+canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="module">
+// 《国王的弟弟被抓了》爱泼斯坦案。黑底 / 夜蓝 / 报纸三种底，"案卷"视觉：涂黑条、红色印章、黄色荧光笔。
+// 时间：film.json 是唯一时间表（tools/build.py 按整条旁白生成）；render(t) 是 t 的纯函数。
+const W = 1920, H = 1080, FPS = 30;
+const C = {
+  black: '#0A0A0B', white: '#F4F2EE', grey: '#8C8A86',
+  paper: '#F1ECE2', ink: '#151412', ink2: '#141416', sub: '#6E685E', rule: '#CFC6B5',
+  night: '#0B1426', night2: '#13223D', marker: '#FFD43B', stamp: '#C8102E', red: '#C8102E', gop: '#C8102E', dem: '#2F62E0',
+};
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const ease = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const easeOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const lerp = (a, b, k) => a + (b - a) * k;
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const load = src => new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+const J = async u => (await fetch(u)).json();
+const [F, CUES] = await Promise.all([J('film.json'), J('cues.json')]);
+const IM = {}; await Promise.all(['portrait_trump_2025'].map(async k => { IM[k] = await load(`frames/${k}.jpg`); }));
+const strip = s => s.replace(/[\s，。、：；？！,.:;?!《》“”"'（）()—·]/g, '');
+const BEATS = F.beats;
+for (const b of BEATS) b.kw = (w, d = 0) => { const i = strip(b.zh).indexOf(strip(w)); return i < 0 ? d : b.chars[Math.min(i, b.chars.length - 1)]; };
+let FRAME = 0;
