@@ -14,3 +14,5 @@ node_modules
 assets/fonts
 demos/deepseek/build/
 demos/deepseek/model/
+# 卡黄样片只把 02（约 3.5MB）放进仓库。01/03/04/05 在草稿 Release kahuang-footage。
+!demos/kahuang/videos/02_houhuiyouqi_ti_liyitong.mp4
