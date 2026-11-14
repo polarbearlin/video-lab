@@ -1,0 +1,5 @@
+manifest.csv -text
+SHA256SUMS -text
+weibo/urls.txt -text
+weibo/*.jpg binary
+videos/*.mp4 binary
