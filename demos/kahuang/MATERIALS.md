@@ -32,15 +32,15 @@
 
 ## 素材清单
 
-时长和分辨率是对共享存储里的原文件用 ffprobe 量的，和 `manifest.csv` 写的一致：01 / 04 / 05 为 180 秒，03 为 163.5 秒，02 为 21.7 秒。01 的帧率是 24000/1001（约 23.98fps）。
+时长和分辨率是用 ffprobe 对原文件量的，和 `manifest.csv` 写的一致：01 / 04 / 05 为 180 秒，03 为 163.5 秒，02 为 21.7 秒。01 的帧率是 24000/1001（约 23.98fps）。上传到草稿 Release 之后又下载回来比对过，四个文件的 SHA256 与 `SHA256SUMS` 一致。
 
 | 文件名 | 类型 | 内容 | 时长/分辨率 | 存放位置 | 来源 URL | 原发布者 |
 |---|---|---|---|---|---|---|
-| `01_yedie_official_mv_clip.mp4` | 视频 / 官方 MV 剪辑 | SNH48《夜蝶》正式版 MV（李艺彤、黄婷婷）。全片 05:57 中的 02:30–05:30，含秘密花园同框、门廊、伸手牵住、沙发相拥。H.264+AAC。 | 180.012 秒 / 1920×1080 / 23.98fps | 草稿 Release `kahuang-footage`，不进 git。直链见下方「Release 资产」。 | https://www.youtube.com/watch?v=N5dr6lNP5ec | YouTube 频道 SNH48 China（SNH48 官方频道）。版权归 SNH48 / 丝芭传媒等原权利人。 |
+| `01_yedie_official_mv_clip.mp4` | 视频 / 官方 MV 剪辑 | SNH48《夜蝶》正式版 MV（李艺彤、黄婷婷）。全片 05:57 中的 02:30–05:30，含秘密花园同框、门廊、伸手牵住、沙发相拥。H.264+AAC。 | 180.012 秒 / 1920×1080 / 23.98fps | 草稿 Release 资产，不进 git：https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/01_yedie_official_mv_clip.mp4 | https://www.youtube.com/watch?v=N5dr6lNP5ec | YouTube 频道 SNH48 China（SNH48 官方频道）。版权归 SNH48 / 丝芭传媒等原权利人。 |
 | `02_houhuiyouqi_ti_liyitong.mp4` | 视频 / 综艺切片 | 芒果 TV《后会友期》观察室。黄婷婷谈拿第三时的第一、第二名，以及现在是否还联系。片中只有黄婷婷，没有李艺彤。未再裁。 | 21.664 秒 / 1920×1080 / 30fps | `demos/kahuang/videos/02_houhuiyouqi_ti_liyitong.mp4` | https://weibo.com/1642591402/RnPGp9tkF | 微博 新浪娱乐（uid 1642591402）。节目版权属芒果 TV。 |
-| `03_yedie_1st_best30.mp4` | 视频 / 金曲舞台 | SNH48 第一届年度金曲大赏《夜蝶》，黄婷婷、李艺彤同台，含近距离互动和阶梯上的下跪。全片保留。画面带优酷水印。 | 163.492 秒 / 1280×720 / 25fps | 草稿 Release `kahuang-footage`，不进 git。直链见下方「Release 资产」。 | https://www.youtube.com/watch?v=G7Yu-ine0vQ | YouTube 频道 prn（@prnprnprn），转载。舞台原版权属 SNH48 等。 |
-| `04_renyu_4th_best50_clip.mp4` | 视频 / 金曲舞台剪辑 | SNH48 第四届年度金曲大赏 BEST50《人鱼》（2018-02-03）。原片 03:51，本文件为 00:40–03:40，去掉开头会场空镜，留到收束趴台。 | 180.032 秒 / 1920×1080 / 25fps | 草稿 Release `kahuang-footage`，不进 git。直链见下方「Release 资产」。 | https://www.youtube.com/watch?v=USYiVnLaBfw | YouTube 频道 sis ofrurie（@sisofrurie2223），转载。舞台原版权属 SNH48 等。 |
-| `05_aihen_3rd_best30_clip.mp4` | 视频 / 金曲舞台剪辑 | SNH48 第三届年度金曲大赏《爱恨的泪》TOP2（2017-01-07）。原片 03:48，本文件从 00:10 起 3 分钟，去掉片头标题卡。画面带腾讯视频水印。 | 180.032 秒 / 1280×720 / 25fps | 草稿 Release `kahuang-footage`，不进 git。直链见下方「Release 资产」。 | https://www.youtube.com/watch?v=91kbBUV2c44 | YouTube 频道 prn（@prnprnprn），转载。画面水印为腾讯视频。舞台原版权属 SNH48 等。 |
+| `03_yedie_1st_best30.mp4` | 视频 / 金曲舞台 | SNH48 第一届年度金曲大赏《夜蝶》，黄婷婷、李艺彤同台，含近距离互动和阶梯上的下跪。全片保留。画面带优酷水印。 | 163.492 秒 / 1280×720 / 25fps | 草稿 Release 资产，不进 git：https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/03_yedie_1st_best30.mp4 | https://www.youtube.com/watch?v=G7Yu-ine0vQ | YouTube 频道 prn（@prnprnprn），转载。舞台原版权属 SNH48 等。 |
+| `04_renyu_4th_best50_clip.mp4` | 视频 / 金曲舞台剪辑 | SNH48 第四届年度金曲大赏 BEST50《人鱼》（2018-02-03）。原片 03:51，本文件为 00:40–03:40，去掉开头会场空镜，留到收束趴台。 | 180.032 秒 / 1920×1080 / 25fps | 草稿 Release 资产，不进 git：https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/04_renyu_4th_best50_clip.mp4 | https://www.youtube.com/watch?v=USYiVnLaBfw | YouTube 频道 sis ofrurie（@sisofrurie2223），转载。舞台原版权属 SNH48 等。 |
+| `05_aihen_3rd_best30_clip.mp4` | 视频 / 金曲舞台剪辑 | SNH48 第三届年度金曲大赏《爱恨的泪》TOP2（2017-01-07）。原片 03:48，本文件从 00:10 起 3 分钟，去掉片头标题卡。画面带腾讯视频水印。 | 180.032 秒 / 1280×720 / 25fps | 草稿 Release 资产，不进 git：https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/05_aihen_3rd_best30_clip.mp4 | https://www.youtube.com/watch?v=91kbBUV2c44 | YouTube 频道 prn（@prnprnprn），转载。画面水印为腾讯视频。舞台原版权属 SNH48 等。 |
 | `weibo/kahuang_01.jpg` | 图片 / 同框 | 李艺彤与黄婷婷同框合影（深色校服、格子袖口），右下角水印 `@R_sun_H`。本包唯一真正同框照片。 | 3072×4096 | `demos/kahuang/weibo/kahuang_01.jpg` | https://weibo.com/7499234386/Qo1EDaLgq | 微博 uid 7499234386。画面水印 `@R_sun_H`。 |
 | `weibo/single_not_together_02.jpg` | 图片 / 单人 | 单人近照（黑金饰边上衣、白衬衫、黑领带）。不是同框。 | 1433×2048 | `demos/kahuang/weibo/single_not_together_02.jpg` | https://weibo.com/6417116437/Qp50wA1Mr | 微博 uid 6417116437。 |
 | `weibo/fan_compare_01.jpg` | 图片 / 微博截图 | 手机截图：微博 App 里李艺彤主页的一条九宫格，文案「这样的那样的」。用来对照，不是同框原片。 | 1179×2556 | `demos/kahuang/weibo/fan_compare_01.jpg` | https://weibo.com/7807859950/RqUqVqayJ | 微博 uid 7807859950。 |
@@ -69,16 +69,16 @@
 
 ## Release 资产
 
-01 / 03 / 04 / 05 用共享存储里的原文件上传，没有从 YouTube 重新下载。草稿，不作为正式版发布。直链在上传并用下载回读核对 SHA256 之后写入。
+01 / 03 / 04 / 05 用原文件上传，没有从 YouTube 重新下载。这是草稿，不是正式版。标签名是 `kahuang-footage`；草稿页面的地址用的是 GitHub 的 untagged 链接（和本仓库 `epstein-footage` 草稿一样）。未登录时直链会 404，用已登录的 `gh release download kahuang-footage` 下载。
+
+Release 页面：https://github.com/polarbearlin/video-lab/releases/tag/untagged-92aa9c65df77c675a60e
 
 | 文件 | 下载 |
 |---|---|
-| `01_yedie_official_mv_clip.mp4` | （待写入） |
-| `03_yedie_1st_best30.mp4` | （待写入） |
-| `04_renyu_4th_best50_clip.mp4` | （待写入） |
-| `05_aihen_3rd_best30_clip.mp4` | （待写入） |
-
-Release 页面：（待写入）
+| `01_yedie_official_mv_clip.mp4` | https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/01_yedie_official_mv_clip.mp4 |
+| `03_yedie_1st_best30.mp4` | https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/03_yedie_1st_best30.mp4 |
+| `04_renyu_4th_best50_clip.mp4` | https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/04_renyu_4th_best50_clip.mp4 |
+| `05_aihen_3rd_best30_clip.mp4` | https://github.com/polarbearlin/video-lab/releases/download/untagged-92aa9c65df77c675a60e/05_aihen_3rd_best30_clip.mp4 |
 
 仓库根目录 `.gitignore` 忽略全部 `*.mp4`，只把 `demos/kahuang/videos/02_houhuiyouqi_ti_liyitong.mp4` 排除在外。用下面的命令把四条大视频下载到 `videos/` 后，它们会保持未跟踪，不要 `git add -f`。
 
