@@ -424,7 +424,7 @@ def main():
     build_audio(audio)
     frame_png = os.path.join(OUT, 'frame_vertical.png')
     build_frame(frame_png)
-    R.package(master, audio, build_subs(), OUT, frame_png, '黄仁勋复职的十一天_初版v1')
+    R.package(master, audio, build_subs(), OUT, frame_png, '黄仁勋复职的十一天_修订v2')
     json.dump([(round(s, 2), round(d, 2), n) for s, d, n, _ in T], open(os.path.join(OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(TOTAL, 2))
 
