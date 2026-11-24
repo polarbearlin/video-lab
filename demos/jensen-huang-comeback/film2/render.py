@@ -247,14 +247,18 @@ def seg_bars(out, dur, start='2026-11-03', end='2026-11-23', hi='2026-11-23', ti
             cx = x0 + bw * (i + 0.5)
             col = RED if v >= 0 else GREEN      # 中国习惯：红涨绿跌
             if day == hi:
-                col = (240, 50, 50)
+                col = (240, 50, 50) if v >= 0 else (60, 200, 90)
             d.rectangle((cx - bw * 0.32, min(base_y, base_y - h), cx + bw * 0.32, max(base_y, base_y - h)), fill=col)
             if day == hi or i % 3 == 0:
                 d.text((cx, base_y + 24 if v >= 0 else base_y - h + 18), day[5:].replace('-', '/'),
                        font=F('Medium', 36), fill=(170, 170, 166), anchor='ma')
-            if day == hi and k > 0.6:
-                d.text((cx - bw * 0.5, base_y - h - 20), f'+{v:.1f}%', font=F('Black', 150), fill=(240, 50, 50),
-                       anchor='rd')
+            lab = (day == hi) or (hi != '2026-11-23' and day == '2026-11-23')
+            if lab and k > 0.6:
+                big = 150 if day == hi else 84
+                if v >= 0:
+                    d.text((cx - bw * 0.5, base_y - h - 20), f'{v:+.1f}%', font=F('Black', big), fill=(240, 50, 50), anchor='rd')
+                else:
+                    d.text((cx + bw * 0.6, base_y - h + 10), f'{v:+.1f}%', font=F('Black', big), fill=(60, 200, 90), anchor='lt')
         source_tag(d, src)
         return im
     seg_frames(out, dur, draw)

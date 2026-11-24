@@ -276,9 +276,9 @@ def build_timeline():
         if stop in bites:
             n, d, fn = bites[stop]
             T.append((stop, d, n, fn))
-    credits = ['配乐：Mixkit《Thunder》《Deep Techno Ambience》《Complicated》《Deep Techno》《Gimme that Groove!》《Greed》《Slow Rain》（Mixkit 免费许可）；音效：Mixkit',
+    credits = ['配乐：Mixkit《Thunder》《Deep Techno Ambience》《Complicated》《Deep Techno》', '《Gimme that Groove!》《Greed》《Slow Rain》（Mixkit 免费许可）；音效：Mixkit',
                '印刷机画面：Harrison Keely，Wikimedia Commons，CC BY 4.0；空镜：Mixkit',
-               '新闻画面版权归 ABC、CNBC、NBC、PBS、福克斯新闻等原播出机构，仅作评论引用',
+               '新闻画面版权归 ABC、CNBC、NBC、PBS、福克斯新闻等原播出机构', '仅作评论引用',
                '插画为示意图，非新闻实拍', '', '这十一天，你觉得谁赢了？评论区聊聊。']
     T.append((END_START, END_LEN, 'end', lambda o, d: fx.seg_end(o, d, credits)))
     return T
