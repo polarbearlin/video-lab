@@ -1,4 +1,4 @@
-# source: Nasdaq.com Historical Data (NVDA), api.nasdaq.com/api/quote/NVDA/historical ; retrieved 2026-11-24 10:53 America/New_York ; 2026-11-24 not yet closed at retrieval (J26 pending)
+# source: Nasdaq.com Historical Data (NVDA), api.nasdaq.com/api/quote/NVDA/historical through 2026-11-23 (retrieved 2026-11-24 10:53 America/New_York); 2026-11-24 from Yahoo Finance https://finance.yahoo.com/quote/NVDA/history (Nasdaq historical pages returned "Data is currently not available" at fetch); close confirmed by NVIDIA IR https://investor.nvidia.com/stock-info/stock-quote-and-chart/default.aspx (Price 155.38, Change -9.67, -5.86%, Previous Close 165.05, stamped "November 24, 2026 4:00 PM Pricing delayed by 20 minutes"); retrieved 2026-11-24 16:26 America/New_York (北京时间 2026-11-25 05:26). Yahoo OHLC Open 159.06 High 159.92 Low 150.50 Volume 379237117. NVIDIA IR Open 159.10, volume 376770648 (open/volume differ slightly by source; close, previous close, and change match). After-hours quote is not included.
 date,open,high,low,close,volume
 2026-11-02,207.53,209.9769,201.66,202.06,119272200
 2026-11-03,207.96,209.14,205.93,206.69,91943390
@@ -16,3 +16,4 @@ date,open,high,low,close,volume
 2026-11-19,152.915,158.1301,145.71,145.98,322940100
 2026-11-20,143.52,143.725,124.50,125.53,633418400
 2026-11-23,167.035,171.50,156.93,165.05,782593300
+2026-11-24,159.06,159.92,150.50,155.38,379237117

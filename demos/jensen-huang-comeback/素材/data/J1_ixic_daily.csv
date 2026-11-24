@@ -1,4 +1,4 @@
-# source: Nasdaq.com Historical Data (COMP), api.nasdaq.com/api/quote/COMP/historical ; retrieved 2026-11-24 10:53 America/New_York ; 2026-11-24 not yet closed at retrieval (J26 pending); index volume not provided by Nasdaq
+# source: Nasdaq.com Historical Data (COMP), api.nasdaq.com/api/quote/COMP/historical through 2026-11-23 (retrieved 2026-11-24 10:53 America/New_York); 2026-11-24 from Yahoo Finance https://finance.yahoo.com/quote/%5EIXIC/history (Nasdaq Composite page unavailable at fetch); retrieved 2026-11-24 16:26 America/New_York (北京时间 2026-11-25 05:26). Yahoo OHLC Open 23745.86 High 23884.74 Low 23455.84 Close 23733.54. Index volume left blank to match earlier Nasdaq rows (Yahoo volume 7984745000 not used). After-hours quote is not included.
 date,open,high,low,close,volume
 2026-11-02,25600.17,25799.46,25145.95,25164.36,
 2026-11-03,25246.63,25474.46,25246.63,25372.01,
@@ -16,3 +16,4 @@ date,open,high,low,close,volume
 2026-11-19,24809.05,24939.62,23870.70,23879.20,
 2026-11-20,23592.67,23837.76,22513.01,22617.73,
 2026-11-23,24269.75,24353.65,23794.96,24089.56,
+2026-11-24,23745.86,23884.74,23455.84,23733.54,
