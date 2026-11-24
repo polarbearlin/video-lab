@@ -250,7 +250,7 @@ def seg_bars(out, dur, start='2026-11-03', end='2026-11-23', hi='2026-11-23', ti
                 col = (240, 50, 50) if v >= 0 else (60, 200, 90)
             d.rectangle((cx - bw * 0.32, min(base_y, base_y - h), cx + bw * 0.32, max(base_y, base_y - h)), fill=col)
             if day == hi or i % 3 == 0:
-                d.text((cx, base_y + 24 if v >= 0 else base_y - h + 18), day[5:].replace('-', '/'),
+                d.text((cx, base_y + 24 if v >= 0 else (base_y - 56 if day == hi else base_y - h + 18)), day[5:].replace('-', '/'),
                        font=F('Medium', 36), fill=(170, 170, 166), anchor='ma')
             lab = (day == hi) or (hi != '2026-11-23' and day == '2026-11-23')
             if lab and k > 0.6:
@@ -258,7 +258,8 @@ def seg_bars(out, dur, start='2026-11-03', end='2026-11-23', hi='2026-11-23', ti
                 if v >= 0:
                     d.text((cx - bw * 0.5, base_y - h - 20), f'{v:+.1f}%', font=F('Black', big), fill=(240, 50, 50), anchor='rd')
                 else:
-                    d.text((cx + bw * 0.6, base_y - h + 10), f'{v:+.1f}%', font=F('Black', big), fill=(60, 200, 90), anchor='lt')
+                    d.text((min(cx, W - 220), base_y - h + 22), f'{v:+.1f}%', font=F('Black', 110 if day == hi else 70),
+                           fill=(60, 200, 90), anchor='ma')
         source_tag(d, src)
         return im
     seg_frames(out, dur, draw)
