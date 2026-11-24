@@ -172,8 +172,8 @@ def seg_card(out, rel, dur, bg=None, rot=-1.2, hl=True, date=None, date_sub=None
             x0, y0, x1, y1 = [int(v * sc) for v in inner]
             prog = ease_out((t - 0.35) / 0.7)
             band = Image.new('RGBA', c.size, (0, 0, 0, 0))
-            ImageDraw.Draw(band).rectangle((x0 - 6, y0 - 4, x0 + int((x1 - x0 + 12) * prog), y1 + 4),
-                                           fill=GREEN + (70,))
+            ImageDraw.Draw(band).rectangle((x0 - 6, y1 + 4, x0 + int((x1 - x0 + 12) * prog), y1 + 14),
+                                           fill=GREEN + (255,))
             c = Image.alpha_composite(c, band)
         x = (W - c.width) // 2
         y = cy - c.height // 2 + int((1 - k) * 90)
