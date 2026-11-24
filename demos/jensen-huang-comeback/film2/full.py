@@ -74,20 +74,20 @@ SHOTS = {
     (1, 2): [(1, S('illus/I12_a.png'))],
     (1, 3): [(1.2, C('V21', 1.0)), (2.4, K('img/J14_nvidia_reinstate_crop1.png', bg=R.bg_blurshot('img/J14_nvidia_reinstate.png'), date='11/23', date_sub='英伟达公告', quote='“全票通过，即日复职”', src='来源：英伟达新闻稿 2026-11-23', rot=1.0, seed=3))],
     (1, 4): [(2.2, BARS(src='数据：纳斯达克官网日线')), (1.6, C('V24', 1.5))],
-    (1, 5): [(1.8, C('V26C', 9.0)), (2.4, K('img/J2_inquirer_nyt.png', hl=False, quote='《纽约时报》电话采访', crop=(0, 0, 1920, 560), maxh=560, seed=5, src='《纽约时报》（费城询问报转载）'))],
+    (1, 5): [(2.2, K('img/J2_inquirer_nyt.png', hl=False, quote='《纽约时报》电话采访', crop=(0, 0, 1920, 560), maxh=560, seed=5, src='《纽约时报》（费城询问报转载）')), (1.8, S('illus/I02_b.png'))],
     (1, 6): [(1, K('img/J2_nightly_nyt_crop_goodjob.png', quote='“我昨晚干得不错吧？”', seed=7, rot=-0.6, **NYT))],
     (1, 7): [(1, K('img/J7_nvidia_ceo_transition.png', hl=False, date='11/12', date_sub='辞职', maxh=520, seed=11)),
              (1, K('img/J11_abc_1117_crop.png', date='11/17', date_sub='被拒', seed=13, rot=1.4)),
              (1, K('img/J14_nvidia_reinstate_crop1.png', date='11/23', date_sub='复职', seed=17, rot=-1.6))],
     (1, 8): [(1, TT([('11 天', 260, GREEN)]))],
-    (1, 9): [(1.4, C('J29a', 0.5)), (1.8, C('V23', 8.0))],
+    (1, 9): [(1.4, C('J29a', 0.5)), (1.8, C('J29d', 1.0))],
     (1, 10): [(1, C('V06', 1.0, label='十月底'))],
-    (1, 11): [(1, K('img/J3_abc_timeline.png', hl=False, quote='10/29《纽约时报》', maxh=560, seed=21, src='来源：ABC 新闻时间线'))],
+    (1, 11): [(1, K('img/J3_abc_timeline.png', hl=False, quote='ABC 时间线：10/29《纽约时报》', maxh=520, seed=21, src='来源：ABC 新闻时间线'))],
     (1, 12): [(1.6, C('V07', 0.5, label='新加坡')), (2.4, C('V08', 3.0))],
     (1, 13): [(1, S('illus/I05_a.png', lines=[('10/31《华尔街日报》', 96, WHITE)]))],
     (1, 14): [(1, S('illus/I05_b.png', lines=[('美国 · 新加坡 · 台湾', 84, WHITE), ('情报官员：有理由认为', 96, GREEN)]))],
     (1, 15): [(1, TT([('她可能是', 110, WHITE), ('中国间谍', 160, RED)], sub='据《华尔街日报》10/31 报道'))],
-    (1, 16): [(1, TT([('“有理由认为”', 150, GREEN), ('≠ 最终定论', 120, WHITE)]))],
+    (1, 16): [(1, S('illus/I05_a.png', lines=[('“有理由认为”', 140, GREEN), ('≠ 最终定论', 110, WHITE)]))],
     (1, 17): [(1.3, C('V17', 1.0, label='华盛顿')), (1.3, C('V03M', 1.0, label='华尔街'))],
     (1, 18): [(1.4, C('V09', 1.0)), (2.0, S('illus/I06_a.png', lines=[('11/8 全员信', 110, WHITE)]))],
     (1, 19): [(1, K('img/J4_verge_memo.png', hl=False, quote='11/8 全员信', maxh=560, seed=23, src='全文：The Verge'))],
@@ -107,7 +107,7 @@ SHOTS = {
     (2, 7): [(1, lambda o, d: fx.seg_counter(o, d))],
     (2, 8): [(1, K('img/J9_x_musk_petition.png', hl=False, quote='马斯克：我也签了请愿', maxh=560, seed=37, src='马斯克 X 帖 11/13'))],
     (2, 9): [(1, K('img/J10_x_huang_1117.png', hl=False, date='11/17', date_sub='黄仁勋发声明', maxh=520, seed=39))],
-    (2, 10): [(2.4, K('img/J10_cnbc_1117_crop.png', quote='“我很荣幸回来担任 CEO”', seed=41, src='来源：CNBC 2026-11-17')), (2.0, C('J28c', 0.0))],
+    (2, 10): [(2.4, K('img/J10_cnbc_1117_crop.png', quote='“若董事会认为合适，我很荣幸回来”', seed=41, src='来源：CNBC 2026-11-17')), (2.0, C('J28c', 0.0))],
     (2, 11): [(1, C('J29b', 0.5))],
     (2, 12): [(2.2, C('V15', 4.0, label='11/17 英伟达财报会')), (2.4, K('img/J11_politico_1117_crop.png', quote='董事会主席 哈维·琼斯', seed=43, src='来源：Politico'))],
     (2, 13): [(1, K('img/J11_abc_1117_crop.png', quote='“一致接受辞职，不打算让他复职”', seed=45, rot=-1.0, src='来源：ABC 新闻时间线'))],
@@ -119,7 +119,7 @@ SHOTS = {
     (2, 19): [(1, S('illus/I03_a.png'))],
     (2, 20): [(1, S('illus/I04_a.png', lines=[('两颗定心丸', 130, GREEN)]))],
     (2, 21): [(1, K('img/J12_nightly_nyt_crop_assurances.png', quote='没有刑事指控 · 不构成国安风险', seed=49, **NYT))],
-    (2, 22): [(1.6, C('V18', 0.5, label='副总统 万斯')), (1.4, C('V18', 4.0, quote='万斯：周末私下见了黄仁勋', src='来源：《纽约时报》、PBS / 美联社'))],
+    (2, 22): [(1.6, C('V18', 0.5, label='副总统 万斯')), (1.4, C('V18', 4.0, quote='万斯：周末私下见了黄仁勋', src='画面：福克斯新闻；内容据《纽约时报》、PBS / 美联社'))],
     (2, 23): [(1, S('illus/I05_b.png'))],
     (2, 24): [(1, K('img/J12_nightly_nyt_crop_rubio.png', quote='鲁比奥等人：至少两次通报', seed=53, **NYT))],
     (2, 25): [(1, C('V04', 6.0, label='特朗普此前：没人通报过他'))],
@@ -131,18 +131,18 @@ SHOTS = {
     (2, 31): [(1, K('img/J14_nvidia_reinstate_crop2.png', quote='② 独立调查会进行到底', seed=61, rot=1.2, src='来源：英伟达新闻稿 2026-11-23'))],
     (2, 32): EXT,
     (2, 33): [(1, S('illus/I11_a.png'))],
-    (2, 34): [(1.2, C('V22P', 0.5)), (1.6, K('img/J16_rte_megaspeed.png', hl=False, quote='美国商务部：实体清单', maxh=560, seed=63, src='来源：RTE / 路透 2026-11-24'))],
+    (2, 34): [(1.2, C('V22P', 0.5, label='资料画面：集装箱港口')), (1.6, K('img/J16_rte_megaspeed.png', hl=False, quote='美国商务部：实体清单', maxh=560, seed=63, src='来源：RTE / 路透 2026-11-24'))],
     (2, 35): [(1, K('img/J16_rte_crop_apex.png', quote='Megaspeed · 阿里旗下 Apex', seed=65, src='来源：RTE / 路透'))],
     (2, 36): [(1, K('img/J16_rte_crop_erroneous.png', quote='阿里：列入清单是“错误的”', seed=67, src='来源：RTE / 路透'))],
     # ===== 第 3 份 =====
     (3, 1): [(1, S('illus/I07_a.png'))],
     (3, 2): [(2.4, BARS(src='数据：纳斯达克官网日线')), (2.4, C('V26S', 1.0))],
-    (3, 3): [(1, C('V24', 11.0))],
+    (3, 3): [(1, C('V03M', 3.0, label='当天纳指 +6.5%'))],
     (3, 4): [(1, C('V23', 14.0))],
     (3, 5): [(1, K('img/J17_x_musk_corrected.png', hl=False, quote='马斯克：“错误已经纠正”', maxh=560, seed=69, src='马斯克 X 帖 11/23'))],
     (3, 6): [(1, K('img/J18_x_calacanis.png', hl=False, quote='“GPU Jesus has risen!”', maxh=520, seed=71, src='Jason Calacanis · X'))],
     (3, 7): [(1, K('img/J19_decrypt_crop_cramer.png', quote='克莱默：跌势还会更糟', seed=73, src='来源：Decrypt（网友调侃）'))],
-    (3, 8): [(1, C('V03', 1.0))],
+    (3, 8): [(1, S('illus/I07_b.png', lines=[('网友：“反指”', 140, GREEN)]))],
     (3, 9): [(1, C('V26C', 14.5, quote='“我的介入非常重要”', src='特朗普 · CNBC 电话采访（据 PBS / 美联社）'))],
     (3, 10): [(1, K('img/J2_inquirer_nyt.png', hl=False, crop=(0, 0, 1920, 560), quote='对《纽约时报》', maxh=520, seed=77))],
     (3, 11): [(1, K('img/J20_nightly_nyt_crop_sexsells.png', quote='“性比股票好卖”', seed=79, **NYT))],
@@ -150,7 +150,7 @@ SHOTS = {
     (3, 13): [(1, K('img/J21_investing_crop_warren.png', quote='沃伦：哪些高层，给了什么“意见”？', seed=81, src='来源：路透各方反应'))],
     (3, 14): [(1.6, C('V27', 1.0, label='杰弗里斯')), (2.4, K('img/J22_jeffries_crop.png', quote='“无法辩护”', seed=83, src='来源：杰弗里斯声明 2026-11-23'))],
     (3, 15): [(1, K('img/J23_cbs_crop_rajgopal.png', quote='“没有哪个董事会能对总统说不”', seed=85, src='哥伦比亚商学院 Shiva Rajgopal（CBS）'))],
-    (3, 16): EXT,
+    (3, 16): [(1, S('illus/I11_b.png', lines=[('“没有哪个董事会', 100, WHITE), ('能对总统说不”', 100, GREEN)]))],
     (3, 17): [(1, K('img/J24_abc_holding.png', hl=False, quote='ABC：特朗普持有英伟达股票', maxh=520, seed=87, src='来源：ABC 新闻 2026-11-23'))],
     (3, 18): [(1, K('img/J24_abc_holding_crop.png', quote='至少 1200 万美元（2025 年底）', seed=89, src='来源：ABC 新闻（年度财产披露）'))],
     (3, 19): [(1, K('img/J24_abc_holding_crop2.png', quote='白宫：由第三方管理', seed=91, src='来源：ABC 新闻'))],
@@ -185,15 +185,15 @@ P1_OFF = COLD + TITLE                       # 6.30
 P1_END = P1_OFF + 87.456
 B1 = (P1_END + 0.10, 'V11', 7.50, 8.70)     # 原声 1：And I really believe him.
 P2_OFF = B1[0] + (B1[3] - B1[2]) + 0.45
-S2 = 63.40                                   # 第 2 份在这里插原声 2
+S2 = 62.75                                   # 第 2 份在这里插原声 2（静音 62.21–63.28）
 B2_LEN = 13.40 - 9.00
 P2_SHIFT = B2_LEN + 0.20
 P3_OFF = P2_OFF + 125.376 + P2_SHIFT + 0.60
-S3 = 38.20
+S3 = 37.75                                   # 静音 37.19–38.27
 B3_LEN = 8.10 - 5.30
 P3_SHIFT = B3_LEN + 0.30
 END_START = P3_OFF + 107.76 + P3_SHIFT + 0.60
-END_LEN = 5.0
+END_LEN = 4.0
 TOTAL = END_START + END_LEN
 
 
@@ -212,6 +212,20 @@ LINES = json.load(open(os.path.join(PROJ, '配音', 'lines_aligned.json')))
 byp = {1: [], 2: [], 3: []}
 for x in LINES:
     byp[x['part']].append(x)
+def silences(part, min_len=0.12):
+    import librosa, numpy as np
+    y, sr = librosa.load(VO[part], sr=16000, mono=True)
+    r = librosa.feature.rms(y=y, frame_length=400, hop_length=160)[0]
+    db = 20 * np.log10(r + 1e-7); thr = db.max() - 38
+    out, st = [], None
+    for i, q in enumerate(db < thr):
+        if q and st is None: st = i
+        if (not q or i == len(db) - 1) and st is not None:
+            if (i - st) * 0.01 >= min_len: out.append((st * 0.01, i * 0.01))
+            st = None
+    return out
+
+
 for p in byp:  # 补缺失的起止时间
     L = byp[p]
     for i, x in enumerate(L):
@@ -219,18 +233,25 @@ for p in byp:  # 补缺失的起止时间
             x['start'] = L[i - 1]['end'] + 0.1
         if x['end'] is None:
             x['end'] = L[i + 1]['start'] - 0.1 if i + 1 < len(L) else x['start'] + 1
+    sil = silences(p)
+    for i in range(len(L) - 1):          # 句与句的边界吸附到中间的静音
+        e, s2 = L[i]['end'], L[i + 1]['start']
+        cand = [(a0, b0) for a0, b0 in sil if a0 <= max(e, s2) + 0.6 and b0 >= min(e, s2) - 0.6]
+        if cand:
+            a0, b0 = min(cand, key=lambda z: abs((z[0] + z[1]) / 2 - (e + s2) / 2))
+            L[i]['end'], L[i + 1]['start'] = a0, b0
 
 
 def build_timeline():
     """返回 [(开始, 时长, 名称, fn)]，镜头首尾相接没有空隙。"""
     T = []
     # 冷开场 + 片名
-    cold = [(1.10, C('ABC', 0.0, zoom=(1.0, 1.03))), (1.10, C('V24', 1.5, zoom=(1.04, 1.10))), (1.00, C('V23', 20.0)),
+    cold = [(1.10, C('ABC', 0.0, zoom=(1.0, 1.03))), (1.10, C('V24', 1.5, zoom=(1.04, 1.10))), (1.00, C('J28b', 0.5)),
             (0.60, C('CNBC1', 2.0, zoom=(1.05, 1.08))), (1.25, C('V23', 30.0))]
     t = 0.0
     for i, (d, fn) in enumerate(cold):
         T.append((t, d, f'c{i}', fn)); t += d
-    T.append((t, TITLE, 't0', TT([('黄仁勋 11 天被请回', 120, GREEN), ('一通电话，董事会为何全票反转？', 64, WHITE)])))
+    T.append((t, TITLE, 't0', TT([('11/12 辞职', 84, WHITE), ('11/17 被拒', 84, WHITE), ('11/23 复职', 110, GREEN)])))
     # 每份旁白的区间
     blocks = [(1, 1, 25, P1_OFF, B1[0]), (2, 1, 18, P2_OFF, B2_AT), (2, 19, 36, B2_AT + B2_LEN + 0.2, P3_OFF),
               (3, 1, 11, P3_OFF, B3_AT), (3, 12, 34, B3_AT + B3_LEN + 0.3, END_START)]
@@ -258,7 +279,7 @@ def build_timeline():
     credits = ['音乐：Kevin MacLeod（incompetech.com）《Volatile Reaction》《Dark Walk》《Thunderbird》CC BY 4.0',
                '印刷机画面：Harrison Keely，Wikimedia Commons，CC BY 4.0；空镜：Mixkit',
                '新闻画面版权归 ABC、CNBC、NBC、PBS、福克斯新闻等原播出机构，仅作评论引用',
-               '插画为示意图，非新闻实拍']
+               '插画为示意图，非新闻实拍', '', '这十一天，你觉得谁赢了？评论区聊聊。']
     T.append((END_START, END_LEN, 'end', lambda o, d: fx.seg_end(o, d, credits)))
     return T
 
@@ -302,65 +323,93 @@ def build_subs():
                 d = (b - a) * len(c) / n
                 subs.append((t, t + d, c.rstrip('，、：；—')))
                 t += d
-    subs.append((B1[0], B1[0] + 1.2, '“我真的相信他。”\\N{\\fs30\\c&HB4B4B4&}And I really believe him.'))
-    subs.append((B2_AT, B2_AT + B2_LEN, '“我跟他们谈了……我说服了他们。”\\N{\\fs30\\c&HB4B4B4&}I spoke to him. Let me just put it that way and I convinced him.'))
+    subs.append((B1[0], B1[0] + 1.2, '{\\c&HB4B4B4&}（原声）And I really believe him.'))
+    subs.append((B2_AT, B2_AT + B2_LEN, '“我跟他谈了……我说服了他。”\\N{\\fs30\\c&HB4B4B4&}I spoke to him. Let me just put it that way and I convinced him.'))
     subs.append((B3_AT, B3_AT + B3_LEN, '“因为性就是好卖，伙计们。”\\N{\\fs30\\c&HB4B4B4&}Because sex sells, fellas.'))
     return sorted(subs)
 
 
 # ---------------- 声音 ----------------
+def at_char(part, i, k_chars):
+    """第 part 份第 i 句（1 起）里，第 k_chars 个字大约在什么时间（全片时间）。"""
+    x = byp[part][i - 1]
+    n = len(re.sub(r'[，。：；、？！“”《》—\\s]', '', x['text']))
+    return g(part, x['start'] + (x['end'] - x['start']) * min(1, k_chars / max(n, 1)))
+
+
+def L0(part, i):
+    return g(part, byp[part][i - 1]['start'])
+
+
+def L1(part, i):
+    return g(part, byp[part][i - 1]['end'])
+
+
 def build_audio(path):
-    fx.sfx_whoosh('/tmp/claude-0/jh_fx/whoosh.wav')
-    fx.sfx_thud('/tmp/claude-0/jh_fx/thud.wav')
-    M = lambda n: R.src_path(f'audio/A1_{n}_macleod.mp3')
-    ins, filt, speech, music, sfx = [], [], [], [], []
+    import score
+    A = lambda n: R.src_path(f'audio/sfx/{n}.mp3')
+    Mu = lambda n: R.src_path(f'audio/music/{n}.mp3')
+    # ---- 人声：冷开场原声、三份配音（拆两刀）、三段特朗普原声 ----
+    abc = R.src_path(V['ABC'])
+    speech = [(abc, 0.0, 3.8, 0.0, -16.0, False), (abc, 8.15, 9.35, 3.85, -16.0, False),
+              (VO[1], 0, 200, P1_OFF, -16.0, True),
+              (VO[2], 0, S2, g(2, 0), -16.0, True), (VO[2], S2, 200, g(2, S2), -16.0, True),
+              (VO[3], 0, S3, g(3, 0), -16.0, True), (VO[3], S3, 200, g(3, S3), -16.0, True),
+              (R.src_path(V['V11']), 7.50, 8.70, B1[0], -17.5, False),
+              (R.src_path(V['V26C']), 9.0, 13.4, B2_AT, -17.5, False),
+              (R.src_path(V['V26S']), 5.30, 8.10, B3_AT, -17.5, False)]
+    # ---- 配乐分段（跟着文案走）----
+    t_c2 = L0(1, 10)                         # 故事要从十月底说起
+    t_hit_weekend = at_char(2, 17, 13)       # “改变一切的周末来了”
+    t_c6 = B3_AT + B3_LEN + 0.3              # 但掌声之外
+    t_c7 = L0(3, 20)                         # 不过，狂欢来得快
+    cues = [dict(file=Mu('mixkit_318_Thunder'), start=COLD, end=t_c2, level=-7, fade_in=0.05),
+            dict(file=Mu('mixkit_134_Deep_Techno_Ambience'), start=t_c2, end=P2_OFF, level=-8),
+            dict(file=Mu('mixkit_281_Complicated'), start=P2_OFF, end=t_hit_weekend, level=-8),
+            dict(file=Mu('mixkit_106_Deep_Techno'), start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),
+            dict(file=Mu('mixkit_872_Gimme_that_Groove'), start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),
+            dict(file=Mu('mixkit_404_Greed'), start=t_c6, end=t_c7, level=-8, fade_in=0.05),
+            dict(file=Mu('mixkit_122_Slow_Rain'), start=t_c7, end=TOTAL - 0.2, level=-9, fade_out=2.5)]
+    # ---- 停乐：关键句前把配乐拿掉，说完再回来 ----
+    drops = [(L0(1, 6) - 0.25, L1(1, 6) + 0.15, 0.0),            # 我昨晚干得不错吧？
+             (L0(1, 20) - 0.25, L1(1, 20) + 0.2, 0.08),          # 我对妻子不忠。没有借口。
+             (L0(2, 13) - 0.2, L1(2, 13) + 0.15, 0.0),           # 一致接受辞职，不打算让他复职。
+             (B1[0] - 0.1, P2_OFF, 0.25),                        # 原声 1
+             (B2_AT - 0.1, B2_AT + B2_LEN + 0.1, 0.3),           # 原声 2
+             (L0(3, 11) - 0.25, t_c6, 0.0),                      # 性比股票好卖 + 原声 3
+             (L0(3, 33) - 0.3, TOTAL, 0.12)]                     # 人回来了。但故事，还远没结束。
+    # ---- 音效 ----
+    sfx = [(A('riser_reverse_impact'), COLD + 0.05, -4, 'end'),   # 冷开场 → 日期快闪
+           (A('hit_cool_trailer'), COLD, -3, 'start'),
+           (A('hit_glitchy_suspense'), L0(1, 6) - 0.2, -8, 'start'),     # 我昨晚干得不错吧
+           (A('whoosh_fast'), t_c2 - 0.35, -6, 'start'),
+           (A('hit_suspense'), L0(1, 15), -5, 'start'),                   # 她可能是中国间谍
+           (A('typing_device'), L0(1, 18), -16, 'start'),
+           (A('heartbeat_deep'), L0(1, 20), -7, 'start'),                 # 我对妻子不忠
+           (A('whoosh_fast'), P2_OFF - 0.35, -6, 'start'),
+           (A('hit_trailer_whoosh'), L0(2, 13), -4, 'start'),             # 一致接受辞职
+           (A('riser_reverse_impact'), t_hit_weekend + 0.05, -5, 'end'),  # 改变一切的周末来了
+           (A('hit_cool_trailer'), t_hit_weekend, -3, 'start'),
+           (A('riser_reverse_impact'), L0(2, 26) + 0.05, -6, 'end'),     # 周一一早，正式官宣
+           (A('hit_trailer_whoosh'), L0(2, 26), -5, 'start'),
+           (A('tv_transition'), P3_OFF - 0.3, -7, 'start'),
+           (A('hit_glitchy_suspense'), t_c6, -6, 'start'),                # 但掌声之外
+           (A('whoosh_fast'), t_c7 - 0.35, -7, 'start'),
+           (A('glitch_break'), L0(3, 21), -9, 'start'),                   # 第二天回落
+           (A('logo_impact'), END_START, -6, 'start')]
+    for st, d, name in [(x[0], x[1], x[2]) for x in TL]:                  # 日期章：打字机重击
+        if name in STAMP_SHOTS:
+            sfx.append((A('typewriter_hit'), st + 0.08, -8, 'start'))
+    score.build_mix(path, TOTAL, speech, cues, drops, sfx)
 
-    def add_in(path):
-        ins.extend(['-i', path]); return len(ins) // 2 - 1
 
-    def ms(t):
-        return int(round(t * 1000))
-    abc = add_in(R.src_path(V['ABC']))
-    filt.append(f'[{abc}:a]atrim=0:3.8,asetpts=PTS-STARTPTS,aresample=48000,volume=1.5,adelay={ms(0)}:all=1[s0]'); speech.append('s0')
-    abc2 = add_in(R.src_path(V['ABC']))
-    filt.append(f'[{abc2}:a]atrim=8.15:9.35,asetpts=PTS-STARTPTS,aresample=48000,volume=1.5,adelay={ms(3.85)}:all=1[s1]'); speech.append('s1')
-    vo_chain = 'aresample=48000,highpass=f=70,acompressor=threshold=0.1:ratio=2.5:attack=10:release=200,volume=1.15'
-    p1 = add_in(VO[1])
-    filt.append(f'[{p1}:a]{vo_chain},adelay={ms(P1_OFF)}:all=1[s2]'); speech.append('s2')
-    for k, (key, a, b, at, vol) in enumerate([('V11', 7.50, 8.70, B1[0], 1.6), ('V26C', 9.0, 13.4, B2_AT, 1.4),
-                                               ('V26S', 5.30, 8.10, B3_AT, 1.4)]):
-        i = add_in(R.src_path(V[key]))
-        filt.append(f'[{i}:a]atrim={a}:{b},asetpts=PTS-STARTPTS,aresample=48000,volume={vol},afade=t=in:d=0.05,afade=t=out:st={b - a - 0.08}:d=0.08,adelay={ms(at)}:all=1[b{k}]'); speech.append(f'b{k}')
-    for k, (p, a, b) in enumerate([(2, 0, S2), (2, S2, 200), (3, 0, S3), (3, S3, 200)]):
-        i = add_in(VO[p])
-        filt.append(f'[{i}:a]atrim={a}:{b},asetpts=PTS-STARTPTS,{vo_chain},adelay={ms(g(p, a))}:all=1[v{k}]'); speech.append(f'v{k}')
-    # 配乐三段
-    t_b = g(2, byp[2][16]['start'])            # “就在所有人都觉得大局已定时”
-    for k, (name, a, b) in enumerate([('volatile_reaction', COLD, t_b + 1.5), ('dark_walk', t_b, P3_OFF + 1.0),
-                                      ('thunderbird', P3_OFF, TOTAL)]):
-        i = add_in(M(name))
-        L = b - a
-        filt.append(f'[{i}:a]atrim=0:{L},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,volume=0.30,'
-                    f'afade=t=in:d=1.2,afade=t=out:st={L - 2.0}:d=2.0,adelay={ms(a)}:all=1[m{k}]'); music.append(f'm{k}')
-    # 音效：转场 whoosh、片名 thud
-    wh = [COLD - 0.45, g(1, byp[1][9]['start']) - 0.5, P2_OFF - 0.4, t_b - 0.5, P3_OFF - 0.4,
-          g(3, byp[3][19]['start']) - 0.5, END_START - 0.4]
-    for k, at in enumerate(wh):
-        i = add_in('/tmp/claude-0/jh_fx/whoosh.wav')
-        filt.append(f'[{i}:a]volume=0.55,adelay={ms(at)}:all=1[w{k}]'); sfx.append(f'w{k}')
-    i = add_in('/tmp/claude-0/jh_fx/thud.wav')
-    filt.append(f'[{i}:a]volume=0.8,adelay={ms(COLD)}:all=1[th]'); sfx.append('th')
-    filt.append(''.join(f'[{x}]' for x in speech) + f'amix=inputs={len(speech)}:normalize=0,aformat=channel_layouts=stereo,apad,atrim=0:{TOTAL}[sp]')
-    filt.append('[sp]asplit=2[sp1][key]')
-    filt.append(''.join(f'[{x}]' for x in music) + f'amix=inputs={len(music)}:normalize=0,apad,atrim=0:{TOTAL}[mu]')
-    filt.append('[mu][key]sidechaincompress=threshold=0.02:ratio=6:attack=20:release=350[mud]')
-    filt.append(''.join(f'[{x}]' for x in sfx) + f'amix=inputs={len(sfx)}:normalize=0,apad,atrim=0:{TOTAL}[fx]')
-    filt.append('[sp1][mud][fx]amix=inputs=3:normalize=0,loudnorm=I=-14:TP=-1.0:LRA=11,aresample=48000[out]')
-    R.ff(ins + ['-filter_complex', ';'.join(filt), '-map', '[out]', '-ac', '2', '-ar', '48000', path])
+STAMP_SHOTS = {'p1_01_1', 'p1_03_1', 'p1_07_0', 'p1_07_1', 'p1_07_2', 'p2_02_0', 'p2_09_0', 'p2_27_0', 'p3_23_0', 'p3_24_0'}
+TL = []
 
 
 def main():
     T = build_timeline()
+    TL.extend(T)
     segs = []
     for st, d, name, fn in T:
         o = os.path.join(SEG, f'{name}.mp4')

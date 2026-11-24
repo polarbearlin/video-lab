@@ -145,7 +145,7 @@ def stamp(d, xy, text, sub=None, color=GREEN):
 
 def source_tag(d, text):
     if text:
-        d.text((48, H - 58), text, font=F('Medium', 30), fill=(170, 170, 166), stroke_width=2, stroke_fill=BLACK)
+        d.text((48, H - 74), text, font=F('Medium', 44), fill=(190, 190, 186), stroke_width=3, stroke_fill=BLACK)
 
 
 def seg_card(out, rel, dur, bg=None, rot=-1.2, hl=True, date=None, date_sub=None, src=None,
@@ -207,7 +207,7 @@ def seg_still(out, rel, dur, zoom=(1.0, 1.08), label='示意图', darken=0.0):
         im = src.crop((x0, y0, x0 + cw, y0 + ch)).resize((W, H), Image.BICUBIC)
         d = ImageDraw.Draw(im)
         if label:
-            d.text((W - 48, H - 58), label, font=F('Medium', 28), fill=(200, 200, 196), anchor='ra',
+            d.text((W - 48, H - 74), label, font=F('Medium', 40), fill=(210, 210, 206), anchor='ra',
                    stroke_width=2, stroke_fill=BLACK)
         return im
     seg_frames(out, dur, draw)

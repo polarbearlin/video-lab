@@ -22,9 +22,10 @@ def label_png(path, label=None, date=None, date_sub=None, quote=None, quote_col=
     if label:
         f = F('Black', 46)
         w = int(f.getlength(label)) + 40
-        d.rectangle((96, H - 200, 96 + w, H - 132), fill=(10, 10, 11, 220))
-        d.rectangle((96, H - 200, 104, H - 132), fill=GREEN)
-        d.text((120, H - 196), label, font=f, fill=WHITE)
+        ly = 80 if not (date or quote) else 80 + (140 if date else 0) + (150 if quote else 0)
+        d.rectangle((96, ly, 96 + w, ly + 68), fill=(10, 10, 11, 220))
+        d.rectangle((96, ly, 104, ly + 68), fill=GREEN)
+        d.text((120, ly + 4), label, font=f, fill=WHITE)
     R.source_tag(d, src)
     im.save(path)
     return path
@@ -66,7 +67,7 @@ def seg_still_t(out, rel, dur, zoom=(1.0, 1.08), darken=0.15, lines=None, label=
                            stroke_width=max(3, size // 24), stroke_fill=BLACK)
                 y += int(size * 1.25)
         if label:
-            d.text((W - 48, H - 58), label, font=F('Medium', 28), fill=(200, 200, 196), anchor='ra',
+            d.text((W - 48, H - 74), label, font=F('Medium', 40), fill=(210, 210, 206), anchor='ra',
                    stroke_width=2, stroke_fill=BLACK)
         return im
     R.seg_frames(out, dur, draw)
@@ -78,7 +79,7 @@ def seg_lines(out, dur, start='2026-11-11', end='2026-11-20', src='数据：纳�
     na = [v / a[0][1] * 100 for _, v in a]
     nb = [v / b[0][1] * 100 for _, v in b]
     lo, hi = min(na + nb) - 4, 104
-    x0, x1, y0, y1 = 220, 1500, 250, 860
+    x0, x1, y0, y1 = 200, 1330, 250, 860
     Y = lambda v: y1 - (v - lo) / (hi - lo) * (y1 - y0)
     X = lambda i: x0 + (x1 - x0) * i / (len(a) - 1)
     bg = R.bg_dark()
@@ -88,7 +89,7 @@ def seg_lines(out, dur, start='2026-11-11', end='2026-11-20', src='数据：纳�
         d = ImageDraw.Draw(im)
         d.text((96, 80), '辞职前一天 → 上周五（收盘，起点 = 100）', font=F('Black', 60), fill=WHITE)
         d.line([(x0, Y(100)), (x1, Y(100))], fill=(80, 80, 80), width=3)
-        k = ease_out(t / (dur * 0.7))
+        k = ease_out(t / (dur * 0.85))
         n = max(2, int(1 + k * (len(a) - 1)))
         for series, col, name in ((nb, (190, 190, 186), '纳指'), (na, (240, 50, 50), '英伟达')):
             pts = [(X(i), Y(v)) for i, v in enumerate(series[:n])]
@@ -109,7 +110,7 @@ def seg_counter(out, dur, big='10,000+', line1='名英伟达员工签名请愿',
     def draw(t):
         im = bg.copy()
         d = ImageDraw.Draw(im)
-        k = ease_out(t / 0.9)
+        k = ease_out(t / (dur * 0.65))
         n = int(10000 * k)
         txt = f'{n:,}' + ('+' if k >= 1 else '')
         d.text((W // 2, 260), txt, font=F('Black', 280), fill=GREEN, anchor='ma', stroke_width=4, stroke_fill=BLACK)
