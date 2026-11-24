@@ -117,6 +117,6 @@ def build_mix(out_wav, total, speech, cues, drops, sfx, duck_db=7.0):
     mix = norm(mix, -14.0)
     raw = (np.clip(mix, -4, 4)).astype(np.float32).tobytes()
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-f', 'f32le', '-ar', str(SR), '-ac', '2', '-i', '-',
-                    '-af', 'alimiter=limit=0.80:attack=3:release=60:level=false', '-ar', str(SR), out_wav],
+                    '-af', 'alimiter=limit=0.708:attack=2:release=50:level=false', '-ar', str(SR), out_wav],
                    input=raw, check=True)
     return out_wav

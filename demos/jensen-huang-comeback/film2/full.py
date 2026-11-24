@@ -276,7 +276,7 @@ def build_timeline():
         if stop in bites:
             n, d, fn = bites[stop]
             T.append((stop, d, n, fn))
-    credits = ['音乐：Kevin MacLeod（incompetech.com）《Volatile Reaction》《Dark Walk》《Thunderbird》CC BY 4.0',
+    credits = ['配乐：Mixkit《Thunder》《Deep Techno Ambience》《Complicated》《Deep Techno》《Gimme that Groove!》《Greed》《Slow Rain》（Mixkit 免费许可）；音效：Mixkit',
                '印刷机画面：Harrison Keely，Wikimedia Commons，CC BY 4.0；空镜：Mixkit',
                '新闻画面版权归 ABC、CNBC、NBC、PBS、福克斯新闻等原播出机构，仅作评论引用',
                '插画为示意图，非新闻实拍', '', '这十一天，你觉得谁赢了？评论区聊聊。']
@@ -363,13 +363,13 @@ def build_audio(path):
     t_hit_weekend = at_char(2, 17, 13)       # “改变一切的周末来了”
     t_c6 = B3_AT + B3_LEN + 0.3              # 但掌声之外
     t_c7 = L0(3, 20)                         # 不过，狂欢来得快
-    cues = [dict(file=Mu('mixkit_318_Thunder'), start=COLD, end=t_c2, level=-7, fade_in=0.05),
-            dict(file=Mu('mixkit_134_Deep_Techno_Ambience'), start=t_c2, end=P2_OFF, level=-8),
-            dict(file=Mu('mixkit_281_Complicated'), start=P2_OFF, end=t_hit_weekend, level=-8),
-            dict(file=Mu('mixkit_106_Deep_Techno'), start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),
-            dict(file=Mu('mixkit_872_Gimme_that_Groove'), start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),
-            dict(file=Mu('mixkit_404_Greed'), start=t_c6, end=t_c7, level=-8, fade_in=0.05),
-            dict(file=Mu('mixkit_122_Slow_Rain'), start=t_c7, end=TOTAL - 0.2, level=-9, fade_out=2.5)]
+    cues = [dict(file=Mu('mixkit_318_Thunder'), offset=20.25, start=COLD, end=t_c2, level=-7, fade_in=0.05),
+            dict(file=Mu('mixkit_134_Deep_Techno_Ambience'), offset=0.14, start=t_c2, end=P2_OFF, level=-8),
+            dict(file=Mu('mixkit_281_Complicated'), offset=12.89, start=P2_OFF, end=t_hit_weekend, level=-8),
+            dict(file=Mu('mixkit_106_Deep_Techno'), offset=1.72, start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),
+            dict(file=Mu('mixkit_872_Gimme_that_Groove'), offset=5.92, start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),
+            dict(file=Mu('mixkit_404_Greed'), offset=6.64, start=t_c6, end=t_c7, level=-8, fade_in=0.05),
+            dict(file=Mu('mixkit_122_Slow_Rain'), offset=8.0, start=t_c7, end=TOTAL - 0.2, level=-9, fade_out=2.5)]
     # ---- 停乐：关键句前把配乐拿掉，说完再回来 ----
     drops = [(L0(1, 6) - 0.25, L1(1, 6) + 0.15, 0.0),            # 我昨晚干得不错吧？
              (L0(1, 20) - 0.25, L1(1, 20) + 0.2, 0.08),          # 我对妻子不忠。没有借口。
