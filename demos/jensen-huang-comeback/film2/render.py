@@ -51,7 +51,7 @@ def seg_clip(out, file, t_in, dur, zoom=(1.0, 1.06), audio=False, vol=1.0, grade
           f"scale=w='trunc(1920*({z0}+({z1}-{z0})*t/{dur})/2)*2':h=-2:eval=frame,crop=1920:1080")
     if grade:
         vf += ",eq=contrast=1.06:saturation=0.9:brightness=-0.02,vignette=angle=PI/5"
-    vf += ",fps=30,format=yuv420p[v]"
+    vf += ",fps=30,tpad=stop_mode=clone:stop_duration=15,format=yuv420p[v]"
     if audio:
         af = f"[0:a]aresample=48000,aformat=channel_layouts=stereo,volume={vol},apad[a]"
         ff(['-ss', f'{t_in}', '-t', f'{dur}', '-i', src_path(file), '-filter_complex', vf + ';' + af,
