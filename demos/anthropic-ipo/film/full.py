@@ -34,7 +34,13 @@ V = {k: 'video/' + v for k, v in dict(
     PACE='V21_cnbc_amodei_pacing_miles.mp4', ALT='V30_altman_dealbook_public_company.mp4',
     FB1='V34a_cbs_zuck_rings_bell.mp4', FB2='V34b_cbs_facebook_falls_below_ipo.mp4',
     STOCK='JH_V03_mixkit_stock_screen.mp4', JH_B='JH_J29b_GTCBerlin2026_medium.mp4', JH_D='JH_J29d_GTCBerlin2026_gesture.mp4',
-    JH_E='JH_J29e_GTCBerlin2026_wide.mp4').items()}
+    JH_E='JH_J29e_GTCBerlin2026_wide.mp4', S1='V07_bloomberg_s1_revenue.mp4', DC='V08_google_data_center.mp4',
+    WS1='V12a_wall_street_sign.mp4', WS2='V12b_wall_street_canyon.mp4', ALT_A='V13a_altman_safety_ahead.mp4',
+    ALT_C='V13c_altman_safety_claims.mp4', CC='V17b_anthropic_claude_code_talk.mp4', SPEED='V22a_speedometer.mp4',
+    HWY='V22b_night_highway.mp4', SEN='V23_amodei_senate_opening.mp4', HUANG='V24_huang_china_export_controls.mp4',
+    DAIS='V28_senate_hearing_dais_wide.mp4', HACK='V29_anthropic_hackathon.mp4', INV='V31a_investor_screens.mp4',
+    FALL='V31b_falling_chart.mp4', MSN='V32_msnow_axios_employee_warning.mp4', SRV='V33a_server_hallway.mp4',
+    RACK='V33b_server_racks.mp4', TSN='V35a_times_square_night.mp4', DIVE='V35b_underwater_dive.mp4').items()}
 _dur = {}
 
 
@@ -95,14 +101,14 @@ SHOTS = {
     (2, 2): [(1, C('BELL', 14.0))],
     (2, 3): [(1, G(CH.seg_bigcount, 810, ' 亿美元+', '募资 · 史上最大 IPO', '超过 SpaceX 6 月的 750 亿'))],
     (2, 4): [(1, C('FOX', 8.0, label='福克斯商业：估值超过 2 万亿'))],
-    (2, 5): [(1, C('STOCK', 1.0))],
+    (2, 5): [(1, C('S1', 2.0, label='彭博：营收增长'))],
     (2, 6): [(1, G(CH.seg_compare, '前九个月营收', ('2025 年', 25), ('2026 年', 332), ' 亿美元', src='来源：Anthropic 招股书'))],
     (2, 7): EXT, (2, 8): EXT,
-    (2, 9): [(1, C('D_SORKIN', 2.0))],
+    (2, 9): [(1, C('S1', 12.0))],
     (2, 10): [(1, G(CH.seg_loss))],
     (2, 11): EXT,
-    (2, 12): [(1, S(I(4)))],
-    (2, 13): [(1, C('BBG', 6.5))],
+    (2, 12): [(1, C('DC', 3.0, label='资料画面：数据中心')), (1, S(I(4)))],
+    (2, 13): [(1, C('WS1', 3.0))],
     (2, 14): [(1, C('SPX2', 2.0, label='SpaceX · 2026 年 6 月上市'))],
     (2, 15): [(1, G(CH.seg_compare, '上市多久跌破发行价', ('SpaceX', 21), ('Anthropic', 4), ' 个交易日', src='数据：雅虎财经', note='快了五倍'))],
     (2, 16): EXT,
@@ -113,18 +119,18 @@ SHOTS = {
     (2, 21): [(1, C('D_WEF3', 0.5))],
     # ===== 第 3 份 · 第二幕 =====
     (3, 1): [(1, C('D_WEF1', 1.0, label='达里奥·阿莫代伊 · Anthropic CEO'))],
-    (3, 2): [(1, C('ALT', 9.0, label='萨姆·奥特曼 · OpenAI CEO'))],
+    (3, 2): [(1, C('ALT_C', 2.0, label='萨姆·奥特曼 · OpenAI CEO'))],
     (3, 3): [(1, C('COF', 1.0, date='2021', date_sub='出走 OpenAI'))],
     (3, 4): [(1, S(I(5)))],
     (3, 5): [(1, C('COF', 9.0))],
-    (3, 6): [(1, C('ALT', 12.0))], (3, 7): EXT,
+    (3, 6): [(1, C('ALT_A', 2.0))], (3, 7): EXT,
     (3, 8): [(1, TT([('公益公司', 200, GREEN)], sub='Public Benefit Corporation'))],
     (3, 9): [(1, G(CH.seg_bigcount, 80, '%', '七位创始人承诺捐出的股权', '来源：招股书', fmt='{:.0f}'))],
     (3, 10): [(1, S(I(6)))], (3, 11): EXT,
     (3, 12): [(1, C('CNN', 2.0, label='CNN · 2025 年 5 月'))],
     (3, 13): [(1, TT([('“模型过于强大', 110, WHITE), ('可能带来灾难性风险”', 110, GREEN)], sub='写进了上市招股书的风险提示'))],
     (3, 14): [(1, S(I(1)))],
-    (3, 15): [(1, C('D_STAGE', 1.0))], (3, 16): EXT,
+    (3, 15): [(1, C('CC', 3.0, label='Anthropic 发布会'))], (3, 16): EXT,
     (3, 17): [(1, C('JH_B', 0.5, label='黄仁勋 · 英伟达 CEO'))],
     (3, 18): [(1.4, TT([('“他觉得 AI 非常可怕，', 92, WHITE), ('所以只有他们才配做。”', 92, GREEN)], sub='黄仁勋 · 2025 年 6 月 巴黎 VivaTech（大意）')),
               (1, C('JH_D', 1.0))],
@@ -132,14 +138,14 @@ SHOTS = {
     (3, 21): [(1, C('PACE', 0.5, label='11/19 · CNBC'))],
     (3, 22): [(1, G(CH.seg_speedo))], (3, 23): EXT, (3, 24): EXT,
     (3, 25): [(1, C('PACE', 20.0))],
-    (3, 26): [(1, C('STOCK', 3.0))],
+    (3, 26): [(1, C('HWY', 3.0))],
     (3, 27): [(1, S(I(2)))],
-    (3, 28): [(1, S(I(1), lines=[('60 → 90', 170, GREEN)]))],
+    (3, 28): [(1, C('SPEED', 2.0)), (1.2, S(I(1), lines=[('60 → 90', 170, GREEN)]))],
     # ===== 第 4 份 · 暗线与三个猜测 =====
-    (4, 1): [(1, C('TSQ', 6.0))], (4, 2): EXT,
+    (4, 1): [(1, C('TSN', 2.0))], (4, 2): EXT,
     (4, 3): [(1, S(I(7), lines=[('暗线一：路线死磕', 110, WHITE)]))],
-    (4, 4): [(1, C('D_CU', 4.0))],
-    (4, 5): [(1, C('JH_E', 0.5))],
+    (4, 4): [(1, C('SEN', 3.0, label='2023 年 · 美国参议院听证'))],
+    (4, 5): [(1, C('HUANG', 4.0, label='黄仁勋 · 英伟达 CEO'))],
     (4, 6): [(1, TT([('暗线二', 120, GREEN), ('开发者生态的反弹', 110, WHITE)]))],
     (4, 7): [(1, C('D_SORKIN', 6.0))],
     (4, 8): [(1, TT([('拿全网公开数据训练模型', 96, WHITE)]))],
@@ -152,21 +158,21 @@ SHOTS = {
     (4, 15): [(1, C('CNBCA', 6.0))],
     (4, 16): [(1, S(I(8), lines=[('猜测一', 100, GREEN), ('安全叙事 = 护城河？', 100, WHITE)]))],
     (4, 17): EXT,
-    (4, 18): [(1, C('D_WEF3', 6.0))],
-    (4, 19): [(1, S(I(8)))], (4, 20): EXT,
+    (4, 18): [(1, C('DAIS', 2.0, label='资料画面：美国参议院'))],
+    (4, 19): [(1, S(I(8)))], (4, 20): [(1, C('HACK', 4.0))],
     (4, 21): [(1, C('BELL', 20.0))], (4, 22): EXT,
     (4, 23): [(1, S(I(9), lines=[('猜测二', 100, GREEN), ('为什么抢跑上市？', 100, WHITE)]))],
     (4, 24): [(1, C('ALT', 13.0, date='11/18', date_sub='DealBook 峰会'))],
     (4, 25): [(1, C('ALT', 0.0))],
     (4, 26): [(1, S(I(9)))], (4, 27): EXT,
-    (4, 28): [(1, C('CHART', 10.0))],
+    (4, 28): [(1, C('INV', 2.0))],
     (4, 29): [(1, S(I(10), lines=[('猜测三', 100, GREEN), ('实验室兜不住了？', 100, WHITE)]))], (4, 30): EXT,
     (4, 31): [(1, K('img/J19_axios_live_title_lede.png', hl=False, date='11/24', date_sub='Axios 独家', maxh=520, **AXIOS))],
-    (4, 32): EXT,
+    (4, 32): [(1, C('MSN', 2.0))],
     (4, 33): [(1, K('img/J19_axios_employee_warning_crop.png', quote='据 Axios：二十多位知情人士', seed=9, **AXIOS))],
     (4, 34): [(1, S(I(10), lines=[('据报道：内部模型', 90, WHITE), ('会给监督者编“掩护说辞”', 96, GREEN)]))],
-    (4, 35): [(1, C('CHART', 4.0))],
-    (4, 36): [(1, S(I(10)))], (4, 37): EXT,
+    (4, 35): [(1, C('FALL', 2.0))],
+    (4, 36): [(1, C('SRV', 2.0))], (4, 37): [(1, S(I(10)))],
     # ===== 第 5 份 · 结尾 =====
     (5, 1): [(1, C('AFP', 20.0))],
     (5, 2): [(1, C('FB1', 2.0, label='2012 年 5 月 · Facebook 上市'))],
@@ -174,10 +180,10 @@ SHOTS = {
     (5, 4): [(1, C('BELL', 4.0))],
     (5, 5): [(1, C('D_STAGE', 4.0))],
     (5, 6): [(1, C('D_SORKIN', 8.0))],
-    (5, 7): [(1, C('STOCK', 6.0))],
+    (5, 7): [(1, C('WS2', 2.0))],
     (5, 8): [(1, S(I(11)))], (5, 9): EXT,
     (5, 10): [(1, C('ALT', 14.0))],
-    (5, 11): [(1, S(I(12)))], (5, 12): EXT,
+    (5, 11): [(1, C('DIVE', 2.0))], (5, 12): [(1, S(I(12)))],
 }
 
 # ---------------- 配音逐句时间 ----------------
@@ -422,7 +428,7 @@ def main():
     build_audio(audio)
     frame_png = os.path.join(OUT, 'frame_vertical.png')
     build_frame(frame_png)
-    R.package(master, audio, build_subs(), OUT, frame_png, os.environ.get('AN_NAME', 'Anthropic上市四天破发_v1'), which=('v',))
+    R.package(master, audio, build_subs(), OUT, frame_png, os.environ.get('AN_NAME', 'Anthropic上市四天破发_v2'), which=('v',))
     json.dump([(round(s, 2), round(d, 2), n) for s, d, n, _ in T], open(os.path.join(OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(TOTAL, 2))
 
