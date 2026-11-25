@@ -40,9 +40,15 @@ def bite(html): return ('tag', dict(html=f'<span class="k">原声</span>{html}',
 def label(): return ('label', {})
 SRC_S1 = '来源：Anthropic 招股书（前九个月）'
 
+# 冷开场快切：Bloomberg 主播原声垫底，14 个画面越切越快（素材键, 入点, 相对时长）
+_C = [('FOX', 0.0, 2.1), ('BELL', 10.0, 2.0), ('BBG', 1.9, .95), ('FORBES', 1.0, .9), ('CHART', 4.0, .8)]   # 跟着两句原声走
+_k = F.COLD / sum(x[2] for x in _C)
+COLD_CUTS = [[k, t, round(d * _k, 3)] for k, t, d in _C]
+COLD_CUTS[-1][2] = round(F.COLD - sum(x[2] for x in COLD_CUTS[:-1]), 3)
+
 B = [
     # ===== 冷开场、片名 =====
-    ('cold', None, ('cold',), ('tag', dict(html='<span class="k">原声</span>彭博 · 11/24', pos='tl', small=True))),
+    ('cold', None, ('cold', COLD_CUTS), None),
     ('title', None, ('ground',), ('title_ipo', {})),
     # ===== 第 1 份 · 钩子（试片同款）=====
     ((1, 1), None, ('illus', 'P01'), ('quote', dict(text='“AI 可能会毁灭人类”'))),
@@ -63,7 +69,7 @@ B = [
     ((2, 1), None, ('framed', 'AFP', 3.0), tag('<span class="k">2026.11.19</span>Anthropic 登陆纳斯达克', pos='bl')),
     ((2, 2), None, ('clip', 'BELL', 14.0), None),
     ((2, 3), None, ('illus', 'P07'), ('counter', dict(value=810, unit=' 亿美元+', sub='募资 · 史上最大 IPO'))),
-    (('bite', 'FOX'), None, ('clip', 'FOX', 0.0), bite('福克斯商业 · 11/19')),
+    (('bite', 'FOX'), None, ('clip', 'FOX', 4.10), bite('福克斯商业 · 11/19')),
     ((2, 4), None, ('clip', 'FOX', 8.0), tag('首日估值一度超过 <b>2 万亿美元</b>', pos='bl')),
     ((2, 5), None, ('illus', 'P08'), None),
     ((2, 6), (2, 8), ('ground',), ('bars', dict(title='前九个月营收', items=[['2025 年', 25], ['2026 年', 332]], unit='亿美元', note='一年涨了 13 倍', src=SRC_S1))),
@@ -162,7 +168,10 @@ def build():
         out.append(dict(a=round(a, 3), b=round(b, 3), bg=list(bg), ov=o, label=bg[0] == 'illus'))
         prev = b
     assert abs(prev - F.TOTAL) < 0.02, (prev, F.TOTAL)
-    cuts = [round(x['a'], 3) for x in out[1:]] + [0.0, 1.3, 2.65, 3.95, 5.25]   # 冷开场内部的切点也要漏光
+    acc, inner = 0.0, []
+    for _, _, d in COLD_CUTS[:-1]:
+        acc += d; inner.append(round(acc, 3))
+    cuts = [round(x['a'], 3) for x in out[1:]] + inner   # 冷开场内部的切点也要漏光
     json.dump(dict(dur=round(F.TOTAL, 3), shots=out, cuts=sorted(cuts), credits=None), open(os.path.join(HERE, 'storyboard.json'), 'w'), ensure_ascii=False, indent=0)
     print('shots', len(out), 'dur', round(F.TOTAL, 2), 'illus', sum(1 for x in out if x['bg'][0] == 'illus'))
 

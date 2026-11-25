@@ -241,7 +241,7 @@ def line(p, i):
 BITES = {   # (份, 句) 之后插入：(镜头键, 原片起, 原片止, 中文字幕, 英文原话, 画面标签)
     (1, 6): ('CNBCA', 2.30, 4.55, '“Anthropic 股价跌了 9%。”', 'See Anthropic shares down 9%.', 'CNBC · 11/24'),
     (1, 9): ('SIGNS', 3.50, 7.45, '“等 AI 泡沫破了，谁来接盘？”', "When the AI bubble bursts, who's going to be holding the bag, right?", '时代广场抗议者 · 美联社'),
-    (2, 3): ('FOX', 0.00, 7.20, '“Anthropic 完成了史上最大的 IPO，募资 813.4 亿美元。”', "Anthropic raised the largest IPO offering on record. We're talking $81.34 billion.", '福克斯商业 · 11/19'),
+    (2, 3): ('FOX', 4.10, 7.20, '“我们说的是 813.4 亿美元。”', "We're talking $81.34 billion.", '福克斯商业 · 11/19'),
     (2, 8): ('S1', 3.80, 6.70, '“营收增长可能不可持续。”', 'Revenue growth might not be sustainable.', '彭博 · 招股书解读'),
     (2, 19): ('CHART', 1.25, 9.15, '“投资者对纯 AI 概念股，没有原先想的那么有把握。”', "We've seen investors not really as sure of the pure play AI trade as we thought they might be.", '彭博 · 11/24'),
     (3, 8): ('SEN', 2.45, 4.40, '“Anthropic 是一家公益公司。”', 'Anthropic is a public benefit corporation.', '达里奥 · 2023 年参议院听证'),
@@ -345,8 +345,8 @@ def chunks(text, maxn=18):
 
 
 def build_subs():
-    subs = [(0.0, 6.6, '早些时候股价跌破 83 美元发行价，上市以来的涨幅全部抹平。'
-             '\\N{\\fs30\\c&HB4B4B4&}Shares fell below their $83 IPO price, wiping out all of their gains since their debut.')]
+    subs = [(0.0, 4.1, 'Anthropic 完成了史上最大的 IPO。\\N{\\fs30\\c&HB4B4B4&}Anthropic raised the largest IPO offering on record.'),
+            (4.2, 6.7, '股价跌破了 83 美元发行价。\\N{\\fs30\\c&HB4B4B4&}Shares fell below their $83 IPO price.')]
     for p in PARTS:
         L = byp[p]
         for i, x in enumerate(L):
@@ -377,7 +377,8 @@ def L1(p, i):
 
 def build_audio(path):
     import score
-    speech = [(R.src_path(V['BBG']), 0.0, 6.64, 0.0, -16.0, False)]
+    speech = [(R.src_path(V['FOX']), 0.0, 4.08, 0.0, -16.0, False),        # 冷开场：史上最大 IPO → 跌破发行价（黄金 5 秒：第一句就点题）
+              (R.src_path(V['BBG']), 1.82, 4.30, 4.20, -16.0, False)]
     for pc in PIECES:
         if pc[0] == 'vo':
             speech.append((VO[pc[1]], pc[2], pc[3], pc[4], -16.0, True))

@@ -54,8 +54,8 @@ def bg_clip(out, bg, d, i):
             R.seg_still(out, f'illus_v2/{bg[1]}.png' if os.path.exists(png) else OLD[i % len(OLD)], d, zoom=(1.0, 1.16), label=None)
     elif kind == 'cold':
         parts = []
-        for k, (key, t_in, dd) in enumerate(COLD):
-            o = os.path.join(TMP, f'cold{k}.mp4'); R.seg_clip(o, V[key], t_in, dd, zoom=(1.0, 1.06)); parts.append(o)
+        for k, (key, t_in, dd) in enumerate(bg[1]):     # 快切：每个画面从 1.10 快速推回 1.00（冲击感）
+            o = os.path.join(TMP, f'cold{k}.mp4'); R.seg_clip(o, V[key], t_in, dd, zoom=(1.10, 1.0)); parts.append(o)
         R.concat(parts, out)
     else:   # ground：底下垫黑，网页图层是不透明的
         R.ff(['-f', 'lavfi', '-t', f'{d}', '-i', 'color=c=black:s=1920x1080:r=30', '-f', 'lavfi', '-t', f'{d}', '-i', 'anullsrc=r=48000:cl=stereo',
