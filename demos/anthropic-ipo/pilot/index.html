@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Anthropic 试片 · 图层</title>
+<style>
+@font-face { font-family: 'Serif'; src: url(fonts/NotoSerifSC.ttf); font-weight: 200 900; }
+@font-face { font-family: 'Display'; src: url(fonts/DMSerifDisplay.ttf); }
+@font-face { font-family: 'Oswald'; src: url(fonts/Oswald.ttf); font-weight: 200 700; }
+@font-face { font-family: 'Mono'; src: url(fonts/IBMPlexMono.ttf); }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Black.ttf); font-weight: 900; }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Bold.ttf); font-weight: 700; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+#stage { position: absolute; inset: 0; overflow: hidden; }
+.L { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
+.scene { position: absolute; inset: 0; display: none; overflow: hidden; }
+/* 纸片标签：米黄纸 + 撕边阴影 */
+.tag { position: absolute; background: #EFE6D2; color: #1A1410; font: 700 46px 'Sans'; padding: 14px 30px 16px 26px;
+       box-shadow: 0 14px 30px rgba(0,0,0,.55); clip-path: polygon(0 4%, 3% 0, 30% 3%, 60% 0, 97% 2%, 100% 0, 99% 50%, 100% 96%, 70% 100%, 40% 97%, 6% 100%, 0 95%, 1% 50%); }
+.tag b { color: #C8371E; }
+.tag .k { display: inline-block; background: #E07A3F; color: #160F0A; font: 700 34px 'Oswald'; padding: 2px 12px; margin-right: 16px; vertical-align: 6px; letter-spacing: 1px; }
+.stamp { position: absolute; border: 8px solid #D6311E; color: #D6311E; font: 900 92px 'Sans'; padding: 4px 28px; letter-spacing: 4px; transform-origin: center; mix-blend-mode: normal; background: rgba(18,8,6,.35); }
+.card { position: absolute; background: #EFE6D2; padding: 18px 18px 86px; box-shadow: 0 30px 60px rgba(0,0,0,.6); }
+.card img { display: block; width: 100%; filter: sepia(.35) contrast(1.05) saturate(.8); }
+.card .cap { position: absolute; left: 22px; right: 22px; bottom: 14px; font: 700 40px 'Sans'; color: #1A1410; display: flex; justify-content: space-between; align-items: baseline; }
+.card .cap i { font: 400 30px 'Oswald'; font-style: normal; color: #6A5A48; letter-spacing: 1px; }
+.big { position: absolute; font-family: 'Display', 'Serif'; color: #F2E6CE; text-shadow: 0 6px 30px rgba(0,0,0,.7); white-space: nowrap; }
+.serif { font-family: 'Serif'; font-weight: 900; }
+.label { position: absolute; right: 44px; bottom: 34px; font: 700 34px 'Sans'; color: rgba(240,230,210,.82); text-shadow: 0 2px 6px #000; }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+// 约定：window.render(t) 只依赖 t；所有随机数有种子；READY 之前图片和字体都加载好。
+const W = 1920, H = 1080, FPS = 30;
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const eOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const eInOut = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const eBack = x => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };   // 带回弹
+const seg = (t, a, d) => clamp((t - a) / d);
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const stage = document.getElementById('stage');
+const el = (tag, cls, html, parent = stage) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; };
+const set = (e, o, tf) => { e.style.opacity = o; if (tf != null) e.style.transform = tf; };
+
+// ---------- 共用底：网格 + 红色斜光 + 纸纹（opaque 场景用） ----------
+function makeGround() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d');
+  g.fillStyle = '#0D0A09'; g.fillRect(0, 0, W, H);
+  const r = rng(7);
+  // 红色斜光束
+  for (const [x0, w, a] of [[-300, 520, .55], [380, 260, .35], [1250, 640, .45]]) {
+    const gr = g.createLinearGradient(x0, 0, x0 + w + 900, H); gr.addColorStop(0, `rgba(170,28,18,${a})`); gr.addColorStop(1, 'rgba(60,8,6,0)');
+    g.fillStyle = gr; g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + w, 0); g.lineTo(x0 + w + 900, H); g.lineTo(x0 + 900, H); g.closePath(); g.fill();
+  }
+  g.strokeStyle = 'rgba(255,240,220,.045)'; g.lineWidth = 1;
+  for (let x = 0; x < W; x += 48) { g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, H); g.stroke(); }
+  for (let y = 0; y < H; y += 48) { g.beginPath(); g.moveTo(0, y + .5); g.lineTo(W, y + .5); g.stroke(); }
+  const id = g.getImageData(0, 0, W, H); for (let i = 0; i < id.data.length; i += 4) { const n = (r() - .5) * 22; id.data[i] += n; id.data[i + 1] += n; id.data[i + 2] += n; } g.putImageData(id, 0, 0);
+  const v = g.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.7)'); g.fillStyle = v; g.fillRect(0, 0, W, H);
+  return c.toDataURL('image/jpeg', .92);
+}
+// 胶片颗粒：8 张轮换
+function makeGrain() {
+  const out = []; for (let k = 0; k < 8; k++) { const c = document.createElement('canvas'); c.width = 960; c.height = 540; const g = c.getContext('2d'); const id = g.createImageData(960, 540); const r = rng(100 + k);
+    for (let i = 0; i < id.data.length; i += 4) { const n = r() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = n; id.data[i + 3] = 26; } g.putImageData(id, 0, 0); out.push(c.toDataURL()); } return out;
+}
+
+// ---------- 场景 ----------
+// 时间来自 film/full.py 的时间线（冷开场 6.75 + 片名 1.30 + 第 1 份旁白 + 两段原声），试片到 48.79 秒
+const DUR = 48.79;
+const S = [];   // {a, b, opaque, init(root), draw(t, root)}
+const IMG = {};
+
+// 0. 冷开场：切点处的漏光闪 + 角标
+S.push({ a: 0, b: 6.75, init(r) { this.tag = el('div', 'tag', '<span class="k">原声</span>彭博 · 11/24', r); this.tag.style.cssText += 'left:70px;top:70px;font-size:36px'; },
+  draw(t) { set(this.tag, eOut(seg(t, .2, .3)), `translateX(${(1 - eBack(seg(t, .2, .45))) * -60}px)`); } });
+
+// 1. 片名：11/19 上市 → 价格线 → 11/24 破发（盖章 + 震动）
+S.push({ a: 6.75, b: 8.05, opaque: true, init(r) {
+    el('img', 'L', null, r).src = IMG.ground;
+    this.l1 = el('div', 'big', '<span style="font-family:Oswald;font-weight:500">11/19</span> <span class="serif">上市</span>', r); this.l1.style.cssText += 'left:170px;top:250px;font-size:120px';
+    this.cv = el('canvas', 'L', null, r); this.cv.width = W; this.cv.height = H;
+    this.st = el('div', 'stamp', '11/24 破发', r); this.st.style.cssText += 'left:1040px;top:600px;font-size:120px';
+  },
+  draw(t, r) { const u = t - this.a;
+    set(this.l1, eOut(seg(u, 0, .25)), `translateY(${(1 - eOut(seg(u, 0, .35))) * 40}px)`);
+    const g = this.cv.getContext('2d'); g.clearRect(0, 0, W, H);
+    const k = eInOut(seg(u, .15, .75)); const pts = [[180, 520], [560, 470], [900, 600], [1240, 640], [1620, 760]];
+    g.setLineDash([22, 16]); g.strokeStyle = 'rgba(214,49,30,.9)'; g.lineWidth = 5; g.beginPath(); g.moveTo(150, 690); g.lineTo(150 + 1650 * clamp(k * 1.3), 690); g.stroke(); g.setLineDash([]);
+    g.font = "500 38px Oswald"; g.fillStyle = 'rgba(214,49,30,.95)'; if (k > .3) g.fillText('发行价 $83', 150, 676);
+    g.strokeStyle = '#F2E6CE'; g.lineWidth = 9; g.lineJoin = 'round'; g.beginPath(); const n = k * (pts.length - 1);
+    for (let i = 0; i <= Math.floor(n); i++) (i ? g.lineTo : g.moveTo).call(g, ...pts[i]);
+    const i0 = Math.floor(n), f = n - i0; if (i0 < pts.length - 1) g.lineTo(lerp(pts[i0][0], pts[i0 + 1][0], f), lerp(pts[i0][1], pts[i0 + 1][1], f)); g.stroke();
+    const s = seg(u, .85, .18), shake = s > 0 && s < 1 ? Math.sin(u * 90) * 10 * (1 - s) : 0;
+    set(this.st, s > 0 ? 1 : 0, `translate(${shake}px,${shake * .6}px) rotate(-6deg) scale(${lerp(2.2, 1, eOut(s))})`);
+  } });
+
+// 2. P01 上的引语条（打字）
+S.push({ a: 8.05, b: 11.53, init(r) { this.q = el('div', 'tag', '', r); this.q.style.cssText += 'left:96px;bottom:110px;font:900 70px Serif;background:#7E1A10;color:#F2E6CE;padding:18px 40px 22px'; this.lb = el('div', 'label', '示意图', r); },
+  draw(t) { const u = t - this.a, s = '“AI 可能会毁灭人类”', n = Math.round(s.length * clamp((u - .25) / 1.2));
+    this.q.textContent = s.slice(0, Math.max(1, n)); set(this.q, u > .2 ? 1 : 0, `translateX(${(1 - eOut(seg(u, .2, .3))) * -40}px)`); } });
+
+// 3. 敲钟视频装进纸框 + 标签
+S.push({ a: 11.53, b: 14.42, init(r) { this.t = el('div', 'tag', '<span class="k">11/19</span><b>7</b> 位联合创始人 · 纳斯达克敲钟', r); this.t.style.cssText += 'left:120px;bottom:70px'; },
+  draw(t) { const u = t - this.a; set(this.t, clamp(u * 5), `scale(${lerp(.6, 1, eBack(seg(u, .3, .45)))}) rotate(-1.5deg)`); } });
+
+// 4. P02 上的大数字
+S.push({ a: 14.42, b: 16.22, init(r) { this.n = el('div', 'big', '', r); this.n.style.cssText += 'left:0;right:0;text-align:center;top:300px;font-size:250px;color:#F3B35A;text-shadow:0 0 60px rgba(255,160,40,.55),0 8px 0 #2A120A'; this.s = el('div', 'tag', '七位创始人 · 一夜身家<span style="font:400 30px Sans;color:#6A5A48">（按首日股价估算）</span>', r); this.s.style.cssText += 'left:50%;top:620px'; this.lb = el('div', 'label', '示意图', r); },
+  draw(t) { const u = t - this.a, k = eOut(seg(u, 0, .9)); this.n.innerHTML = `${Math.round(1800 * k).toLocaleString()}<span class="serif" style="font-size:120px"> 亿美元</span>`;
+    set(this.n, 1, `scale(${u > .9 && u < 1.15 ? 1 + .05 * Math.sin((u - .9) / .25 * Math.PI) : 1})`); set(this.s, eOut(seg(u, .5, .3)), `translateX(-50%) translateY(${(1 - eOut(seg(u, .5, .3))) * 30}px)`); } });
+
+// 5. 画布：SpaceX 卡 → Anthropic 卡，虚拟镜头平移，盖“史上最大 IPO”
+S.push({ a: 16.22, b: 21.43, opaque: true, init(r) {
+    el('img', 'L', null, r).src = IMG.ground;
+    this.world = el('div', 'L', null, r); this.world.style.cssText = 'width:3600px;height:1600px;transform-origin:0 0';
+    const mk = (x, y, rot, img, title, sub) => { const c = el('div', 'card', `<img src="${img}"><div class="cap"><span>${title}</span><i>${sub}</i></div>`, this.world); c.style.cssText += `left:${x}px;top:${y}px;width:900px;transform:rotate(${rot}deg)`; return c; };
+    this.c1 = mk(300, 360, -3, 'assets/spacex.jpg', 'SpaceX · 750 亿美元', '2026.06');
+    this.c2 = mk(2080, 300, 2.5, 'assets/anth.jpg', 'Anthropic · 813 亿美元', '2026.11');
+    this.arrow = el('canvas', 'L', null, this.world); this.arrow.width = 3600; this.arrow.height = 1600;
+    this.st = el('div', 'stamp', '史上最大 IPO', this.world); this.st.style.cssText += 'left:2240px;top:1060px;font-size:110px';
+    this.rec = el('div', 'tag', '<span class="k">RECORD</span>此前纪录', this.world); this.rec.style.cssText += 'left:330px;top:250px;font-size:40px';
+  },
+  draw(t) { const u = t - this.a;
+    // 镜头：先近看 SpaceX，再横移到 Anthropic，最后拉远看全局
+    const p1 = eInOut(seg(u, 1.0, 1.6)), p2 = eInOut(seg(u, 3.6, 1.2));
+    const cx = lerp(lerp(750, 2530, p1), 1720, p2), cy = lerp(800, 860, p2), z = lerp(lerp(1.35, 1.25, p1), .58, p2);
+    this.world.style.transform = `translate(${W / 2 - cx * z}px,${H / 2 - cy * z}px) scale(${z})`;
+    set(this.c1, 1, `rotate(-3deg) translateY(${(1 - eOut(seg(u, 0, .4))) * 60}px)`); this.c1.style.filter = `brightness(${lerp(1, .55, p1)})`;
+    set(this.c2, eOut(seg(u, 1.4, .3)), `rotate(2.5deg) scale(${lerp(.85, 1, eBack(seg(u, 1.4, .5)))})`);
+    set(this.rec, eOut(seg(u, .3, .3)), `rotate(-4deg) scale(${lerp(.7, 1, eBack(seg(u, .3, .4)))})`);
+    const g = this.arrow.getContext('2d'); g.clearRect(0, 0, 3600, 1600); const k = eInOut(seg(u, 1.1, .9));
+    if (k > 0) { g.strokeStyle = '#E07A3F'; g.lineWidth = 12; g.setLineDash([30, 20]); g.beginPath(); g.moveTo(1240, 760); g.quadraticCurveTo(1650, 520, lerp(1240, 2040, k), lerp(760, 720, k)); g.stroke(); }
+    const s = seg(u, 2.9, .2); set(this.st, s > 0 ? 1 : 0, `rotate(-5deg) scale(${lerp(2.4, 1, eOut(s))})`);
+  } });
+
+// 6. P03 上叠价格线：跌穿 83 发行价
+S.push({ a: 21.43, b: 24.8, init(r) { this.cv = el('canvas', 'L', null, r); this.cv.width = W; this.cv.height = H; this.st = el('div', 'stamp', '4 个交易日', r); this.st.style.cssText += 'left:1180px;top:120px;font-size:88px'; this.lb = el('div', 'label', '示意图', r); },
+  draw(t) { const u = t - this.a, g = this.cv.getContext('2d'); g.clearRect(0, 0, W, H);
+    const P = [115.10, 97.17, 88.91, 87.64, 81.91], X = i => 260 + i * 330, Y = v => 980 - (v - 70) / 50 * 560;
+    const gr = g.createLinearGradient(0, 380, 0, 1080); gr.addColorStop(0, 'rgba(10,6,5,0)'); gr.addColorStop(1, 'rgba(10,6,5,.75)'); g.fillStyle = gr; g.fillRect(0, 380, W, 700);
+    const k = eInOut(seg(u, .2, 1.6)), n = k * (P.length - 1);
+    g.setLineDash([22, 16]); g.strokeStyle = 'rgba(230,50,35,.95)'; g.lineWidth = 5; g.beginPath(); g.moveTo(200, Y(83)); g.lineTo(1720, Y(83)); g.stroke(); g.setLineDash([]);
+    g.font = '500 40px Oswald'; g.fillStyle = 'rgba(230,50,35,.95)'; g.fillText('$83 发行价', 200, Y(83) - 18);
+    g.strokeStyle = '#F2E6CE'; g.lineWidth = 10; g.lineJoin = 'round'; g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 16; g.beginPath();
+    for (let i = 0; i <= Math.floor(n); i++) (i ? g.lineTo : g.moveTo).call(g, X(i), Y(P[i]));
+    const i0 = Math.floor(n), f = n - i0; if (i0 < P.length - 1) g.lineTo(lerp(X(i0), X(i0 + 1), f), lerp(Y(P[i0]), Y(P[i0 + 1]), f)); g.stroke(); g.shadowBlur = 0;
+    g.font = '500 34px Oswald'; ['11/19', '11/20', '11/23', '11/24'].forEach((d, i) => { if (n >= i + 1) { g.fillStyle = '#F2E6CE'; g.fillText(d, X(i + 1) - 40, 1040); } });
+    if (n >= 4) { g.fillStyle = '#E8341F'; g.beginPath(); g.arc(X(4), Y(81.91), 16 + 6 * Math.sin(u * 12), 0, 7); g.fill(); g.font = '500 46px Oswald'; g.fillText('$81.91', X(4) - 70, Y(81.91) + 70); }
+    const s = seg(u, 1.95, .2); set(this.st, s > 0 ? 1 : 0, `rotate(6deg) scale(${lerp(2.2, 1, eOut(s))})`);
+  } });
+
+// 7. 原声角标（CNBC）
+const biteTag = (a, b, html) => S.push({ a, b, init(r) { this.t = el('div', 'tag', html, r); this.t.style.cssText += 'left:70px;top:70px;font-size:36px'; }, draw(t) { const u = t - this.a; set(this.t, eOut(seg(u, .1, .25)), `translateX(${(1 - eBack(seg(u, .1, .4))) * -60}px)`); } });
+biteTag(24.8, 27.35, '<span class="k">原声</span>CNBC · 11/24');
+
+// 8. 门口抗议：日期标签
+S.push({ a: 27.35, b: 33.21, init(r) { this.t = el('div', 'tag', '<span class="k">11/19</span>纳斯达克门外 · 抗议者被警方带走', r); this.t.style.cssText += 'left:96px;top:80px'; },
+  draw(t) { const u = t - this.a; set(this.t, eOut(seg(u, .3, .25)), `rotate(-1.2deg) translateY(${(1 - eBack(seg(u, .3, .45))) * -50}px)`); } });
+
+// 9. 文档：《卫报》原文倾斜纸页 → 推到那一行 → 荧光笔扫过 → 中文贴条 → 旧金山照片落下
+S.push({ a: 33.21, b: 36.28, opaque: true, init(r) {
+    el('img', 'L', null, r).src = IMG.ground;
+    this.cam = el('div', 'L', null, r); this.cam.style.cssText = 'width:1920px;height:1080px;perspective:2200px;transform-origin:0 0';
+    this.page = el('div', 'L', null, this.cam); this.page.style.cssText = 'width:1320px;height:1100px;transform-origin:660px 230px;box-shadow:0 40px 80px rgba(0,0,0,.7)';
+    const im = el('img', 'L', null, this.page); im.src = 'assets/guardian.jpg'; im.style.cssText = 'width:1320px;filter:sepia(.18) contrast(1.04)';
+    this.hl = el('div', 'L', null, this.page); this.hl.style.cssText = 'top:202px;left:32px;height:58px;background:rgba(232,110,40,.62);mix-blend-mode:multiply;border-radius:6px';
+    this.tr = el('div', 'tag', '一名抗议者举着一张<b>“反人类公司（Misanthropic）”</b>的假股票', this.page); this.tr.style.cssText += 'left:20px;top:290px;font-size:44px;background:#F7EEDB';
+    this.ph = el('div', 'card', '<img src="assets/cert.jpg"><div class="cap"><span>恶搞股票证书</span><i>同日 · 旧金山总部外</i></div>', r); this.ph.style.cssText += 'left:1080px;top:300px;width:700px';
+    this.src = el('div', 'label', '来源：《卫报》2026-11-19；照片：旧金山标准报', r); this.src.style.cssText += 'left:44px;right:auto;font-size:28px';
+  },
+  draw(t) { const u = t - this.a;
+    const z = eInOut(seg(u, 0, 1.0)), out = eInOut(seg(u, 2.0, .6));
+    const sc = lerp(.9, 1.45, z) * lerp(1, .8, out), rx = lerp(18, 6, z), rz = lerp(-4, -2, z);
+    const px = 300 + lerp(0, -330, out), py = lerp(80, 200, z) + lerp(0, -40, out);
+    this.page.style.transform = `translate(${px}px,${py}px) rotateX(${rx}deg) rotateZ(${rz}deg) scale(${sc})`;
+    this.hl.style.width = `${1160 * eOut(seg(u, .6, .6))}px`;
+    set(this.tr, eOut(seg(u, 1.15, .25)), `rotate(-1.5deg) scale(${lerp(.8, 1, eBack(seg(u, 1.15, .4)))})`);
+    const d = seg(u, 2.05, .45); set(this.ph, d > 0 ? 1 : 0, `translateY(${(1 - eBack(d)) * -700}px) rotate(${lerp(-14, 4, eOut(d))}deg)`);
+    set(this.src, eOut(seg(u, .3, .3)));
+  } });
+
+biteTag(36.28, 40.53, '<span class="k">原声</span>时代广场抗议者 · 美联社');
+
+// 11. P04：字母逐个亮起
+S.push({ a: 40.53, b: 42.65, init(r) { this.w = el('div', 'big', '', r); this.w.style.cssText += 'left:0;right:0;text-align:center;top:410px;font:400 150px Display;letter-spacing:38px'; this.letters = [...'ANTHROPIC'].map(c => { const s = el('span', null, c, this.w); return s; }); this.sub = el('div', 'tag', '成立 5 年 · 首日估值一度 2 万亿美元', r); this.sub.style.cssText += 'left:50%;top:640px;font-size:40px'; this.lb = el('div', 'label', '示意图', r); },
+  draw(t) { const u = t - this.a; this.letters.forEach((s, i) => { const k = eOut(seg(u, .1 + i * .06, .3)); s.style.opacity = k; s.style.display = 'inline-block'; s.style.transform = `translateY(${(1 - k) * 30}px)`; });
+    set(this.sub, eOut(seg(u, .8, .3)), `translateX(-50%) translateY(${(1 - eOut(seg(u, .8, .3))) * 20}px)`); } });
+
+// 12. P05：“拯救人类”盖章
+S.push({ a: 42.65, b: 45.72, init(r) { this.st = el('div', 'stamp', '“拯救人类”', r); this.st.style.cssText += 'left:1150px;top:150px;color:#F2E6CE;border-color:#F2E6CE;font-family:Serif'; this.lb = el('div', 'label', '示意图', r); },
+  draw(t) { const u = t - this.a, s = seg(u, 1.0, .2); set(this.st, s > 0 ? 1 : 0, `rotate(-4deg) scale(${lerp(2.2, 1, eOut(s))})`); } });
+
+// 13. P06：片题收束（左琥珀右暗红）
+S.push({ a: 45.72, b: 48.79, init(r) { this.w = el('div', 'big', '<span style="color:#F3B35A">华尔街</span><span style="color:#F2E6CE">最分裂的</span><span style="color:#E8341F">大戏</span>', r); this.w.style.cssText += 'left:0;right:0;text-align:center;top:780px;font:900 120px Serif'; this.lb = el('div', 'label', '示意图', r); this.lb.style.bottom = 'auto'; this.lb.style.top = '34px'; },
+  draw(t) { const u = t - this.a, k = eOut(seg(u, .4, .5)); set(this.w, k, `scale(${lerp(1.15, 1, k)})`); this.w.style.letterSpacing = `${lerp(40, 6, k)}px`; } });
+
+// ---------- 全局：漏光、颗粒、暗角 ----------
+const CUTS = [1.3, 2.65, 3.95, 5.25, 6.75, 8.05, 11.53, 14.42, 16.22, 21.43, 24.8, 27.35, 30.08, 33.21, 36.28, 40.53, 42.65, 45.72];
+let leak, grainEl, vig;
+window.render = t => {
+  for (const s of S) { const on = t >= s.a && t < s.b; s.root.style.display = on ? 'block' : 'none'; if (on) s.draw(t, s.root); }
+  // 切点漏光：琥珀色光从一侧扫过 0.35 秒
+  let L = 0, side = 0; for (const [i, c] of CUTS.entries()) { const d = t - c + .12; if (d > 0 && d < .4) { L = Math.sin(d / .4 * Math.PI); side = i % 2; } }
+  leak.style.opacity = L * .85; leak.style.background = `radial-gradient(ellipse at ${side ? 85 : 15}% 50%, rgba(255,170,70,.95), rgba(230,90,30,.45) 35%, rgba(0,0,0,0) 70%)`;
+  grainEl.src = IMG.grain[Math.floor(t * 24) % 8];
+};
+(async () => {
+  IMG.ground = makeGround(); IMG.grain = makeGrain();
+  for (const s of S) { s.root = el('div', 'scene'); s.init(s.root); }
+  leak = el('div', 'L'); leak.style.cssText = 'inset:0;width:1920px;height:1080px;mix-blend-mode:screen;pointer-events:none';
+  grainEl = el('img', 'L'); grainEl.style.cssText = 'width:1920px;height:1080px;mix-blend-mode:overlay;opacity:.9';
+  vig = el('div', 'L'); vig.style.cssText = 'width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%)';
+  await document.fonts.load('900 60px Serif'); await document.fonts.load('60px Display'); await document.fonts.load('500 60px Oswald'); await document.fonts.load('900 60px Sans'); await document.fonts.load('700 60px Sans');
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  window.render(0); window.DUR = DUR; window.OPAQUE = S.filter(s => s.opaque).map(s => [s.a, s.b]); window.READY = true;
+})();
+</script>
+</body>
+</html>
