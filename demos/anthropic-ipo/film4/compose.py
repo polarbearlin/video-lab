@@ -43,8 +43,13 @@ def bg_clip(out, bg, d, i):
               '-filter_complex', vf, '-map', '[o]', '-map', '2:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
     elif kind == 'illus':
         mp4, png = R.src_path(f'illus_v2/{bg[1]}.mp4'), R.src_path(f'illus_v2/{bg[1]}.png')
-        if os.path.exists(mp4):
-            R.seg_clip(out, f'illus_v2/{bg[1]}.mp4', 0.0, d, zoom=(1.0, 1.04))
+        opt = bg[2] if len(bg) > 2 else {}
+        if os.path.exists(mp4) and opt.get('src_max'):          # 视频后段不能用：前 src_max 秒正常放，接这一帧的定格慢推
+            m = opt['src_max']; a1, a2 = os.path.join(TMP, 'pa.mp4'), os.path.join(TMP, 'pb.mp4'); fr = os.path.join(TMP, 'pf.png')
+            illus_clip(a1, mp4, m, 1.0); subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{m}', '-i', mp4, '-frames:v', '1', fr], check=True)
+            R.seg_still(a2, fr, d - m, zoom=(1.04, 1.14), label=None); R.concat([a1, a2], out)
+        elif os.path.exists(mp4):
+            illus_clip(out, mp4, d, max(1.0, d / 4.95))        # 镜头比 5 秒长：放慢补齐，不定格
         else:
             R.seg_still(out, f'illus_v2/{bg[1]}.png' if os.path.exists(png) else OLD[i % len(OLD)], d, zoom=(1.0, 1.16), label=None)
     elif kind == 'cold':
@@ -57,9 +62,19 @@ def bg_clip(out, bg, d, i):
               '-map', '0:v', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
 
 
+def illus_clip(out, mp4, d, slow):
+    """图生视频：静音、按需放慢、轻推 1.00→1.04、轻调色。"""
+    vf = (f"setpts={slow}*PTS,fps=30,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,"
+          f"scale=w='trunc(1920*(1+0.04*t/{d})/2)*2':h=-2:eval=frame,crop=1920:1080,eq=contrast=1.04:saturation=0.95,tpad=stop_mode=clone:stop_duration=3,format=yuv420p")
+    R.ff(['-i', mp4, '-f', 'lavfi', '-t', f'{d}', '-i', 'anullsrc=r=48000:cl=stereo', '-vf', vf, '-map', '0:v', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
+
+
 def key(i, s):
     have = s['bg'][0] == 'illus' and os.path.exists(R.src_path(f"illus_v2/{s['bg'][1]}.mp4"))
-    h = hashlib.md5(json.dumps([s, have, os.path.getmtime(os.path.join(HERE, 'index.html'))], sort_keys=True).encode()).hexdigest()[:8]
+    parts = [s, have, os.path.getmtime(os.path.join(HERE, 'index.html'))]
+    if s['bg'][0] == 'illus':
+        parts.append('slow-v2')          # 插画镜头改成放慢补齐（不定格）后的新缓存
+    h = hashlib.md5(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:8]
     return f'{i:03d}_{h}'
 
 

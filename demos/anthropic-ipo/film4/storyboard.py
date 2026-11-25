@@ -142,7 +142,7 @@ B = [
     ((5, 4), (5, 5), ('illus', 'P28'), None),
     ((5, 6), (5, 7), ('illus', 'P29'), None),
     ((5, 8), (5, 9), ('illus', 'P30'), ('twoword', dict(a='慢一点 · 保安全', b='快一点 · 保股价', at_key=(5, 9)))),
-    ((5, 10), (5, 12), ('illus', 'P31'), None),
+    ((5, 10), (5, 12), ('illus', 'P31', {'src_max': 1.4}), ('tag', dict(html='Anthropic 探出来的这趟深水，<b>奥特曼还敢跳吗？</b>', pos='bl'))),
     ('end', None, ('ground',), ('end', {})),
 ]
 
