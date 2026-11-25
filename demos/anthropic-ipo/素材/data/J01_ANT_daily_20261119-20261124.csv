@@ -1,0 +1,9 @@
+symbol,date,open,high,low,close,volume,session,source
+ANT,2026-11-19,111.50,115.10,92.72,97.17,857312300,regular,Yahoo Finance chart API
+ANT,2026-11-20,89.86,92.56,83.05,88.91,400460300,regular,Yahoo Finance chart API
+ANT,2026-11-23,93.65,94.24,84.61,87.64,254101700,regular,Yahoo Finance chart API
+ANT,2026-11-24,83.40,83.49,75.61,81.91,312136500,regular,Yahoo Finance chart API
+^IXIC,2026-11-19,24809.05,24939.62,23870.70,23879.20,10558810000,regular,Yahoo Finance chart API
+^IXIC,2026-11-20,23592.67,23837.76,22513.01,22617.73,12469600000,regular,Yahoo Finance chart API
+^IXIC,2026-11-23,24269.75,24353.65,23794.96,24089.56,11346040000,regular,Yahoo Finance chart API
+^IXIC,2026-11-24,23745.86,23884.74,23455.84,23733.54,9222160000,regular,Yahoo Finance chart API

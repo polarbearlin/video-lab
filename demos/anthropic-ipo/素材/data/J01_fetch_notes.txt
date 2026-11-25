@@ -1,0 +1,9 @@
+# J01 fetch notes
+Fetched: 2026-11-25 07:07 UTC-05:00 (America/New_York)
+Source: Yahoo Finance v8 chart API, interval=1d, includePrePost=false
+ANT shortName=Anthropic, PBC exchange=NMS
+^IXIC shortName=NASDAQ Composite
+Coverage: 2026-11-19 (first trade) through 2026-11-24 close. 2026-11-25 regular session had not closed (and had not opened) at fetch time.
+11/24 ANT regular-session low = 75.61, close = 81.91.
+MarketWatch 11/24 also reported an intraday low of $75.61.
+Bloomberg reported a pre-market low of $81.28; that is pre-market, not included in this regular-session CSV.
