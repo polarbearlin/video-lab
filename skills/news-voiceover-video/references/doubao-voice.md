@@ -114,6 +114,9 @@ python3 scripts/check_doubao.py <片名>_豆包配音脚本_v1.md
 ## 音频回来以后
 
 1. 存到 `demos/<项目>/配音/v1/narrator_part1.mp3 …`。**配音是用户的克隆声音，不提交到公开仓库**（mp3 本来就在 .gitignore 里），只提交识别和对齐的 json。
+   用户发来的是**一整条**（没分份）：先识别整条，再切：
+   `python3 scripts/asr_vo.py --out 配音/v1/asr_full.json --prompt "<人名>" 配音/v1/narrator_full.mp3`
+   `python3 scripts/split_vo.py <配音脚本.md> 配音/v1/narrator_full.mp3 配音/v1/asr_full.json 配音/v1`，然后直接跳到第 3 步。
 2. 识别：`python3 scripts/asr_vo.py --out 配音/v1/asr.json --prompt "<人名、机构>" 配音/v1/narrator_part*.mp3`
 3. 对齐：`python3 scripts/align_vo.py <配音脚本.md> 配音/v1/asr.json 配音/v1/lines_aligned.json`。看打印的差异：用户念得不一样是常事，**以配音为准**，字幕跟着配音改；真的漏了一句才请用户单独补录这一句。
 4. 语速：对齐脚本会打印每份的字/分钟。低于约 250 就建议整体变速（《黄仁勋》两版音色都在 230 左右，1.2 倍后约 280，用户满意）：

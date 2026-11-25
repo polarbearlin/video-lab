@@ -2,8 +2,8 @@
 
 时间线：冷开场（ABC 原声）→ 片名 → 配音第 1 份 → 特朗普原声 1 → 第 2 份（中间插原声 2）→ 第 3 份（中间插原声 3）→ 片尾署名。
 每句旁白的起止时间来自 配音/lines_aligned.json（配音脚本逐句对齐到语音识别的逐字时间）。
-用法：python3 full.py   输出到 VL_OUT（默认仓库同级的 film_out/full/）
-这是《黄仁勋复职的十一天》的真实项目时间线，作为新项目的参考样例：结构照抄，镜头表、原声、配乐段落按新文案重写。
+用法：python3 full.py（或并行：python3 render_parallel.py 4）   输出到 VL_OUT（默认仓库同级的 film_out/full/）
+这是《黄仁勋复职的十一天》的真实项目时间线（修订 v4：第三版音色、纯配乐），作为新项目的参考样例：结构照抄，镜头表、原声、配乐段落按新文案重写。
 """
 import json, os, re, subprocess
 import render as R
@@ -15,7 +15,8 @@ PROJ = R.PROJ
 OUT = os.path.join(os.environ.get('VL_OUT', os.path.join(R.ROOT, '..', 'film_out')), 'full')
 SEG = os.path.join(OUT, 'seg')
 os.makedirs(SEG, exist_ok=True)
-VOD = os.path.join(PROJ, '配音', 'v2_x1.2')   # 第二版音色，1.2 倍速（Rubber Band 保持音高）
+VOD = os.path.join(PROJ, '配音', os.environ.get('JH_VO', 'v3'))   # v3：第三版音色（整条录音按份切开，原速）；v2_x1.2：第二版音色 1.2 倍速
+SFX_ON = os.environ.get('JH_SFX', '0') == '1'   # 修订 v4 起去掉音效：用户反馈尖锐、刺耳，改为纯配乐 + 柔和的让位
 VO = {p: os.path.join(VOD, f'narrator_part{p}.mp3') for p in (1, 2, 3)}
 
 # ---------------- 素材 ----------------
@@ -285,11 +286,11 @@ def build_timeline():
         if stop in bites:
             n, d, fn = bites[stop]
             T.append((stop, d, n, fn))
-    credits = ['配乐：Mixkit《Thunder》《Deep Techno Ambience》《Complicated》《Deep Techno》', '《Gimme that Groove!》《Greed》《Slow Rain》（Mixkit 免费许可）；音效：Mixkit',
-               '印刷机画面：Harrison Keely，Wikimedia Commons，CC BY 4.0；空镜：Mixkit',
+    credits = ['配乐：Suno 定制纯音乐《JH_full_score》', '印刷机画面：Harrison Keely，Wikimedia Commons，CC BY 4.0；空镜：Mixkit',
                '新闻画面版权归 ABC、CNBC、NBC、PBS、福克斯新闻等原播出机构', '仅作评论引用',
                '插画为示意图，非新闻实拍', '', '这十一天，你觉得谁赢了？评论区聊聊。']
-    T.append((END_START, END_LEN, 'end', lambda o, d: fx.seg_end(o, d, credits)))
+    import hashlib   # 缓存只认时长：片尾文字改了时长不变，所以把署名内容放进文件名，改了就会重渲
+    T.append((END_START, END_LEN, 'end_' + hashlib.md5('|'.join(credits).encode()).hexdigest()[:6], lambda o, d: fx.seg_end(o, d, credits)))
     return T
 
 
@@ -389,15 +390,24 @@ def build_audio(path):
             dict(segments=snap([(SA, 67.4, 134.6), (SA, 105.8, 125.0), (SA, 86.6, 105.8)]), start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),  # 白宫
             dict(segments=snap([(SB, 19.4, 57.8), (SB, 38.5, 57.8)]), start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),     # 狂欢：最亮、打击乐最密
             dict(segments=snap([(SB, 0.0, 19.4), (SB, 57.8, 67.3), (SA, 77.0, 86.6)]), start=t_c6, end=t_c7, level=-8, fade_in=0.05),  # 质疑：稀疏、无鼓
-            dict(segments=snap([(SB, 134.6, 177.0), (SA, 134.6, 162.4)]), start=t_c7, end=TOTAL - 0.2, level=-9, align='end', fade_out=0.6)]  # 结尾
+            dict(segments=snap([(SB, 134.6, 175.3), (SA, 134.6, 162.4)]), start=t_c7, end=TOTAL - 0.2, level=-9, align='end', fade_out=0.6)]  # 结尾
     # ---- 停乐：关键句前把配乐拿掉，说完再回来 ----
-    drops = [(L0(1, 6) - 0.25, L1(1, 6) + 0.15, 0.0),            # 我昨晚干得不错吧？
-             (L0(1, 20) - 0.25, L1(1, 20) + 0.2, 0.08),          # 我对妻子不忠。没有借口。
-             (L0(2, 13) - 0.2, L1(2, 13) + 0.15, 0.0),           # 一致接受辞职，不打算让他复职。
-             (B1[0] - 0.1, P2_OFF, 0.25),                        # 原声 1
-             (B2_AT - 0.1, B2_AT + B2_LEN + 0.1, 0.3),           # 原声 2
-             (L0(3, 11) - 0.25, t_c6, 0.0),                      # 性比股票好卖 + 原声 3
-             (L0(3, 33) - 0.3, TOTAL, 0.12)]                     # 人回来了。但故事，还远没结束。
+    if SFX_ON:
+        drops = [(L0(1, 6) - 0.25, L1(1, 6) + 0.15, 0.0),            # 我昨晚干得不错吧？
+                 (L0(1, 20) - 0.25, L1(1, 20) + 0.2, 0.08),          # 我对妻子不忠。没有借口。
+                 (L0(2, 13) - 0.2, L1(2, 13) + 0.15, 0.0),           # 一致接受辞职，不打算让他复职。
+                 (B1[0] - 0.1, P2_OFF, 0.25),                        # 原声 1
+                 (B2_AT - 0.1, B2_AT + B2_LEN + 0.1, 0.3),           # 原声 2
+                 (L0(3, 11) - 0.25, t_c6, 0.0),                      # 性比股票好卖 + 原声 3
+                 (L0(3, 33) - 0.3, TOTAL, 0.12)]                     # 人回来了。但故事，还远没结束。
+    else:   # 柔和让位：余弦渐弱、慢慢回来，留一点底，不做“咔”地停
+        drops = [(L0(1, 6) - 0.45, L1(1, 6) + 0.35, 0.18, 0.35, 0.9),
+                 (L0(1, 20) - 0.45, L1(1, 20) + 0.45, 0.15, 0.4, 1.0),
+                 (L0(2, 13) - 0.4, L1(2, 13) + 0.35, 0.18, 0.35, 0.9),
+                 (B1[0] - 0.3, P2_OFF + 0.2, 0.3, 0.3, 0.7),
+                 (B2_AT - 0.3, B2_AT + B2_LEN + 0.3, 0.3, 0.3, 0.7),
+                 (L0(3, 11) - 0.45, t_c6 + 0.2, 0.2, 0.35, 0.8),
+                 (L0(3, 33) - 0.5, TOTAL, 0.3, 0.6, 0.1)]
     # ---- 音效 ----
     sfx = [(A('riser_reverse_impact'), COLD + 0.05, -4, 'end'),   # 冷开场 → 日期快闪
            (A('hit_cool_trailer'), COLD, -3, 'start'),
@@ -420,6 +430,11 @@ def build_audio(path):
     for st, d, name in [(x[0], x[1], x[2]) for x in TL]:                  # 日期章：打字机重击
         if name in STAMP_SHOTS:
             sfx.append((A('typewriter_hit'), st + 0.08, -8, 'start'))
+    if not SFX_ON:
+        sfx = []
+        for c in cues[:-1]:   # 没有重击盖住换段了：新段 0.15 秒淡入，旧段 0.8 秒淡出，减少两段鼓点叠在一起
+            c['fade_in'] = max(c.get('fade_in', 0.35), 0.15)
+            c['fade_out'] = 0.8
     score.build_mix(path, TOTAL, speech, cues, drops, sfx)
 
 
@@ -444,7 +459,7 @@ def main():
     build_audio(audio)
     frame_png = os.path.join(OUT, 'frame_vertical.png')
     build_frame(frame_png)
-    R.package(master, audio, build_subs(), OUT, frame_png, '黄仁勋复职的十一天_修订v3', which=('v',))
+    R.package(master, audio, build_subs(), OUT, frame_png, os.environ.get('JH_NAME', '黄仁勋复职的十一天_修订v4'), which=('v',))
     json.dump([(round(s, 2), round(d, 2), n) for s, d, n, _ in T], open(os.path.join(OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(TOTAL, 2))
 

@@ -126,10 +126,14 @@ def build_mix(out_wav, total, speech, cues, drops, sfx, duck_db=7.0):
         place(mu, x, c['start'])
     # 停乐 / 减弱
     g = np.ones(n, np.float32)
-    for t0, t1, gain in drops:
-        i0, i1, r = int(t0 * SR), int(t1 * SR), int(0.06 * SR)
+    for d in drops:                              # (t0, t1, gain) 或 (t0, t1, gain, 渐弱秒, 渐强秒)
+        t0, t1, gain = d[:3]
+        r_in, r_out = (d[3], d[4]) if len(d) > 3 else (0.06, 0.06)
+        i0, i1 = int(t0 * SR), min(int(t1 * SR), n)
+        ri, ro = max(1, min(int(r_in * SR), (i1 - i0) // 2)), max(1, min(int(r_out * SR), (i1 - i0) // 2))
         seg = np.full(i1 - i0, gain, np.float32)
-        seg[:r] = np.linspace(1, gain, r); seg[-r:] = np.linspace(gain, 1, r)
+        seg[:ri] = gain + (1 - gain) * (0.5 + 0.5 * np.cos(np.linspace(0, np.pi, ri)))      # 余弦渐弱，比直线顺耳
+        seg[-ro:] = gain + (1 - gain) * (0.5 - 0.5 * np.cos(np.linspace(0, np.pi, ro)))
         g[i0:i1] = np.minimum(g[i0:i1], seg)
     # 平滑闪避：人声越响，配乐越低（起 60ms，回 600ms）
     hop = SR // 100
