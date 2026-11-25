@@ -14,7 +14,8 @@ PROJ = R.PROJ
 OUT = '/home/user/jh_film/v2/full'
 SEG = os.path.join(OUT, 'seg')
 os.makedirs(SEG, exist_ok=True)
-VO = {p: os.path.join(PROJ, '配音', f'narrator_part{p}.mp3') for p in (1, 2, 3)}
+VOD = os.path.join(PROJ, '配音', 'v2')        # 第二版音色
+VO = {p: os.path.join(VOD, f'narrator_part{p}.mp3') for p in (1, 2, 3)}
 
 # ---------------- 素材 ----------------
 V = {k: 'video/' + v for k, v in dict(
@@ -179,36 +180,10 @@ def has_close_1124():
 SHOTS[(3, 21)] = ([(1, BARS(start='2026-11-03', end='2026-11-24', hi='2026-11-24', src='数据：纳斯达克官网日线'))]
                   if has_close_1124() else [(1, S('illus/I08_b.png', lines=[('第二天：回落', 120, RED)]))])
 
-# ---------------- 时间线 ----------------
-COLD, TITLE = 5.05, 1.25
-P1_OFF = COLD + TITLE                       # 6.30
-P1_END = P1_OFF + 87.456
-B1 = (P1_END + 0.10, 'V11', 7.50, 8.70)     # 原声 1：And I really believe him.
-P2_OFF = B1[0] + (B1[3] - B1[2]) + 0.45
-S2 = 62.75                                   # 第 2 份在这里插原声 2（静音 62.21–63.28）
-B2_LEN = 13.40 - 9.00
-P2_SHIFT = B2_LEN + 0.20
-P3_OFF = P2_OFF + 125.376 + P2_SHIFT + 0.60
-S3 = 37.75                                   # 静音 37.19–38.27
-B3_LEN = 8.10 - 5.30
-P3_SHIFT = B3_LEN + 0.30
-END_START = P3_OFF + 107.76 + P3_SHIFT + 0.60
-END_LEN = 4.0
-TOTAL = END_START + END_LEN
-
-
-def g(part, t):
-    if part == 1:
-        return P1_OFF + t
-    if part == 2:
-        return P2_OFF + t + (P2_SHIFT if t >= S2 else 0)
-    return P3_OFF + t + (P3_SHIFT if t >= S3 else 0)
-
-
-B2_AT = g(2, S2) - P2_SHIFT + 0.05
-B3_AT = g(3, S3) - P3_SHIFT + 0.10
-
-LINES = json.load(open(os.path.join(PROJ, '配音', 'lines_aligned.json')))
+# ---------------- 配音逐句时间 ----------------
+VO_LEN = {p: float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', VO[p]],
+                                  capture_output=True, text=True).stdout) for p in VO}
+LINES = json.load(open(os.path.join(VOD, 'lines_aligned.json')))
 byp = {1: [], 2: [], 3: []}
 for x in LINES:
     byp[x['part']].append(x)
@@ -240,6 +215,39 @@ for p in byp:  # 补缺失的起止时间
         if cand:
             a0, b0 = min(cand, key=lambda z: abs((z[0] + z[1]) / 2 - (e + s2) / 2))
             L[i]['end'], L[i + 1]['start'] = a0, b0
+
+
+
+# 插原声的剪接点：取那两句之间静音的中点
+S2 = (byp[2][17]['end'] + byp[2][18]['start']) / 2     # 第 2 份：推动了反转 | 思路很明确
+S3 = (byp[3][10]['end'] + byp[3][11]['start']) / 2     # 第 3 份：性比股票好卖 | 但掌声之外
+
+# ---------------- 时间线 ----------------
+COLD, TITLE = 5.05, 1.25
+P1_OFF = COLD + TITLE
+P1_END = P1_OFF + VO_LEN[1]
+B1 = (P1_END + 0.10, 'V11', 7.50, 8.70)     # 原声 1：And I really believe him.
+P2_OFF = B1[0] + (B1[3] - B1[2]) + 0.45
+B2_LEN = 13.40 - 9.00
+P2_SHIFT = B2_LEN + 0.20
+P3_OFF = P2_OFF + VO_LEN[2] + P2_SHIFT + 0.60
+B3_LEN = 8.10 - 5.30
+P3_SHIFT = B3_LEN + 0.30
+END_START = P3_OFF + VO_LEN[3] + P3_SHIFT + 0.60
+END_LEN = 4.0
+TOTAL = END_START + END_LEN
+
+
+def g(part, t):
+    if part == 1:
+        return P1_OFF + t
+    if part == 2:
+        return P2_OFF + t + (P2_SHIFT if t >= S2 else 0)
+    return P3_OFF + t + (P3_SHIFT if t >= S3 else 0)
+
+
+B2_AT = g(2, S2) - P2_SHIFT + 0.05
+B3_AT = g(3, S3) - P3_SHIFT + 0.10
 
 
 def build_timeline():
@@ -363,13 +371,24 @@ def build_audio(path):
     t_hit_weekend = at_char(2, 17, 13)       # “改变一切的周末来了”
     t_c6 = B3_AT + B3_LEN + 0.3              # 但掌声之外
     t_c7 = L0(3, 20)                         # 不过，狂欢来得快
-    cues = [dict(file=Mu('mixkit_318_Thunder'), offset=20.25, start=COLD, end=t_c2, level=-7, fade_in=0.05),
-            dict(file=Mu('mixkit_134_Deep_Techno_Ambience'), offset=0.14, start=t_c2, end=P2_OFF, level=-8),
-            dict(file=Mu('mixkit_281_Complicated'), offset=12.89, start=P2_OFF, end=t_hit_weekend, level=-8),
-            dict(file=Mu('mixkit_106_Deep_Techno'), offset=1.72, start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),
-            dict(file=Mu('mixkit_872_Gimme_that_Groove'), offset=5.92, start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),
-            dict(file=Mu('mixkit_404_Greed'), offset=6.64, start=t_c6, end=t_c7, level=-8, fade_in=0.05),
-            dict(file=Mu('mixkit_122_Slow_Rain'), offset=8.0, start=t_c7, end=TOTAL - 0.2, level=-9, fade_out=2.5)]
+    SA, SB = R.src_path('audio/suno/suno_a.mp3'), R.src_path('audio/suno/suno_b.mp3')
+    BARS = json.load(open(R.src_path('audio/suno/bars.json')))
+
+    def snap(seglist):   # 切点吸附到最近的小节线（0.4 秒以内）
+        out = []
+        for path, a, b in seglist:
+            bars = BARS['suno_a' if path == SA else 'suno_b']['bars']
+            f = lambda t: min(bars, key=lambda x: abs(x - t)) if min(abs(x - t) for x in bars) < 0.4 else t
+            out.append((path, f(a), f(b)))
+        return out
+    # 每个段落取一段连续音乐（小节线切入），不够长就按小节接一段同首的；片尾对齐 suno_a 的自然收尾
+    cues = [dict(segments=snap([(SB, 67.3, 105.7), (SB, 86.6, 105.7)]), start=COLD, end=t_c2, level=-7, fade_in=0.05),        # 钩子：暗色满编
+            dict(segments=snap([(SA, 0.16, 67.4), (SA, 48.2, 67.4)]), start=t_c2, end=P2_OFF, level=-8),                   # 起因：轻前奏→逐步推进
+            dict(segments=snap([(SB, 105.7, 163.3), (SB, 144.2, 163.3)]), start=P2_OFF, end=t_hit_weekend, level=-8),      # 辞职被拒
+            dict(segments=snap([(SA, 67.4, 134.6), (SA, 105.8, 125.0), (SA, 86.6, 105.8)]), start=t_hit_weekend, end=P3_OFF, level=-8, fade_in=0.05),  # 白宫
+            dict(segments=snap([(SB, 19.4, 57.8), (SB, 38.5, 57.8)]), start=P3_OFF, end=B3_AT, level=-6, fade_in=0.05),     # 狂欢：最亮、打击乐最密
+            dict(segments=snap([(SB, 0.0, 19.4), (SB, 57.8, 67.3), (SA, 77.0, 86.6)]), start=t_c6, end=t_c7, level=-8, fade_in=0.05),  # 质疑：稀疏、无鼓
+            dict(segments=snap([(SB, 134.6, 177.0), (SA, 134.6, 162.4)]), start=t_c7, end=TOTAL - 0.2, level=-9, align='end', fade_out=0.6)]  # 结尾
     # ---- 停乐：关键句前把配乐拿掉，说完再回来 ----
     drops = [(L0(1, 6) - 0.25, L1(1, 6) + 0.15, 0.0),            # 我昨晚干得不错吧？
              (L0(1, 20) - 0.25, L1(1, 20) + 0.2, 0.08),          # 我对妻子不忠。没有借口。
@@ -424,7 +443,7 @@ def main():
     build_audio(audio)
     frame_png = os.path.join(OUT, 'frame_vertical.png')
     build_frame(frame_png)
-    R.package(master, audio, build_subs(), OUT, frame_png, '黄仁勋复职的十一天_修订v2')
+    R.package(master, audio, build_subs(), OUT, frame_png, '黄仁勋复职的十一天_修订v3', which=('v',))
     json.dump([(round(s, 2), round(d, 2), n) for s, d, n, _ in T], open(os.path.join(OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(TOTAL, 2))
 

@@ -64,6 +64,23 @@ def smooth(env, fps, attack, release):
     return out
 
 
+def xfade(x, y, sec=0.06):
+    k = int(sec * SR)
+    if len(x) < k or len(y) < k:
+        return np.concatenate([x, y])
+    w = np.linspace(0, 1, k)[:, None]
+    return np.concatenate([x[:-k], x[-k:] * (1 - w) + y[:k] * w, y[k:]])
+
+
+def join_segments(segs):
+    """[(文件, 起, 止)] 依次接起来，接缝 60ms 交叉淡化（起止都放在小节线上）。"""
+    out = None
+    for path, a, b in segs:
+        y = load(path, a, b)
+        out = y if out is None else xfade(out, y)
+    return out
+
+
 def build_mix(out_wav, total, speech, cues, drops, sfx, duck_db=7.0):
     n = int(total * SR) + SR
     sp = np.zeros((n, 2), np.float32)
@@ -79,8 +96,23 @@ def build_mix(out_wav, total, speech, cues, drops, sfx, duck_db=7.0):
             x[:k] *= ramp; x[-k:] *= ramp[::-1]
         place(sp, x, at)
     for c in cues:
-        off = c.get('offset', first_beat(c['file']))
         need = c['end'] - c['start'] + c.get('fade_out', 1.2)
+        if 'segments' in c:
+            x = join_segments(c['segments'])
+            while len(x) < need * SR:             # 还不够长：整段再接一遍
+                x = xfade(x, join_segments(c['segments'][-1:]))
+            if c.get('align') == 'end':           # 片尾：从结尾倒着取，保留自然收尾
+                need = c['end'] - c['start']
+                x = x[-int(need * SR):]
+            else:
+                x = x[:int(need * SR)]
+            x = norm(x, -24 + c.get('level', -8))
+            fi, fo = int(c.get('fade_in', 0.35) * SR), int(c.get('fade_out', 1.2) * SR)
+            x[:fi] *= np.linspace(0, 1, fi)[:, None]
+            x[-fo:] *= np.linspace(1, 0, fo)[:, None]
+            place(mu, x, c['start'])
+            continue
+        off = c.get('offset', first_beat(c['file']))
         x = load(c['file'], off, None)
         while len(x) < need * SR:                 # 不够长就接一遍（交叉 2 秒）
             y = load(c['file'], off, None)

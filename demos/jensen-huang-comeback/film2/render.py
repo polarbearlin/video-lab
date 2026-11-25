@@ -327,17 +327,19 @@ def write_ass(path, subs, vertical):
             f.write(f'Dialogue: 0,{_ts(a)},{_ts(b)},Sub,,0,0,0,,{txt}\n')
 
 
-def package(master, audio, subs, out_dir, frame_png, name):
+def package(master, audio, subs, out_dir, frame_png, name, which=('v', 'h')):
     va = os.path.join(out_dir, f'{name}_vertical.ass')
     ha = os.path.join(out_dir, f'{name}_horizontal.ass')
     write_ass(va, subs, True)
     write_ass(ha, subs, False)
     fd = os.path.join(FONTS)
-    ff(['-i', master, '-i', frame_png, '-i', audio, '-filter_complex',
+    if 'v' in which:
+      ff(['-i', master, '-i', frame_png, '-i', audio, '-filter_complex',
         f"[0:v]scale=1080:608,pad=1080:1920:0:600:color=black[w];[w][1:v]overlay=0:0,"
         f"ass={va}:fontsdir={fd}[v]", '-map', '[v]', '-map', '2:a', '-shortest'] + ENC + AENC +
        ['-movflags', '+faststart', os.path.join(out_dir, f'{name}_竖屏.mp4')])
-    ff(['-i', master, '-i', audio, '-filter_complex',
+    if 'h' in which:
+      ff(['-i', master, '-i', audio, '-filter_complex',
         f"[0:v]drawtext=fontfile={FONTS}/NotoSansSC-Black.ttf:text='北极熊吃海豹':x=48:y=40:fontsize=34:"
         f"fontcolor=white@0.85:borderw=2:bordercolor=black,ass={ha}:fontsdir={fd}[v]",
         '-map', '[v]', '-map', '1:a', '-shortest'] + ENC + AENC +
