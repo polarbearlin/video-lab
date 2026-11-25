@@ -238,8 +238,20 @@ def line(p, i):
 
 
 # 原声：(镜头键, 原片起, 原片止, 中文字幕, 英文原话)；插在 (份, 句) 之后，剪接点在两句之间静音的中点
-BITES = {(3, 20): ('LIE', 5.45, 8.15, '“这是我听过最离谱的谎言。”', "That's the most outrageous lie I've ever heard."),
-         (4, 25): ('ALT', 0.40, 5.30, '“我们计划在某个时候成为上市公司。”', 'I mean, we plan to be a public company at some point.')}
+BITES = {   # (份, 句) 之后插入：(镜头键, 原片起, 原片止, 中文字幕, 英文原话, 画面标签)
+    (1, 6): ('CNBCA', 2.30, 4.55, '“Anthropic 股价跌了 9%。”', 'See Anthropic shares down 9%.', 'CNBC · 11/24'),
+    (1, 9): ('SIGNS', 3.50, 7.45, '“等 AI 泡沫破了，谁来接盘？”', "When the AI bubble bursts, who's going to be holding the bag, right?", '时代广场抗议者 · 美联社'),
+    (2, 3): ('FOX', 0.00, 7.20, '“Anthropic 完成了史上最大的 IPO，募资 813.4 亿美元。”', "Anthropic raised the largest IPO offering on record. We're talking $81.34 billion.", '福克斯商业 · 11/19'),
+    (2, 8): ('S1', 3.80, 6.70, '“营收增长可能不可持续。”', 'Revenue growth might not be sustainable.', '彭博 · 招股书解读'),
+    (2, 19): ('CHART', 1.25, 9.15, '“投资者对纯 AI 概念股，没有原先想的那么有把握。”', "We've seen investors not really as sure of the pure play AI trade as we thought they might be.", '彭博 · 11/24'),
+    (3, 8): ('SEN', 2.45, 4.40, '“Anthropic 是一家公益公司。”', 'Anthropic is a public benefit corporation.', '达里奥 · 2023 年参议院听证'),
+    (3, 12): ('CNN', 2.20, 11.90, '“我真的担心入门级岗位：AI 正在做入门员工的核心工作。”', 'I really worry, particularly at the entry level, that the AI models are very much at the center of what an entry-level human worker would do.', '达里奥 · CNN'),
+    (3, 20): ('LIE', 5.45, 8.15, '“这是我听过最离谱的谎言。”', "That's the most outrageous lie I've ever heard.", '达里奥 · Big Technology 播客'),
+    (3, 25): ('PACE', 18.30, 23.65, '“我们本可以开到 200 英里，那就只开 90 英里吧。”', 'We could drive at 200 miles an hour, maybe let\'s only drive at 90 miles an hour.', '达里奥 · CNBC 11/19'),
+    (4, 5): ('HUANG', 27.50, 30.80, '“全世界一半的 AI 研究人员在中国。”', 'China is home to 50% of the AI researchers in the world.', '黄仁勋 · CNBC'),
+    (4, 25): ('ALT', 0.40, 5.30, '“我们计划在某个时候成为上市公司。”', 'I mean, we plan to be a public company at some point.', '奥特曼 · DealBook 11/18'),
+    (4, 34): ('MSN', 0.00, 8.95, '“Anthropic 和 OpenAI 未发布的模型越来越强，一些员工已不相信它们能安全发布。”', 'Unreleased AI models from Anthropic and OpenAI are becoming so powerful that some employees no longer believe they can be safely released.', 'MSNOW · 11/24'),
+}
 CUT = {p: [] for p in PARTS}
 for (p, i), b in BITES.items():
     nxt = IDX[p][IDX[p].index(i) + 1]
@@ -251,9 +263,9 @@ PIECES = []    # ('vo', 份, 源起, 源止, 全片起) / ('bite', 键, 源起, 
 t = COLD + TITLE
 for p in PARTS:
     a = 0.0
-    for c, i, (key, b0, b1, zh, en) in sorted(CUT[p]):
+    for c, i, (key, b0, b1, zh, en, lab) in sorted(CUT[p]):
         PIECES.append(('vo', p, a, c, t)); t += c - a + BGAP
-        PIECES.append(('bite', key, b0, b1, t, zh, en)); t += b1 - b0 + BGAP
+        PIECES.append(('bite', key, b0, b1, t, zh, en, lab)); t += b1 - b0 + BGAP
         a = c
     PIECES.append(('vo', p, a, VO_LEN[p], t)); t += VO_LEN[p] - a + GAP
 END_START, END_LEN = t + 0.4, 4.5
@@ -280,7 +292,7 @@ def build_timeline():
         stop = PIECES[n + 1][4] if n + 1 < len(PIECES) else END_START
         if pc[0] == 'bite':
             key, b0, b1, st = pc[1], pc[2], pc[3], pc[4]
-            T.append((st, stop - st, f'b_{key}', C(key, b0, label='原声')))
+            T.append((st, stop - st, f'b_{key}', C(key, b0, label='原声 · ' + pc[7])))
             continue
         _, p, a, b, st = pc
         idx = [i for i in IDX[p] if a - 1e-6 <= line(p, i)['start'] < b]
@@ -428,7 +440,7 @@ def main():
     build_audio(audio)
     frame_png = os.path.join(OUT, 'frame_vertical.png')
     build_frame(frame_png)
-    R.package(master, audio, build_subs(), OUT, frame_png, os.environ.get('AN_NAME', 'Anthropic上市四天破发_v2'), which=('v',))
+    R.package(master, audio, build_subs(), OUT, frame_png, os.environ.get('AN_NAME', 'Anthropic上市四天破发_v3'), which=('v',))
     json.dump([(round(s, 2), round(d, 2), n) for s, d, n, _ in T], open(os.path.join(OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(TOTAL, 2))
 

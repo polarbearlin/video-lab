@@ -47,7 +47,7 @@ if __name__ == '__main__':
     frame_png = os.path.join(Fu.OUT, 'frame_vertical.png')
     build_frame(frame_png)
     R.package(master, audio, Fu.build_subs(), Fu.OUT, frame_png,
-              os.environ.get('AN_NAME', 'Anthropic上市四天破发_v2'), which=('v',))
+              os.environ.get('AN_NAME', 'Anthropic上市四天破发_v3'), which=('v',))
     json.dump([(round(s, 2), round(d, 2), nm) for s, d, nm, _ in T],
               open(os.path.join(Fu.OUT, 'timeline.json'), 'w'), ensure_ascii=False)
     print('shots', len(T), 'total', round(Fu.TOTAL, 2), flush=True)
