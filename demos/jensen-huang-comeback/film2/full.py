@@ -14,7 +14,7 @@ PROJ = R.PROJ
 OUT = '/home/user/jh_film/v2/full'
 SEG = os.path.join(OUT, 'seg')
 os.makedirs(SEG, exist_ok=True)
-VOD = os.path.join(PROJ, '配音', 'v2')        # 第二版音色
+VOD = os.path.join(PROJ, '配音', 'v2_x1.2')   # 第二版音色，1.2 倍速（Rubber Band 保持音高）
 VO = {p: os.path.join(VOD, f'narrator_part{p}.mp3') for p in (1, 2, 3)}
 
 # ---------------- 素材 ----------------
