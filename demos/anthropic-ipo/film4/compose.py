@@ -59,14 +59,14 @@ def bg_clip(out, bg, d, i):
         R.concat(parts, out)
     else:   # ground：底下垫黑，网页图层是不透明的
         R.ff(['-f', 'lavfi', '-t', f'{d}', '-i', 'color=c=black:s=1920x1080:r=30', '-f', 'lavfi', '-t', f'{d}', '-i', 'anullsrc=r=48000:cl=stereo',
-              '-map', '0:v', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
+              '-map', '0:v:0', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
 
 
 def illus_clip(out, mp4, d, slow):
     """图生视频：静音、按需放慢、轻推 1.00→1.04、轻调色。"""
     vf = (f"setpts={slow}*PTS,fps=30,scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1,"
           f"scale=w='trunc(1920*(1+0.04*t/{d})/2)*2':h=-2:eval=frame,crop=1920:1080,eq=contrast=1.04:saturation=0.95,tpad=stop_mode=clone:stop_duration=3,format=yuv420p")
-    R.ff(['-i', mp4, '-f', 'lavfi', '-t', f'{d}', '-i', 'anullsrc=r=48000:cl=stereo', '-vf', vf, '-map', '0:v', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
+    R.ff(['-i', mp4, '-f', 'lavfi', '-t', f'{d}', '-i', 'anullsrc=r=48000:cl=stereo', '-vf', vf, '-map', '0:v:0', '-map', '1:a', '-t', f'{d}'] + R.ENC + R.AENC + [out])
 
 
 def key(i, s):
