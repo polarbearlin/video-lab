@@ -1,0 +1,1674 @@
+{
+"dur": 395.004,
+"shots": [
+{
+"a": 0.0,
+"b": 6.75,
+"bg": [
+"cold",
+[
+[
+"FOX",
+0.0,
+2.1
+],
+[
+"BELL",
+10.0,
+2.0
+],
+[
+"BBG",
+1.9,
+0.95
+],
+[
+"FORBES",
+1.0,
+0.9
+],
+[
+"CHART",
+4.0,
+0.8
+]
+]
+],
+"ov": null,
+"label": false
+},
+{
+"a": 6.75,
+"b": 8.05,
+"bg": [
+"ground"
+],
+"ov": [
+"title_ipo",
+{}
+],
+"label": false
+},
+{
+"a": 8.05,
+"b": 11.53,
+"bg": [
+"illus",
+"P01"
+],
+"ov": [
+"quote",
+{
+"text": "“AI 可能会毁灭人类”"
+}
+],
+"label": true
+},
+{
+"a": 11.53,
+"b": 14.42,
+"bg": [
+"framed",
+"BELL",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">11/19</span><b>7</b> 位联合创始人 · 纳斯达克敲钟",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 14.42,
+"b": 16.22,
+"bg": [
+"illus",
+"P02"
+],
+"ov": [
+"counter",
+{
+"value": 1800,
+"unit": " 亿美元",
+"sub": "七位创始人 · 一夜身家<span class=\"m\">（按首日股价估算）</span>"
+}
+],
+"label": true
+},
+{
+"a": 16.22,
+"b": 21.43,
+"bg": [
+"ground"
+],
+"ov": [
+"compare_cards",
+{
+"cards": [
+[
+"assets/spacex.jpg",
+"SpaceX · 750 亿美元",
+"2026.06"
+],
+[
+"assets/anth.jpg",
+"Anthropic · 813 亿美元",
+"2026.11"
+]
+],
+"first": "此前纪录",
+"stamp": "史上最大 IPO"
+}
+],
+"label": false
+},
+{
+"a": 21.43,
+"b": 24.795,
+"bg": [
+"illus",
+"P03"
+],
+"ov": [
+"price_overlay",
+{
+"stamp": "4 个交易日"
+}
+],
+"label": true
+},
+{
+"a": 24.795,
+"b": 27.345,
+"bg": [
+"clip",
+"CNBCA",
+2.3
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>CNBC · 11/24",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 27.345,
+"b": 30.08,
+"bg": [
+"clip",
+"PROT",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">11/19</span>纳斯达克门外 · 抗议者被警方带走",
+"pos": "tl"
+}
+],
+"label": false
+},
+{
+"a": 30.08,
+"b": 33.21,
+"bg": [
+"clip",
+"ARREST",
+2.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 33.21,
+"b": 36.28,
+"bg": [
+"ground"
+],
+"ov": [
+"doc",
+{
+"img": "assets/guardian.jpg",
+"w": 1320,
+"hl": [
+[
+32,
+202,
+1160,
+58
+]
+],
+"tr": "一名抗议者举着一张<b>“反人类公司（Misanthropic）”</b>的假股票",
+"tr_y": 290,
+"photo": [
+"assets/cert.jpg",
+"恶搞股票证书",
+"同日 · 旧金山总部外"
+],
+"src": "来源：《卫报》2026-11-19；照片：旧金山标准报"
+}
+],
+"label": false
+},
+{
+"a": 36.28,
+"b": 40.53,
+"bg": [
+"clip",
+"SIGNS",
+3.5
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>时代广场抗议者 · 美联社",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 40.53,
+"b": 42.65,
+"bg": [
+"illus",
+"P04"
+],
+"ov": [
+"letters",
+{
+"text": "ANTHROPIC",
+"sub": "成立 5 年 · 首日估值一度 2 万亿美元"
+}
+],
+"label": true
+},
+{
+"a": 42.65,
+"b": 45.72,
+"bg": [
+"illus",
+"P05"
+],
+"ov": [
+"stamp_only",
+{
+"text": "“拯救人类”",
+"at": 1.0,
+"light": true
+}
+],
+"label": true
+},
+{
+"a": 45.72,
+"b": 48.786,
+"bg": [
+"illus",
+"P06"
+],
+"ov": [
+"headline",
+{
+"html": "<span style=\"color:#F3B35A\">华尔街</span>最分裂的<span style=\"color:#E8341F\">大戏</span>"
+}
+],
+"label": true
+},
+{
+"a": 48.786,
+"b": 50.886,
+"bg": [
+"framed",
+"AFP",
+3.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2026.11.19</span>Anthropic 登陆纳斯达克",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 50.886,
+"b": 53.526,
+"bg": [
+"clip",
+"BELL",
+14.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 53.526,
+"b": 55.626,
+"bg": [
+"illus",
+"P07"
+],
+"ov": [
+"counter",
+{
+"value": 810,
+"unit": " 亿美元+",
+"sub": "募资 · 史上最大 IPO"
+}
+],
+"label": true
+},
+{
+"a": 55.626,
+"b": 59.026,
+"bg": [
+"clip",
+"FOX",
+4.1
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>福克斯商业 · 11/19",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 59.026,
+"b": 61.646,
+"bg": [
+"clip",
+"FOX",
+8.0
+],
+"ov": [
+"tag",
+{
+"html": "首日估值一度超过 <b>2 万亿美元</b>",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 61.646,
+"b": 63.746,
+"bg": [
+"illus",
+"P08"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 63.746,
+"b": 70.256,
+"bg": [
+"ground"
+],
+"ov": [
+"bars",
+{
+"title": "前九个月营收",
+"items": [
+[
+"2025 年",
+25
+],
+[
+"2026 年",
+332
+]
+],
+"unit": "亿美元",
+"note": "一年涨了 13 倍",
+"src": "来源：Anthropic 招股书（前九个月）"
+}
+],
+"label": false
+},
+{
+"a": 70.256,
+"b": 73.456,
+"bg": [
+"clip",
+"S1",
+3.8
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>彭博 · 招股书解读",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 73.456,
+"b": 75.556,
+"bg": [
+"illus",
+"P09"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 75.556,
+"b": 82.966,
+"bg": [
+"ground"
+],
+"ov": [
+"loss",
+{
+"src": "来源：Anthropic 招股书（前九个月）"
+}
+],
+"label": false
+},
+{
+"a": 82.966,
+"b": 85.226,
+"bg": [
+"clip",
+"DC",
+3.0
+],
+"ov": [
+"tag",
+{
+"html": "资料画面：数据中心",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 85.226,
+"b": 87.066,
+"bg": [
+"clip",
+"WS1",
+3.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 87.066,
+"b": 90.026,
+"bg": [
+"clip",
+"SPX2",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2026.06</span>SpaceX 上市",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 90.026,
+"b": 96.716,
+"bg": [
+"ground"
+],
+"ov": [
+"calendar",
+{
+"a": [
+"SpaceX",
+21
+],
+"b": [
+"Anthropic",
+4
+]
+}
+],
+"label": false
+},
+{
+"a": 96.716,
+"b": 100.956,
+"bg": [
+"ground"
+],
+"ov": [
+"price_full",
+{}
+],
+"label": false
+},
+{
+"a": 100.956,
+"b": 102.891,
+"bg": [
+"clip",
+"CHART",
+2.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 102.891,
+"b": 111.091,
+"bg": [
+"clip",
+"CHART",
+1.25
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>彭博 · 11/24",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 111.091,
+"b": 113.526,
+"bg": [
+"illus",
+"P10"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 113.526,
+"b": 117.382,
+"bg": [
+"illus",
+"P11"
+],
+"ov": [
+"quote",
+{
+"text": "一个拧巴到极点的死结"
+}
+],
+"label": true
+},
+{
+"a": 117.382,
+"b": 120.342,
+"bg": [
+"ground"
+],
+"ov": [
+"resume",
+{
+"img": "assets/dario.jpg",
+"name": "Dario Amodei",
+"cn": "达里奥·阿莫代伊",
+"lines": [
+"Anthropic 联合创始人、CEO",
+"前 OpenAI 研究副总裁",
+"普林斯顿 生物物理学博士"
+]
+}
+],
+"label": false
+},
+{
+"a": 120.342,
+"b": 124.432,
+"bg": [
+"ground"
+],
+"ov": [
+"duo",
+{
+"a": [
+"assets/dario.jpg",
+"达里奥·阿莫代伊",
+"Anthropic"
+],
+"b": [
+"assets/altman.jpg",
+"萨姆·奥特曼",
+"OpenAI"
+],
+"link": "老东家 · 老对手"
+}
+],
+"label": false
+},
+{
+"a": 124.432,
+"b": 130.452,
+"bg": [
+"illus",
+"P12"
+],
+"ov": [
+"stamp_only",
+{
+"text": "2021 出走",
+"at": 0.4
+}
+],
+"label": true
+},
+{
+"a": 130.452,
+"b": 135.632,
+"bg": [
+"clip",
+"COF",
+1.0
+],
+"ov": [
+"tag",
+{
+"html": "当年分家的理由：<b>太商业化，不顾安全</b>",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 135.632,
+"b": 138.657,
+"bg": [
+"ground"
+],
+"ov": [
+"letters",
+{
+"text": "PBC",
+"sub": "Public Benefit Corporation · 公益公司",
+"spread": true
+}
+],
+"label": false
+},
+{
+"a": 138.657,
+"b": 140.907,
+"bg": [
+"clip",
+"SEN",
+2.45
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>达里奥 · 2023 年参议院听证",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 140.907,
+"b": 145.622,
+"bg": [
+"ground"
+],
+"ov": [
+"counter",
+{
+"value": 80,
+"unit": "%",
+"sub": "七位创始人承诺捐出的股权"
+}
+],
+"label": false
+},
+{
+"a": 145.622,
+"b": 149.072,
+"bg": [
+"illus",
+"P13"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 149.072,
+"b": 153.697,
+"bg": [
+"clip",
+"CNN",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2025.05</span>CNN 专访",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 153.697,
+"b": 163.697,
+"bg": [
+"clip",
+"CNN",
+2.2
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>达里奥 · CNN",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 163.697,
+"b": 169.292,
+"bg": [
+"ground"
+],
+"ov": [
+"quotecard",
+{
+"text": "“模型过于强大，<br>可能带来灾难性风险”",
+"sub": "写进了上市招股书的风险提示"
+}
+],
+"label": false
+},
+{
+"a": 169.292,
+"b": 170.882,
+"bg": [
+"ground"
+],
+"ov": [
+"headline",
+{
+"html": "可另一边呢？",
+"center": true
+}
+],
+"label": false
+},
+{
+"a": 170.882,
+"b": 175.812,
+"bg": [
+"illus",
+"P14"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 175.812,
+"b": 179.582,
+"bg": [
+"clip",
+"JH_B",
+0.5
+],
+"ov": [
+"tag",
+{
+"html": "黄仁勋 · 英伟达 CEO",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 179.582,
+"b": 185.322,
+"bg": [
+"illus",
+"P15"
+],
+"ov": [
+"quote",
+{
+"text": "“他觉得 AI 很可怕，所以只有他们才配做”",
+"src": "黄仁勋 · 2025 年 6 月 巴黎 VivaTech（大意）"
+}
+],
+"label": true
+},
+{
+"a": 185.322,
+"b": 189.122,
+"bg": [
+"clip",
+"LIE",
+1.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2025.07</span>Big Technology 播客",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 189.122,
+"b": 192.122,
+"bg": [
+"clip",
+"LIE",
+5.45
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>达里奥 · Big Technology 播客",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 192.122,
+"b": 196.472,
+"bg": [
+"clip",
+"PACE",
+0.5
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">11/19</span>CNBC 专访",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 196.472,
+"b": 204.202,
+"bg": [
+"illus",
+"P16"
+],
+"ov": [
+"speedo",
+{}
+],
+"label": true
+},
+{
+"a": 204.202,
+"b": 206.177,
+"bg": [
+"clip",
+"PACE",
+12.5
+],
+"ov": null,
+"label": false
+},
+{
+"a": 206.177,
+"b": 211.827,
+"bg": [
+"clip",
+"PACE",
+18.3
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>达里奥 · CNBC 11/19",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 211.827,
+"b": 216.442,
+"bg": [
+"clip",
+"HWY",
+3.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 216.442,
+"b": 222.57,
+"bg": [
+"illus",
+"P17"
+],
+"ov": [
+"bigtext",
+{
+"text": "60 → 90",
+"at": 2.0299999999999727
+}
+],
+"label": true
+},
+{
+"a": 222.57,
+"b": 225.73,
+"bg": [
+"illus",
+"P18"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 225.73,
+"b": 229.16,
+"bg": [
+"illus",
+"P19"
+],
+"ov": [
+"chapter",
+{
+"no": "暗线一",
+"text": "路线死磕"
+}
+],
+"label": true
+},
+{
+"a": 229.16,
+"b": 234.13,
+"bg": [
+"clip",
+"SEN",
+3.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2023</span>达里奥在美国参议院作证",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 234.13,
+"b": 237.66,
+"bg": [
+"clip",
+"HUANG",
+4.0
+],
+"ov": [
+"tag",
+{
+"html": "黄仁勋 · 反对把中国市场堵死",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 237.66,
+"b": 241.26,
+"bg": [
+"clip",
+"HUANG",
+27.5
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>黄仁勋 · CNBC",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 241.26,
+"b": 244.37,
+"bg": [
+"ground"
+],
+"ov": [
+"chapter",
+{
+"no": "暗线二",
+"text": "开发者生态的反弹",
+"solo": true
+}
+],
+"label": false
+},
+{
+"a": 244.37,
+"b": 246.92,
+"bg": [
+"illus",
+"P20"
+],
+"ov": [
+"quote",
+{
+"text": "双重标准？"
+}
+],
+"label": true
+},
+{
+"a": 246.92,
+"b": 253.96,
+"bg": [
+"ground"
+],
+"ov": [
+"twocol",
+{
+"a": "拿全网公开数据<br>训练自己的模型",
+"b": "禁止对手用它的输出<br>做“蒸馏”",
+"at": 3.4399999999999977
+}
+],
+"label": false
+},
+{
+"a": 253.96,
+"b": 255.18,
+"bg": [
+"clip",
+"SIGNS",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">11/19</span>上市前夕",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 255.18,
+"b": 257.66,
+"bg": [
+"clip",
+"ARREST",
+10.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 257.66,
+"b": 262.4,
+"bg": [
+"ground"
+],
+"ov": [
+"doc",
+{
+"img": "assets/manifesto.jpg",
+"w": 1640,
+"hl": [
+[
+188,
+876,
+640,
+46
+],
+[
+188,
+936,
+910,
+46
+]
+],
+"focus": [
+600,
+900
+],
+"tr": "“Anthropic 不是一家安全的 AI 公司……打着<b>更大善意</b>的名义聚拢权力”",
+"tr_y": 1000,
+"src": "来源：MisAnthropic Statement（联名声明）"
+}
+],
+"label": false
+},
+{
+"a": 262.4,
+"b": 264.64,
+"bg": [
+"clip",
+"PROT",
+12.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 264.64,
+"b": 268.84,
+"bg": [
+"illus",
+"P21"
+],
+"ov": [
+"quote",
+{
+"text": "“为了更大善意”"
+}
+],
+"label": true
+},
+{
+"a": 268.84,
+"b": 271.01,
+"bg": [
+"ground"
+],
+"ov": [
+"three",
+{}
+],
+"label": false
+},
+{
+"a": 271.01,
+"b": 276.41,
+"bg": [
+"illus",
+"P22"
+],
+"ov": [
+"chapter",
+{
+"no": "猜测一",
+"text": "安全叙事 = 护城河？"
+}
+],
+"label": true
+},
+{
+"a": 276.41,
+"b": 279.96,
+"bg": [
+"clip",
+"DAIS",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "游说立法 · 收紧监管门槛",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 279.96,
+"b": 285.38,
+"bg": [
+"clip",
+"HACK",
+4.0
+],
+"ov": [
+"tag",
+{
+"html": "小创业公司 · 开源社区",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 285.38,
+"b": 289.58,
+"bg": [
+"illus",
+"P23"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 289.58,
+"b": 293.99,
+"bg": [
+"illus",
+"P24"
+],
+"ov": [
+"chapter",
+{
+"no": "猜测二",
+"text": "为什么抢跑上市？"
+}
+],
+"label": true
+},
+{
+"a": 293.99,
+"b": 296.29,
+"bg": [
+"clip",
+"ALT",
+13.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">11/18</span>DealBook 峰会",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 296.29,
+"b": 300.425,
+"bg": [
+"clip",
+"ALT",
+7.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 300.425,
+"b": 305.625,
+"bg": [
+"clip",
+"ALT",
+0.4
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>奥特曼 · DealBook 11/18",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 305.625,
+"b": 314.31,
+"bg": [
+"illus",
+"P25"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 314.31,
+"b": 317.61,
+"bg": [
+"clip",
+"INV",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "接盘的是谁？",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 317.61,
+"b": 322.36,
+"bg": [
+"illus",
+"P26"
+],
+"ov": [
+"chapter",
+{
+"no": "猜测三",
+"text": "实验室兜不住了？"
+}
+],
+"label": true
+},
+{
+"a": 322.36,
+"b": 331.14,
+"bg": [
+"ground"
+],
+"ov": [
+"doc",
+{
+"img": "assets/axios.jpg",
+"w": 1600,
+"hl": [
+[
+10,
+29,
+1540,
+22
+],
+[
+10,
+51,
+620,
+22
+]
+],
+"hl2": [
+[
+60,
+924,
+1270,
+24
+]
+],
+"focus": [
+800,
+60
+],
+"focus2": [
+800,
+930
+],
+"tr": "据 Axios：<b>二十多位知情人士</b>，员工担心模型强到不能安全发布",
+"tr_y": 110,
+"tr2": "内部模型出现向监督者编造<b>“掩护说辞”</b>的迹象",
+"tr2_y": 990,
+"src": "来源：Axios 2026-11-24（存档页）"
+}
+],
+"label": false
+},
+{
+"a": 331.14,
+"b": 336.18,
+"bg": [
+"clip",
+"MSN",
+10.0
+],
+"ov": null,
+"label": false
+},
+{
+"a": 336.18,
+"b": 345.43,
+"bg": [
+"clip",
+"MSN",
+0.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">原声</span>MSNOW · 11/24",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 345.43,
+"b": 348.82,
+"bg": [
+"clip",
+"FALL",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "估值：<b>1 万多亿美元</b>",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 348.82,
+"b": 353.096,
+"bg": [
+"illus",
+"P27"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 353.096,
+"b": 356.636,
+"bg": [
+"clip",
+"AFP",
+20.0
+],
+"ov": [
+"tag",
+{
+"html": "4 天破发 ≠ 宣判死刑",
+"pos": "bl"
+}
+],
+"label": false
+},
+{
+"a": 356.636,
+"b": 359.086,
+"bg": [
+"clip",
+"FB1",
+2.0
+],
+"ov": [
+"tag",
+{
+"html": "<span class=\"k\">2012.05</span>Facebook 上市第二天就破发",
+"pos": "tl",
+"small": true
+}
+],
+"label": false
+},
+{
+"a": 359.086,
+"b": 362.096,
+"bg": [
+"ground"
+],
+"ov": [
+"counter",
+{
+"value": 1,
+"unit": " 万亿美元",
+"sub": "Facebook（Meta）2021 年市值",
+"fmt": "int"
+}
+],
+"label": false
+},
+{
+"a": 362.096,
+"b": 368.356,
+"bg": [
+"illus",
+"P28"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 368.356,
+"b": 374.446,
+"bg": [
+"illus",
+"P29"
+],
+"ov": null,
+"label": true
+},
+{
+"a": 374.446,
+"b": 379.656,
+"bg": [
+"illus",
+"P30"
+],
+"ov": [
+"twoword",
+{
+"a": "慢一点 · 保安全",
+"b": "快一点 · 保股价",
+"at": 3.019999999999982
+}
+],
+"label": true
+},
+{
+"a": 379.656,
+"b": 390.504,
+"bg": [
+"illus",
+"P31",
+{
+"src_max": 1.4
+}
+],
+"ov": [
+"tag",
+{
+"html": "Anthropic 探出来的这趟深水，<b>奥特曼还敢跳吗？</b>",
+"pos": "bl"
+}
+],
+"label": true
+},
+{
+"a": 390.504,
+"b": 395.004,
+"bg": [
+"ground"
+],
+"ov": [
+"end",
+{}
+],
+"label": false
+}
+],
+"cuts": [
+2.1,
+4.1,
+5.05,
+5.95,
+6.75,
+8.05,
+11.53,
+14.42,
+16.22,
+21.43,
+24.795,
+27.345,
+30.08,
+33.21,
+36.28,
+40.53,
+42.65,
+45.72,
+48.786,
+50.886,
+53.526,
+55.626,
+59.026,
+61.646,
+63.746,
+70.256,
+73.456,
+75.556,
+82.966,
+85.226,
+87.066,
+90.026,
+96.716,
+100.956,
+102.891,
+111.091,
+113.526,
+117.382,
+120.342,
+124.432,
+130.452,
+135.632,
+138.657,
+140.907,
+145.622,
+149.072,
+153.697,
+163.697,
+169.292,
+170.882,
+175.812,
+179.582,
+185.322,
+189.122,
+192.122,
+196.472,
+204.202,
+206.177,
+211.827,
+216.442,
+222.57,
+225.73,
+229.16,
+234.13,
+237.66,
+241.26,
+244.37,
+246.92,
+253.96,
+255.18,
+257.66,
+262.4,
+264.64,
+268.84,
+271.01,
+276.41,
+279.96,
+285.38,
+289.58,
+293.99,
+296.29,
+300.425,
+305.625,
+314.31,
+317.61,
+322.36,
+331.14,
+336.18,
+345.43,
+348.82,
+353.096,
+356.636,
+359.086,
+362.096,
+368.356,
+374.446,
+379.656,
+390.504
+],
+"credits": null
+}

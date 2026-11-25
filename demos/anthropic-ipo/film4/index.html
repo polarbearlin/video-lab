@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Anthropic 整片 v4 · 图层</title>
+<style>
+@font-face { font-family: 'Serif'; src: url(fonts/NotoSerifSC.ttf); font-weight: 200 900; }
+@font-face { font-family: 'Display'; src: url(fonts/DMSerifDisplay.ttf); }
+@font-face { font-family: 'Oswald'; src: url(fonts/Oswald.ttf); font-weight: 200 700; }
+@font-face { font-family: 'Mono'; src: url(fonts/IBMPlexMono.ttf); }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Black.ttf); font-weight: 900; }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Bold.ttf); font-weight: 700; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
+.L { position: absolute; left: 0; top: 0; }
+.scene { position: absolute; inset: 0; display: none; overflow: hidden; }
+.tag { position: absolute; background: #EFE6D2; color: #1A1410; font: 700 46px 'Sans'; padding: 14px 30px 16px 26px; white-space: nowrap;
+       box-shadow: 0 14px 30px rgba(0,0,0,.55); clip-path: polygon(0 4%, 3% 0, 30% 3%, 60% 0, 97% 2%, 100% 0, 99% 50%, 100% 96%, 70% 100%, 40% 97%, 6% 100%, 0 95%, 1% 50%); }
+.tag.small { font-size: 36px; padding: 10px 24px 12px 20px; }
+.tag b { color: #C8371E; }
+.tag .m { font: 700 30px 'Sans'; color: #6A5A48; }
+.tag .k { display: inline-block; background: #E07A3F; color: #160F0A; font: 700 34px 'Oswald'; padding: 2px 12px; margin-right: 16px; vertical-align: 6px; letter-spacing: 1px; }
+.tag.small .k { font-size: 28px; vertical-align: 4px; }
+.stamp { position: absolute; border: 8px solid #D6311E; color: #D6311E; font: 900 92px 'Sans'; padding: 4px 28px; letter-spacing: 4px; background: rgba(18,8,6,.35); white-space: nowrap; }
+.card { position: absolute; background: #EFE6D2; padding: 18px 18px 86px; box-shadow: 0 30px 60px rgba(0,0,0,.6); }
+.card img { display: block; width: 100%; filter: sepia(.35) contrast(1.05) saturate(.8); }
+.card .cap { position: absolute; left: 22px; right: 22px; bottom: 14px; font: 700 40px 'Sans'; color: #1A1410; display: flex; justify-content: space-between; align-items: baseline; white-space: nowrap; }
+.card .cap i { font: 400 30px 'Oswald'; font-style: normal; color: #6A5A48; letter-spacing: 1px; }
+.big { position: absolute; font-family: 'Display', 'Serif'; color: #F2E6CE; text-shadow: 0 6px 30px rgba(0,0,0,.7); white-space: nowrap; }
+.serif { font-family: 'Serif'; font-weight: 900; }
+.label { position: absolute; right: 44px; bottom: 34px; font: 700 34px 'Sans'; color: rgba(240,230,210,.82); text-shadow: 0 2px 6px #000; }
+.paper { position: absolute; background: #EFE6D2; box-shadow: 0 34px 70px rgba(0,0,0,.65); color: #1A1410; }
+.src { position: absolute; left: 44px; bottom: 34px; font: 700 28px 'Sans'; color: rgba(240,230,210,.8); text-shadow: 0 2px 6px #000; }
+</style>
+</head>
+<body>
+<div id="stage" class="L" style="width:1920px;height:1080px;overflow:hidden"></div>
+<script>
+// 约定：window.render(t) 只依赖 t；随机数有种子；READY 之前图片和字体都加载好。组件 = COMP[名字](根节点, 参数, 镜头时长) → draw(u)，u 是镜头内的相对时间。
+const W = 1920, H = 1080;
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, k) => a + (b - a) * k;
+const eOut = x => 1 - Math.pow(1 - clamp(x), 3);
+const eInOut = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const eBack = x => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const seg = (u, a, d) => clamp((u - a) / d);
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const el = (tag, cls, html, parent) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; parent.appendChild(e); return e; };
+const css = (e, s) => { e.style.cssText += ';' + s; return e; };
+const set = (e, o, tf) => { e.style.opacity = o; if (tf != null) e.style.transform = tf; };
+const pop = (e, u, a, base = '', from = .6) => set(e, clamp((u - a) * 6), `${base} scale(${lerp(from, 1, eBack(seg(u, a, .45)))})`);
+const slam = (e, u, a, rot = -5, from = 2.3) => { const s = seg(u, a, .2); set(e, s > 0 ? 1 : 0, `rotate(${rot}deg) scale(${lerp(from, 1, eOut(s))})`); };
+const IMG = {};
+let DUR = 0;
+
+function ground() {
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); const r = rng(7);
+  g.fillStyle = '#0D0A09'; g.fillRect(0, 0, W, H);
+  for (const [x0, w, a] of [[-300, 520, .55], [380, 260, .35], [1250, 640, .45]]) { const gr = g.createLinearGradient(x0, 0, x0 + w + 900, H); gr.addColorStop(0, `rgba(170,28,18,${a})`); gr.addColorStop(1, 'rgba(60,8,6,0)'); g.fillStyle = gr; g.beginPath(); g.moveTo(x0, 0); g.lineTo(x0 + w, 0); g.lineTo(x0 + w + 900, H); g.lineTo(x0 + 900, H); g.closePath(); g.fill(); }
+  g.strokeStyle = 'rgba(255,240,220,.045)'; for (let x = 0; x < W; x += 48) { g.beginPath(); g.moveTo(x + .5, 0); g.lineTo(x + .5, H); g.stroke(); } for (let y = 0; y < H; y += 48) { g.beginPath(); g.moveTo(0, y + .5); g.lineTo(W, y + .5); g.stroke(); }
+  const id = g.getImageData(0, 0, W, H); for (let i = 0; i < id.data.length; i += 4) { const n = (r() - .5) * 22; id.data[i] += n; id.data[i + 1] += n; id.data[i + 2] += n; } g.putImageData(id, 0, 0);
+  const v = g.createRadialGradient(W / 2, H / 2, H * .3, W / 2, H / 2, H); v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.7)'); g.fillStyle = v; g.fillRect(0, 0, W, H);
+  return c.toDataURL('image/jpeg', .92);
+}
+function grain() { const out = []; for (let k = 0; k < 8; k++) { const c = document.createElement('canvas'); c.width = 960; c.height = 540; const g = c.getContext('2d'); const id = g.createImageData(960, 540); const r = rng(100 + k); for (let i = 0; i < id.data.length; i += 4) { const n = r() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = n; id.data[i + 3] = 26; } g.putImageData(id, 0, 0); out.push(c.toDataURL()); } return out; }
+const bgImg = r => { const i = el('img', 'L', null, r); i.src = IMG.ground; return i; };
+const canvas = (r, w = W, h = H) => { const c = el('canvas', 'L', null, r); c.width = w; c.height = h; return c; };
+
+// ---------- 组件 ----------
+const COMP = {
+  // 纸片标签：tl 左上 / bl 左下
+  tag(r, p) { const t = css(el('div', 'tag' + (p.small ? ' small' : ''), p.html, r), p.pos === 'bl' ? 'left:96px;bottom:80px' : 'left:70px;top:70px');
+    return u => set(t, eOut(seg(u, .15, .25)), `rotate(${p.pos === 'bl' ? -1.2 : 0}deg) translateX(${(1 - eBack(seg(u, .15, .45))) * -70}px)`); },
+  // 引语条（打字）
+  quote(r, p) { const q = css(el('div', 'tag', '', r), 'left:96px;bottom:110px;font:900 64px Serif;background:#7E1A10;color:#F2E6CE;padding:18px 40px 22px');
+    const s = p.src ? css(el('div', 'tag small', p.src, r), 'left:96px;bottom:40px;font-size:28px') : null;
+    return u => { const n = Math.round(p.text.length * clamp((u - .25) / Math.min(1.4, p.text.length * .07))); q.textContent = p.text.slice(0, Math.max(1, n)); set(q, u > .2 ? 1 : 0, `translateX(${(1 - eOut(seg(u, .2, .3))) * -40}px)`); if (s) set(s, eOut(seg(u, .6, .3))); }; },
+  // 大数字滚动 + 说明条
+  counter(r, p) { const n = css(el('div', 'big', '', r), 'left:0;right:0;text-align:center;top:290px;font-size:250px;color:#F3B35A;text-shadow:0 0 60px rgba(255,160,40,.5),0 8px 0 #2A120A');
+    const s = css(el('div', 'tag', p.sub, r), 'left:50%;top:620px');
+    return u => { const k = eOut(seg(u, 0, Math.min(1.0, DUR_SHOT(r) * .5))); const v = p.fmt === 'int' ? Math.max(k > .02 ? 1 : 0, Math.round(p.value * k)) : Math.round(p.value * k);
+      n.innerHTML = `${v.toLocaleString()}<span class="serif" style="font-size:120px">${p.unit}</span>`; set(s, eOut(seg(u, .5, .3)), `translateX(-50%) translateY(${(1 - eOut(seg(u, .5, .3))) * 30}px)`); }; },
+  // 片名：价格线 + 盖章
+  title_ipo(r) { const l1 = css(el('div', 'big', '<span style="font-family:Oswald;font-weight:500">11/19</span> <span class="serif">上市</span>', r), 'left:170px;top:250px;font-size:120px');
+    const cv = canvas(r), st = css(el('div', 'stamp', '11/24 破发', r), 'left:1040px;top:600px;font-size:120px');
+    return u => { set(l1, eOut(seg(u, 0, .25)), `translateY(${(1 - eOut(seg(u, 0, .35))) * 40}px)`); const g = cv.getContext('2d'); g.clearRect(0, 0, W, H);
+      const k = eInOut(seg(u, .15, .75)), pts = [[180, 520], [560, 470], [900, 600], [1240, 640], [1620, 760]];
+      g.setLineDash([22, 16]); g.strokeStyle = 'rgba(214,49,30,.9)'; g.lineWidth = 5; g.beginPath(); g.moveTo(150, 690); g.lineTo(150 + 1650 * clamp(k * 1.3), 690); g.stroke(); g.setLineDash([]);
+      g.font = '500 38px Oswald'; g.fillStyle = 'rgba(214,49,30,.95)'; if (k > .3) g.fillText('发行价 $83', 150, 676); line(g, pts, k, '#F2E6CE', 9);
+      const s = seg(u, .85, .18), sh = s > 0 && s < 1 ? Math.sin(u * 90) * 10 * (1 - s) : 0; set(st, s > 0 ? 1 : 0, `translate(${sh}px,${sh * .6}px) rotate(-6deg) scale(${lerp(2.2, 1, eOut(s))})`); }; },
+  // 画布：两张照片卡，镜头从第一张横移到第二张，盖章，再拉远
+  compare_cards(r, p) { const world = css(el('div', 'L', null, r), 'width:3600px;height:1600px;transform-origin:0 0');
+    const mk = (x, y, rot, c) => css(el('div', 'card', `<img src="${c[0]}"><div class="cap"><span>${c[1]}</span><i>${c[2]}</i></div>`, world), `left:${x}px;top:${y}px;width:900px;transform:rotate(${rot}deg)`);
+    const c1 = mk(300, 360, -3, p.cards[0]), c2 = mk(2080, 300, 2.5, p.cards[1]), ar = canvas(world, 3600, 1600);
+    const st = css(el('div', 'stamp', p.stamp, world), 'left:2240px;top:1060px;font-size:110px'), rec = css(el('div', 'tag', `<span class="k">RECORD</span>${p.first}`, world), 'left:330px;top:250px;font-size:40px');
+    return u => { const d = DUR_SHOT(r), p1 = eInOut(seg(u, d * .19, d * .3)), p2 = eInOut(seg(u, d * .69, d * .23));
+      const cx = lerp(lerp(750, 2530, p1), 1720, p2), cy = lerp(800, 860, p2), z = lerp(lerp(1.35, 1.25, p1), .58, p2);
+      world.style.transform = `translate(${W / 2 - cx * z}px,${H / 2 - cy * z}px) scale(${z})`;
+      set(c1, 1, `rotate(-3deg) translateY(${(1 - eOut(seg(u, 0, .4))) * 60}px)`); c1.style.filter = `brightness(${lerp(1, .55, p1)})`;
+      set(c2, eOut(seg(u, d * .27, .3)), `rotate(2.5deg) scale(${lerp(.85, 1, eBack(seg(u, d * .27, .5)))})`); pop(rec, u, .3, 'rotate(-4deg)');
+      const g = ar.getContext('2d'); g.clearRect(0, 0, 3600, 1600); const k = eInOut(seg(u, d * .21, d * .17));
+      if (k > 0) { g.strokeStyle = '#E07A3F'; g.lineWidth = 12; g.setLineDash([30, 20]); g.beginPath(); g.moveTo(1240, 760); g.quadraticCurveTo(1650, 520, lerp(1240, 2040, k), lerp(760, 720, k)); g.stroke(); }
+      slam(st, u, d * .56); }; },
+  // 插画上叠价格线
+  price_overlay(r, p) { const cv = canvas(r), st = css(el('div', 'stamp', p.stamp, r), 'left:1180px;top:120px;font-size:88px');
+    return u => { const g = cv.getContext('2d'); g.clearRect(0, 0, W, H); priceLine(g, u, 260, 330, 980, 560); slam(st, u, 1.95, 6); }; },
+  price_full(r) { const cv = canvas(r), t = css(el('div', 'big serif', 'Anthropic 上市头四个交易日', r), 'left:96px;top:60px;font-size:72px'), st = css(el('div', 'stamp', '跌破发行价', r), 'left:1240px;top:70px;font-size:80px');
+    const O = [[111.5, 115.1, 92.72, 97.17], [89.86, 92.56, 83.05, 88.91], [93.65, 94.24, 84.61, 87.64], [83.4, 83.49, 75.61, 81.91]], D = ['11/19', '11/20', '11/23', '11/24'];
+    return u => { const g = cv.getContext('2d'); g.clearRect(0, 0, W, H); set(t, eOut(seg(u, 0, .3)));
+      const Y = v => 950 - (v - 70) / 50 * 700, X = i => 420 + i * 330;
+      g.strokeStyle = 'rgba(255,240,220,.08)'; g.lineWidth = 2; g.font = '500 34px Oswald'; g.fillStyle = 'rgba(240,230,210,.55)';
+      for (const v of [80, 90, 100, 110]) { g.beginPath(); g.moveTo(300, Y(v)); g.lineTo(1650, Y(v)); g.stroke(); g.fillText(v, 240, Y(v) + 12); }
+      g.setLineDash([22, 16]); g.strokeStyle = '#E8341F'; g.lineWidth = 5; g.beginPath(); g.moveTo(300, Y(83)); g.lineTo(300 + 1350 * eOut(seg(u, .1, .6)), Y(83)); g.stroke(); g.setLineDash([]);
+      g.fillStyle = '#E8341F'; g.font = '500 40px Oswald'; g.fillText('$83 发行价', 1680, Y(83) + 14);
+      O.forEach(([o, h, l, c], i) => { const k = eOut(seg(u, .5 + i * .35, .35)); if (k <= 0) return; const m = (o + c) / 2, col = c >= o ? '#E8341F' : '#2FBF6E';
+        g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 7; g.beginPath(); g.moveTo(X(i), Y(m + (h - m) * k)); g.lineTo(X(i), Y(m + (l - m) * k)); g.stroke();
+        g.fillRect(X(i) - 60, Y(m + (Math.max(o, c) - m) * k), 120, Math.max(4, (Y(m + (Math.min(o, c) - m) * k) - Y(m + (Math.max(o, c) - m) * k))));
+        g.fillStyle = 'rgba(240,230,210,.75)'; g.font = '500 36px Oswald'; g.fillText(D[i], X(i) - 42, 1010); });
+      if (u > 1.9) { g.fillStyle = '#2FBF6E'; g.font = '500 50px Oswald'; g.fillText('收 81.91', X(3) - 90, Y(75.61) + 64); g.fillStyle = '#F2E6CE'; g.fillText('最高 115.10', X(0) + 80, Y(115.1) + 14); }
+      slam(st, u, 2.1, 5); }; },
+  // 文档：倾斜纸页 → 推到高亮行 → 荧光笔 → 中文贴条（可选第二处、照片落下）
+  doc(r, p) { const cam = css(el('div', 'L', null, r), 'width:1920px;height:1080px;perspective:2200px');
+    const page = css(el('div', 'L', null, cam), `width:${p.w}px;box-shadow:0 40px 80px rgba(0,0,0,.7);background:#fff`); const im = css(el('img', null, null, page), `display:block;width:${p.w}px;filter:sepia(.15) contrast(1.04)`); im.src = p.img;
+    const mkh = list => list.map(([x, y, w, h]) => css(el('div', 'L', null, page), `left:${x}px;top:${y}px;height:${h + 10}px;margin-top:-5px;background:rgba(232,110,40,.6);mix-blend-mode:multiply;border-radius:6px`));
+    const H1 = mkh(p.hl), H2 = mkh(p.hl2 || []), lens = list => list.map(x => x[2]);
+    const tr = css(el('div', 'tag', p.tr, page), `left:20px;top:${p.tr_y}px;font-size:44px;background:#F7EEDB`), tr2 = p.tr2 ? css(el('div', 'tag', p.tr2, page), `left:20px;top:${p.tr2_y}px;font-size:44px;background:#F7EEDB`) : null;
+    const ph = p.photo ? css(el('div', 'card', `<img src="${p.photo[0]}"><div class="cap"><span>${p.photo[1]}</span><i>${p.photo[2]}</i></div>`, r), 'left:1080px;top:300px;width:700px') : null;
+    const sr = css(el('div', 'src', p.src, r), '');
+    const f1 = p.focus || [p.hl[0][0] + p.hl[0][2] / 2, p.hl[0][1]], f2 = p.focus2 || f1;
+    return u => { const d = DUR_SHOT(r), z = eInOut(seg(u, 0, 1.0)), mid = p.hl2 ? eInOut(seg(u, d * .5, .9)) : 0, out = ph ? eInOut(seg(u, d - 1.1, .6)) : 0;
+      const fx = lerp(f1[0], f2[0], mid), fy = lerp(f1[1], f2[1], mid), sc = lerp(.85, 1.4, z) * lerp(1, .8, out);
+      page.style.transformOrigin = `${fx}px ${fy}px`; page.style.transform = `translate(${960 - fx + lerp(0, -330, out)}px,${lerp(470, 420, z) - fy}px) rotateX(${lerp(18, 6, z)}deg) rotateZ(${lerp(-4, -2, z)}deg) scale(${sc})`;
+      H1.forEach((h, i) => h.style.width = `${lens(p.hl)[i] * eOut(seg(u, .6 + i * .35, .5))}px`); H2.forEach((h, i) => h.style.width = `${lens(p.hl2)[i] * eOut(seg(u, d * .5 + .7 + i * .35, .5))}px`);
+      pop(tr, u, 1.15 + .35 * (p.hl.length - 1), 'rotate(-1.5deg)', .8); if (tr2) pop(tr2, u, d * .5 + 1.2, 'rotate(-1.5deg)', .8);
+      if (ph) { const dd = seg(u, d - 1.0, .45); set(ph, dd > 0 ? 1 : 0, `translateY(${(1 - eBack(dd)) * -700}px) rotate(${lerp(-14, 4, eOut(dd))}deg)`); }
+      set(sr, eOut(seg(u, .3, .3))); }; },
+  letters(r, p) { const w = css(el('div', 'big', '', r), `left:0;right:0;text-align:center;top:${p.spread ? 330 : 410}px;font:400 ${p.spread ? 260 : 150}px Display;letter-spacing:${p.spread ? 120 : 38}px;color:${p.spread ? '#E07A3F' : '#F2E6CE'}`);
+    const L = [...p.text].map(c => css(el('span', null, c, w), 'display:inline-block')), s = css(el('div', 'tag', p.sub, r), `left:50%;top:${p.spread ? 700 : 640}px;font-size:40px`);
+    return u => { L.forEach((e, i) => { const k = eOut(seg(u, .1 + i * (p.spread ? .18 : .06), .3)); set(e, k, `translateY(${(1 - k) * 30}px)`); }); set(s, eOut(seg(u, .8, .3)), `translateX(-50%) translateY(${(1 - eOut(seg(u, .8, .3))) * 20}px)`); }; },
+  stamp_only(r, p) { const st = css(el('div', 'stamp', p.text, r), `left:1150px;top:150px;font-family:Serif${p.light ? ';color:#F2E6CE;border-color:#F2E6CE' : ''}`); return u => slam(st, u, p.at || .5, -4, 2.2); },
+  headline(r, p) { const w = css(el('div', 'big', p.html, r), `left:0;right:0;text-align:center;top:${p.center ? 420 : 780}px;font:900 ${p.center ? 150 : 120}px Serif`);
+    return u => { const k = eOut(seg(u, p.center ? .05 : .4, .5)); set(w, k, `scale(${lerp(1.15, 1, k)})`); w.style.letterSpacing = `${lerp(40, 6, k)}px`; }; },
+  // 纸面柱状：两根柱从下往上长，数字滚动
+  bars(r, p) { const pp = css(el('div', 'paper', '', r), 'left:200px;top:110px;width:1520px;height:860px;transform:rotate(-1deg)');
+    const t = css(el('div', 'L', p.title, pp), 'left:60px;top:40px;font:900 72px Serif'), note = css(el('div', 'stamp', p.note, pp), 'left:60px;top:170px;font-size:56px'), src = css(el('div', 'L', p.src, pp), 'left:60px;top:790px;font:700 30px Sans;color:#6A5A48');
+    const mx = Math.max(...p.items.map(x => x[1])), cols = p.items.map(([lab, v], i) => { const x = 330 + i * 560; return { v, bar: css(el('div', 'L', '', pp), `left:${x}px;width:300px;background:${i ? '#E07A3F' : '#8D8270'}`), num: css(el('div', 'L', '', pp), `left:${x - 100}px;width:500px;text-align:center;font:400 96px Display`), lab: css(el('div', 'L', lab, pp), `left:${x}px;width:300px;text-align:center;top:690px;font:900 48px Sans`) }; });
+    return u => { set(pp, eOut(seg(u, 0, .3)), `rotate(-1deg) translateY(${(1 - eOut(seg(u, 0, .4))) * 60}px)`);
+      cols.forEach((c, i) => { const k = eOut(seg(u, .4 + i * .5, 1.0)), h = 470 * c.v / mx * k; css(c.bar, `top:${670 - h}px;height:${h}px`); c.num.style.top = `${670 - h - 120}px`; c.num.innerHTML = `${Math.round(c.v * k)}<span class="serif" style="font-size:44px"> ${p.unit}</span>`; c.num.style.color = i ? '#C8371E' : '#1A1410'; });
+      slam(note, u, 1.9, -4, 2); }; },
+  loss(r, p) { const t = css(el('div', 'big serif', '前九个月 · 账面净亏损', r), 'left:96px;top:70px;font-size:70px'), n = css(el('div', 'big', '', r), 'left:0;right:0;text-align:center;top:220px;font-size:210px;color:#E8341F');
+    const pp = css(el('div', 'paper', '', r), 'left:160px;top:560px;width:1600px;height:150px;background:#E8341F'), part = css(el('div', 'L', '', pp), 'height:150px;background:repeating-linear-gradient(-45deg,#5A5650 0 22px,#47443F 22px 44px)');
+    const lb = css(el('div', 'tag', '其中 <b>940 多亿</b>：非现金账面亏损<span class="m">（优先股和融资工具估值变动）</span>', r), 'left:160px;top:760px'), sr = css(el('div', 'src', p.src, r), '');
+    return u => { const d = DUR_SHOT(r), k = eOut(seg(u, .1, Math.min(1.2, d * .35))); n.innerHTML = `${Math.round(1040 * k).toLocaleString()}<span class="serif" style="font-size:100px"> 亿美元</span>`;
+      set(t, eOut(seg(u, 0, .3))); set(pp, 1, `scaleX(${k})`); pp.style.transformOrigin = '0 0'; part.style.width = `${1600 * 940 / 1040 * eInOut(seg(u, d * .45, .8))}px`; pop(lb, u, d * .45 + .5); set(sr, eOut(seg(u, .3, .3))); }; },
+  // 日历：21 个格子 vs 4 个格子，最后一格盖“破发”
+  calendar(r, p) { const t = css(el('div', 'big serif', '上市多久跌破发行价', r), 'left:96px;top:70px;font-size:70px'), rows = [p.a, p.b].map(([name, n], j) => { const y = 300 + j * 330;
+      const lab = css(el('div', 'big serif', name, r), `left:96px;top:${y + 20}px;font-size:64px;color:${j ? '#E07A3F' : '#F2E6CE'}`);
+      const cells = [...Array(n)].map((_, i) => css(el('div', 'L', `<span style="font:500 30px Oswald">${i + 1}</span>`, r), `left:${560 + (i % 11) * 112}px;top:${y + Math.floor(i / 11) * 112}px;width:96px;height:96px;background:${j ? '#E07A3F' : '#8D8270'};color:#160F0A;display:flex;align-items:flex-end;justify-content:flex-end;padding:0 8px 4px 0;box-sizing:border-box`));
+      const num = css(el('div', 'big', `${n}<span class="serif" style="font-size:44px"> 个交易日</span>`, r), `left:96px;top:${y + 110}px;font-size:90px;color:${j ? '#E07A3F' : '#F2E6CE'}`); return { lab, cells, num, n }; });
+    const st = css(el('div', 'stamp', '破发', r), 'left:1010px;top:615px;font-size:76px');
+    return u => { set(t, eOut(seg(u, 0, .3))); rows.forEach((rw, j) => { const a = j ? 1.6 : .2; set(rw.lab, eOut(seg(u, a, .3)));
+        rw.cells.forEach((c, i) => pop(c, u, a + i * (j ? .12 : .05), '', .3)); set(rw.num, eOut(seg(u, a + rw.n * (j ? .12 : .05), .3))); }); slam(st, u, 2.3, -8); }; },
+  resume(r, p) { const pp = css(el('div', 'paper', '', r), 'left:260px;top:120px;width:1400px;height:840px');
+    css(el('div', 'L', 'Resume.', pp), 'left:70px;top:40px;font:400 130px Display;color:#C8371E'); const ph = css(el('img', 'L', null, pp), 'left:70px;top:230px;width:420px;height:420px;object-fit:cover;filter:sepia(.4) contrast(1.05);box-shadow:0 10px 20px rgba(0,0,0,.3)'); ph.src = p.img;
+    const nm = css(el('div', 'L', `${p.name}<br><span style="font:900 56px Serif">${p.cn}</span>`, pp), 'left:560px;top:230px;font:400 82px Display;line-height:1.1');
+    const L = p.lines.map((s, i) => css(el('div', 'L', s, pp), `left:560px;top:${470 + i * 74}px;font:700 44px Sans;border-left:10px solid #E07A3F;padding-left:22px`));
+    return u => { set(pp, eOut(seg(u, 0, .3)), `rotate(-1.2deg) translateY(${(1 - eOut(seg(u, 0, .4))) * 60}px)`); pop(ph, u, .2, 'rotate(-2deg)'); set(nm, eOut(seg(u, .4, .3))); L.forEach((e, i) => set(e, eOut(seg(u, .7 + i * .25, .3)), `translateX(${(1 - eOut(seg(u, .7 + i * .25, .3))) * 30}px)`)); }; },
+  duo(r, p) { const mk = (c, x, rot) => css(el('div', 'card', `<img src="${c[0]}"><div class="cap"><span>${c[1]}</span><i>${c[2]}</i></div>`, r), `left:${x}px;top:200px;width:560px;transform:rotate(${rot}deg)`);
+    const a = mk(p.a, 200, -3), b = mk(p.b, 1160, 3), cv = canvas(r), lk = css(el('div', 'tag', p.link, r), 'left:50%;top:430px');
+    return u => { pop(a, u, 0, 'rotate(-3deg)'); pop(b, u, .35, 'rotate(3deg)'); const g = cv.getContext('2d'); g.clearRect(0, 0, W, H); const k = eInOut(seg(u, .6, .5));
+      g.strokeStyle = '#E07A3F'; g.lineWidth = 10; g.setLineDash([26, 18]); g.beginPath(); g.moveTo(790, 500); g.lineTo(lerp(790, 1150, k), 500); g.stroke(); set(lk, eOut(seg(u, 1.0, .3)), `translateX(-50%) rotate(-2deg) scale(${lerp(.7, 1, eBack(seg(u, 1.0, .45)))})`); }; },
+  speedo(r) { const cv = canvas(r); return u => { const g = cv.getContext('2d'); g.clearRect(0, 0, W, H); const cx = 1500, cy = 560, R = 300, A = v => (210 - 240 * v / 200) * Math.PI / 180;
+      g.fillStyle = 'rgba(12,8,6,.72)'; g.beginPath(); g.arc(cx, cy, R + 40, 0, 7); g.fill(); g.strokeStyle = '#3A2E26'; g.lineWidth = 16; g.beginPath(); g.arc(cx, cy, R, -A(0), -A(200)); g.stroke();
+      for (let v = 0; v <= 200; v += 20) { const a = A(v), hot = v === 200 && u > .5; g.strokeStyle = hot ? '#E8341F' : '#8D8270'; g.lineWidth = 6; g.beginPath(); g.moveTo(cx + (R - 34) * Math.cos(a), cy - (R - 34) * Math.sin(a)); g.lineTo(cx + R * Math.cos(a), cy - R * Math.sin(a)); g.stroke();
+        if ([0, 60, 90, 120, 200].includes(v) || v % 40 === 0) { g.font = `500 ${v === 200 ? 44 : 34}px Oswald`; g.fillStyle = hot ? '#E8341F' : '#CFC3AE'; g.textAlign = 'center'; g.fillText(v, cx + (R - 80) * Math.cos(a), cy - (R - 80) * Math.sin(a) + 12); } }
+      const d = DUR_SHOT(r), v = lerp(60, 90, eInOut(seg(u, d * .55, d * .3))), a = A(v); g.strokeStyle = '#E07A3F'; g.lineWidth = 12; g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx + (R - 60) * Math.cos(a), cy - (R - 60) * Math.sin(a)); g.stroke();
+      g.fillStyle = '#E07A3F'; g.beginPath(); g.arc(cx, cy, 22, 0, 7); g.fill(); g.font = '500 70px Oswald'; g.fillStyle = '#F2E6CE'; g.fillText(`${Math.round(v)} mph`, cx, cy + 150); g.textAlign = 'left'; }; },
+  bigtext(r, p) { const w = css(el('div', 'big', p.text, r), 'left:0;right:0;text-align:center;top:360px;font:400 220px Display;color:#F3B35A'); return u => { const k = eOut(seg(u, p.at || 0, .4)); set(w, k, `scale(${lerp(1.4, 1, k)})`); }; },
+  chapter(r, p) { const no = css(el('div', 'tag', p.no, r), `left:${p.solo ? 'calc(50% - 130px)' : '96px'};top:${p.solo ? 330 : 90}px;font:900 56px Sans;background:#7E1A10;color:#F2E6CE`);
+    const tx = css(el('div', 'big serif', p.text, r), p.solo ? 'left:0;right:0;text-align:center;top:470px;font-size:120px' : 'left:96px;top:200px;font-size:96px');
+    return u => { pop(no, u, .1, 'rotate(-2deg)'); set(tx, eOut(seg(u, .35, .35)), `translateY(${(1 - eOut(seg(u, .35, .35))) * 30}px)`); }; },
+  twocol(r, p) { const mk = (txt, x, ok) => css(el('div', 'paper', `<div style="font:900 120px Sans;color:${ok ? '#2F8F4E' : '#C8371E'}">${ok ? '✓' : '✗'}</div><div style="font:900 58px Serif;line-height:1.35">${txt}</div>`, r), `left:${x}px;top:220px;width:700px;height:600px;padding:50px 60px;box-sizing:border-box`);
+    const a = mk(p.a, 180, true), b = mk(p.b, 1040, false), vs = css(el('div', 'big', 'VS', r), 'left:900px;top:430px;font:400 110px Display;color:#E07A3F');
+    return u => { pop(a, u, .1, 'rotate(-2deg)'); pop(b, u, p.at || 1.2, 'rotate(2deg)'); set(vs, eOut(seg(u, (p.at || 1.2) - .3, .3))); }; },
+  three(r) { const C = ['安全叙事是护城河？', '为什么抢跑上市？', '实验室兜不住了？'].map((t, i) => css(el('div', 'paper', `<div style="font:400 120px Display;color:#C8371E">${i + 1}</div><div style="font:900 46px Serif;line-height:1.3">${t}</div>`, r), `left:${170 + i * 560}px;top:300px;width:460px;height:420px;padding:40px;box-sizing:border-box`));
+    const t = css(el('div', 'big serif', '三个猜测', r), 'left:0;right:0;text-align:center;top:110px;font-size:100px');
+    return u => { set(t, eOut(seg(u, 0, .3))); C.forEach((c, i) => pop(c, u, .3 + i * .3, `rotate(${(i - 1) * 2}deg)`)); }; },
+  quotecard(r, p) { const pp = css(el('div', 'paper', `<div style="font:900 84px Serif;line-height:1.35">${p.text}</div><div style="margin-top:40px;font:700 40px Sans;color:#6A5A48">${p.sub}</div>`, r), 'left:240px;top:200px;width:1440px;padding:70px 90px;box-sizing:border-box');
+    const hl = css(el('div', 'L', '', pp), 'left:80px;top:70px;height:240px;background:rgba(232,110,40,.45);mix-blend-mode:multiply');
+    return u => { set(pp, eOut(seg(u, 0, .3)), `rotate(-1.5deg) translateY(${(1 - eOut(seg(u, 0, .4))) * 60}px)`); hl.style.width = `${1240 * eOut(seg(u, .6, .8))}px`; }; },
+  twoword(r, p) { const a = css(el('div', 'big serif', p.a, r), 'left:120px;top:400px;font-size:96px;color:#8FC7A0'), b = css(el('div', 'big serif', p.b, r), 'right:120px;top:400px;font-size:96px;color:#F3B35A');
+    return u => { const k = eOut(seg(u, p.at || 1.5, .5)); set(a, lerp(1, .25, k) * eOut(seg(u, .1, .3)), `scale(${lerp(1, .85, k)})`); set(b, eOut(seg(u, .5, .3)), `scale(${lerp(1, 1.18, k)})`); }; },
+  end(r) { const t = css(el('div', 'big serif', '北极熊吃海豹', r), 'left:0;right:0;text-align:center;top:220px;font-size:120px'), q = css(el('div', 'tag', '你觉得 AI 是泡沫，还是才刚开始？评论区聊聊。', r), 'left:50%;top:420px');
+    const cr = css(el('div', 'L', ['配乐：Suno 定制纯音乐', '新闻画面版权归 Bloomberg、CNBC、福克斯商业、CBS、CNN、法新社、美联社、MSNOW 等原播出机构，仅作评论引用', '图片：《卫报》、旧金山标准报、Axios；数据：雅虎财经、Anthropic 招股书', '插画与插画动画为 AI 生成的示意图，非新闻实拍'].join('<br>'), r), 'left:0;right:0;top:600px;text-align:center;font:700 32px Sans;line-height:1.7;color:rgba(240,230,210,.7)');
+    return u => { set(t, eOut(seg(u, 0, .4))); set(q, eOut(seg(u, .4, .3)), 'translateX(-50%)'); set(cr, eOut(seg(u, .8, .4))); }; },
+  label(r) { return () => {}; },
+};
+function line(g, pts, k, col, w) { g.strokeStyle = col; g.lineWidth = w; g.lineJoin = 'round'; g.beginPath(); const n = k * (pts.length - 1);
+  for (let i = 0; i <= Math.floor(n); i++) i ? g.lineTo(...pts[i]) : g.moveTo(...pts[i]); const i0 = Math.floor(n), f = n - i0; if (i0 < pts.length - 1) g.lineTo(lerp(pts[i0][0], pts[i0 + 1][0], f), lerp(pts[i0][1], pts[i0 + 1][1], f)); g.stroke(); }
+function priceLine(g, u, x0, dx, y0, hgt) { const P = [115.10, 97.17, 88.91, 87.64, 81.91], X = i => x0 + i * dx, Y = v => y0 - (v - 70) / 50 * hgt;
+  const gr = g.createLinearGradient(0, 380, 0, 1080); gr.addColorStop(0, 'rgba(10,6,5,0)'); gr.addColorStop(1, 'rgba(10,6,5,.75)'); g.fillStyle = gr; g.fillRect(0, 380, W, 700);
+  const k = eInOut(seg(u, .2, 1.6)), n = k * (P.length - 1);
+  g.setLineDash([22, 16]); g.strokeStyle = 'rgba(230,50,35,.95)'; g.lineWidth = 5; g.beginPath(); g.moveTo(200, Y(83)); g.lineTo(1720, Y(83)); g.stroke(); g.setLineDash([]);
+  g.font = '500 40px Oswald'; g.fillStyle = 'rgba(230,50,35,.95)'; g.fillText('$83 发行价', 200, Y(83) - 18);
+  g.shadowColor = 'rgba(0,0,0,.6)'; g.shadowBlur = 16; line(g, P.map((v, i) => [X(i), Y(v)]), k, '#F2E6CE', 10); g.shadowBlur = 0;
+  g.font = '500 34px Oswald'; ['11/19', '11/20', '11/23', '11/24'].forEach((d, i) => { if (n >= i + 1) { g.fillStyle = '#F2E6CE'; g.fillText(d, X(i + 1) - 40, 1040); } });
+  if (n >= 4) { g.fillStyle = '#E8341F'; g.beginPath(); g.arc(X(4), Y(81.91), 16 + 6 * Math.sin(u * 12), 0, 7); g.fill(); g.font = '500 46px Oswald'; g.fillText('$81.91', X(4) - 70, Y(81.91) + 70); } }
+
+// ---------- 装配 ----------
+let SHOTS = [], CUTS = [], leak, grainEl, vig;
+const DUR_SHOT = r => r._dur;
+window.render = t => {
+  for (const s of SHOTS) { const on = t >= s.a && t < s.b; if (s.on !== on) { s.root.style.display = on ? 'block' : 'none'; s.on = on; } if (on && s.draw) s.draw(t - s.a); }
+  let L = 0, side = 0; for (const [i, c] of CUTS.entries()) { const d = t - c + .12; if (d > 0 && d < .4) { L = Math.sin(d / .4 * Math.PI); side = i % 2; } }
+  leak.style.opacity = L * .8; leak.style.background = `radial-gradient(ellipse at ${side ? 85 : 15}% 50%, rgba(255,170,70,.95), rgba(230,90,30,.45) 35%, rgba(0,0,0,0) 70%)`;
+};
+(async () => {
+  const SB = await (await fetch('storyboard.json')).json(); DUR = SB.dur; CUTS = SB.cuts; IMG.ground = ground();
+  const stage = document.getElementById('stage');
+  for (const s of SB.shots) { const root = el('div', 'scene', null, stage); root._dur = s.b - s.a; if (s.bg[0] === 'ground') bgImg(root);
+    const sh = { a: s.a, b: s.b, root, on: true }; if (s.ov) sh.draw = COMP[s.ov[0]](root, s.ov[1]); if (s.label) el('div', 'label', '示意图', root); SHOTS.push(sh); }
+  leak = css(el('div', 'L', null, stage), 'width:1920px;height:1080px;mix-blend-mode:screen');
+  vig = css(el('div', 'L', null, stage), 'width:1920px;height:1080px;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,.45) 100%)');
+  for (const f of ['900 60px Serif', '60px Display', '500 60px Oswald', '900 60px Sans', '700 60px Sans']) await document.fonts.load(f);
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  window.render(0); window.DUR = DUR; window.READY = true;
+})();
+</script>
+</body>
+</html>
