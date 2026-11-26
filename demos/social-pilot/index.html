@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>社会焦点试片 · 常驻 HUD + 时间轴</title>
+<style>
+@font-face { font-family: 'Serif'; src: url(fonts/NotoSerifSC.ttf); font-weight: 200 900; }
+@font-face { font-family: 'Mono'; src: url(fonts/IBMPlexMono.ttf); }
+@font-face { font-family: 'Oswald'; src: url(fonts/Oswald.ttf); font-weight: 200 700; }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Black.ttf); font-weight: 900; }
+@font-face { font-family: 'Sans'; src: url(fonts/NotoSansSC-Bold.ttf); font-weight: 700; }
+html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #EDE6D8; }
+.L { position: absolute; left: 0; top: 0; }
+.ink { color: #1B1A18; }
+.card { position: absolute; background: #FBF8F1; border: 2px solid #1B1A18; box-shadow: 10px 12px 0 rgba(27,26,24,.12); padding: 26px 32px; }
+.card .d { font: 500 44px Mono; color: #D9601C; letter-spacing: 1px; }
+.card .h { font: 900 62px Serif; color: #1B1A18; margin-top: 6px; white-space: nowrap; }
+.card .b { font: 700 36px Sans; color: #4A4640; margin-top: 10px; white-space: nowrap; }
+.stamp { position: absolute; border: 6px solid #D9601C; color: #D9601C; font: 900 76px Sans; padding: 2px 24px; letter-spacing: 4px; white-space: nowrap; }
+.src { position: absolute; left: 60px; bottom: 26px; font: 700 26px Sans; color: #7A746A; }
+</style>
+</head>
+<body>
+<div id="stage" class="L" style="width:1920px;height:1080px;overflow:hidden"></div>
+<script>
+// 社会焦点风格包 v0：米白纸 + 墨黑 + 一个警示橙；常驻 HUD（时间戳、小地图、进度条）+ 一条会长大的时间轴。render(t) 只依赖 t。
+const W = 1920, H = 1080, ORANGE = '#D9601C', INK = '#1B1A18', GREY = '#8A8378';
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lerp = (a, b, k) => a + (b - a) * k;
+const eOut = x => 1 - Math.pow(1 - clamp(x), 3), eIO = x => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const seg = (t, a, d) => clamp((t - a) / d);
+const el = (tag, cls, html, p) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; p.appendChild(e); return e; };
+const css = (e, s) => { e.style.cssText += ';' + s; return e; };
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+let P, DOTS, stage, tl, tlCanvas, nodesEl = [], hud = {}, hook = {}, desc = {}, close = {};
+const MONTH_PX = 210, X0 = 260;          // 时间轴：每个月 210 像素
+const xm = m => X0 + m * MONTH_PX;
+
+function paper() { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.fillStyle = '#EDE6D8'; g.fillRect(0, 0, W, H);
+  const r = rng(3), id = g.getImageData(0, 0, W, H); for (let i = 0; i < id.data.length; i += 4) { const n = (r() - .5) * 14; id.data[i] += n; id.data[i + 1] += n; id.data[i + 2] += n; } g.putImageData(id, 0, 0);
+  g.strokeStyle = 'rgba(27,26,24,.05)'; for (let x = 0; x < W; x += 60) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); } for (let y = 0; y < H; y += 60) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke(); }
+  return c.toDataURL('image/jpeg', .93); }
+
+// ---------- 小地图（点阵陆地，不画国界）----------
+const MAP = { x: 1520, y: 40, w: 360, h: 250, lon0: 20, lon1: 150, lat0: 5, lat1: 78 };
+const mp = (lon, lat) => [MAP.x + (lon - MAP.lon0) / (MAP.lon1 - MAP.lon0) * MAP.w, MAP.y + (MAP.lat1 - lat) / (MAP.lat1 - MAP.lat0) * MAP.h];
+const NB = [121.55, 29.87], RU = [88, 60];     // 宁波；俄罗斯（只标国名，不标具体城市——通报没有公布）
+function drawMap(g, t, where, flyK) {
+  g.fillStyle = 'rgba(251,248,241,.92)'; g.strokeStyle = INK; g.lineWidth = 2; g.fillRect(MAP.x - 14, MAP.y - 14, MAP.w + 28, MAP.h + 56); g.strokeRect(MAP.x - 14, MAP.y - 14, MAP.w + 28, MAP.h + 56);
+  g.fillStyle = 'rgba(27,26,24,.38)'; for (const [lo, la] of DOTS) { const [x, y] = mp(lo, la); g.fillRect(x - 1.3, y - 1.3, 2.6, 2.6); }
+  const pin = (p, on, lab, dx) => { const [x, y] = mp(...p); g.fillStyle = on ? ORANGE : GREY; g.beginPath(); g.arc(x, y, on ? 7 + 2 * Math.sin(t * 6) : 5, 0, 7); g.fill();
+    if (on) { g.strokeStyle = ORANGE; g.lineWidth = 2; g.beginPath(); g.arc(x, y, 14 + 8 * ((t * 1.2) % 1), 0, 7); g.globalAlpha = 1 - ((t * 1.2) % 1); g.stroke(); g.globalAlpha = 1; }
+    g.font = '700 22px Sans'; g.fillStyle = on ? INK : GREY; g.fillText(lab, x + dx, y + 8); };
+  if (flyK > 0) { const [x1, y1] = mp(...RU), [x2, y2] = mp(...NB), cx = (x1 + x2) / 2 + 40, cy = Math.min(y1, y2) - 30;
+    g.strokeStyle = ORANGE; g.setLineDash([8, 6]); g.lineWidth = 3; g.beginPath(); const N = 40; for (let i = 0; i <= N * flyK; i++) { const s = i / N, x = (1 - s) ** 2 * x1 + 2 * (1 - s) * s * cx + s * s * x2, y = (1 - s) ** 2 * y1 + 2 * (1 - s) * s * cy + s * s * y2; i ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); g.setLineDash([]); }
+  pin(NB, where === 'nb' || where === 'fly', '宁波', 12); pin(RU, where === 'ru', '俄罗斯', 12);
+  g.font = '500 20px Mono'; g.fillStyle = GREY; g.fillText('示意 · 未标国界', MAP.x, MAP.y + MAP.h + 32);
+}
+
+// ---------- 进度条 ----------
+const BAR = { x: 120, y: 980, w: 1680 };
+function drawBar(g, t, stageIdx, monthNow) {
+  const N = P.nodes, last = N[N.length - 1].m; g.strokeStyle = 'rgba(27,26,24,.25)'; g.lineWidth = 6; g.beginPath(); g.moveTo(BAR.x, BAR.y); g.lineTo(BAR.x + BAR.w, BAR.y); g.stroke();
+  g.strokeStyle = ORANGE; g.beginPath(); g.moveTo(BAR.x, BAR.y); g.lineTo(BAR.x + BAR.w * clamp(monthNow / last), BAR.y); g.stroke();
+  N.forEach((n, i) => { const x = BAR.x + BAR.w * n.m / last, on = i <= stageIdx; g.fillStyle = on ? ORANGE : '#EDE6D8'; g.strokeStyle = on ? ORANGE : 'rgba(27,26,24,.4)'; g.lineWidth = 3;
+    g.beginPath(); g.arc(x, BAR.y, 11, 0, 7); g.fill(); g.stroke(); g.font = '700 26px Sans'; g.fillStyle = on ? INK : GREY; g.textAlign = i === N.length - 1 ? 'right' : i ? 'center' : 'left'; g.fillText(n.title.replace('在俄罗斯被', ''), x, i % 2 ? BAR.y - 24 : BAR.y + 46); g.textAlign = 'left'; });
+}
+
+window.render = t => {
+  const N = P.nodes; let idx = -1; N.forEach((n, i) => { if (t >= n.t) idx = i; });
+  // 当前“时间轴上的月份”：节点之间平滑推进
+  let monthNow = 0; if (idx >= 0) { const a = N[idx], b = N[idx + 1]; monthNow = b ? lerp(a.m, b.m, eIO(seg(t, a.t + 2.5, Math.max(.5, b.t - a.t - 2.5)))) * 0 + a.m : a.m;
+    if (t >= 47) monthNow = N[N.length - 1].m; }
+  // ===== 开场（0–9 秒）：大数字 + 盖章 + 公安部披露卡 =====
+  const hk = t < 9; hook.root.style.display = hk ? 'block' : 'none';
+  if (hk) { const k = eOut(seg(t, .2, 1.2)); hook.num.innerHTML = `${Math.round(150 * k)}<span style="font:900 120px Serif"> 亿元</span>`;
+    hook.num.style.opacity = t < 5 ? 1 : 1 - eOut(seg(t, 5, .4)); hook.sub.style.opacity = eOut(seg(t, 1.2, .4)) * (t < 5 ? 1 : 1 - eOut(seg(t, 5, .4)));
+    const s = seg(t, 2.4, .2); hook.st.style.opacity = s > 0 && t < 5 ? 1 : 0; hook.st.style.transform = `rotate(-5deg) scale(${lerp(2, 1, eOut(s))})`;
+    const c = eOut(seg(t, 5.2, .5)); hook.card.style.opacity = c; hook.card.style.transform = `translateY(${(1 - c) * 40}px) rotate(-1deg)`; hook.line.style.width = `${560 * eOut(seg(t, 6.0, .8))}px`; }
+  // ===== 时间轴（9 秒起常驻）=====
+  const onTl = t >= 9; tl.style.display = onTl ? 'block' : 'none';
+  if (onTl) {
+    // 镜头：跟着当前节点走；47 秒后拉远看全貌
+    const fx = idx >= 0 ? xm(N[idx].m) : xm(0), prevx = idx > 0 ? xm(N[idx - 1].m) : fx, mv = idx >= 0 ? eIO(seg(t, N[idx].t, 1.2)) : 1;
+    let cx = lerp(prevx, fx, mv) + 380, z = 1.0; const out = eIO(seg(t, 47, 1.6)); cx = lerp(cx, (xm(0) + xm(25)) / 2, out); z = lerp(1, .345, out);
+    tl.style.transform = `translate(${W / 2 - cx * z}px, ${470 - 470 * z + (1 - z) * 60}px) scale(${z})`; tl.style.transformOrigin = '0 0';
+    const g = tlCanvas.getContext('2d'); g.clearRect(0, 0, tlCanvas.width, tlCanvas.height);
+    // 主轴：画到当前节点
+    const reach = idx >= 0 ? xm(N[idx].m) * eOut(seg(t, N[idx].t, .9)) + (idx > 0 ? 0 : 0) : 0, lastX = Math.max(idx > 0 ? xm(N[idx - 1].m) : xm(0), reach);
+    g.strokeStyle = INK; g.lineWidth = 6; g.beginPath(); g.moveTo(X0 - 80, 470); g.lineTo(Math.max(X0, lastX), 470); g.stroke();
+    // 月份刻度
+    for (let m = 0; m <= 25; m++) { const x = xm(m); if (x > lastX + 2) break; const yr = (10 + m - 1) % 12 + 1; g.strokeStyle = 'rgba(27,26,24,.45)'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, 470); g.lineTo(x, yr === 1 ? 430 : 452); g.stroke();
+      if (yr === 1) { g.font = '500 34px Mono'; g.fillStyle = GREY; g.fillText(String(2024 + Math.floor((m + 9) / 12)), x + 8, 425); } }
+    // 节点间的“间隔”标注（抓获 → 批准：将近 10 个月）
+    if (t >= 36.0 && t < 47) { const a = xm(13), b = xm(23), k = eOut(seg(t, 36.0, .8)); g.strokeStyle = ORANGE; g.lineWidth = 4; g.beginPath(); g.moveTo(a, 520); g.lineTo(a, 540); g.lineTo(lerp(a, b, k), 540); g.stroke(); if (k > .9) { g.beginPath(); g.moveTo(b, 540); g.lineTo(b, 520); g.stroke(); g.font = '900 44px Sans'; g.fillStyle = ORANGE; g.fillText('将近 10 个月', b - 560, 610); } }
+    // 全貌：两年零一个月
+    if (t >= 48.2) { const k = eOut(seg(t, 48.2, 1.0)), a = xm(0), b = xm(25); g.strokeStyle = ORANGE; g.lineWidth = 10; g.beginPath(); g.moveTo(a, 830); g.lineTo(a, 860); g.lineTo(lerp(a, b, k), 860); if (k > .98) g.lineTo(b, 830); g.stroke();
+      if (k > .9) { g.font = '900 150px Serif'; g.fillStyle = ORANGE; g.textAlign = 'center'; g.fillText('两年零一个月', (a + b) / 2, 1010); g.textAlign = 'left'; } }
+    N.forEach((n, i) => { const e = nodesEl[i], k = eOut(seg(t, n.t + .3, .5)); e.dot.style.opacity = t >= n.t + .2 ? 1 : 0; e.dot.style.transform = `scale(${lerp(.2, 1, eOut(seg(t, n.t + .2, .3)))})`;
+      e.card.style.opacity = k; e.card.style.transform = `translateY(${(1 - k) * 40}px)`; e.card.style.filter = i < idx && t < 47 ? 'grayscale(1) opacity(.55)' : 'none'; });
+  }
+  // ===== 案情描述（15.8–22.8）：三张小卡依次弹出 =====
+  const ds = t >= 15.8 && t < 22.9; desc.root.style.display = ds ? 'block' : 'none';
+  if (ds) desc.items.forEach((e, i) => { const k = eOut(seg(t, 16.0 + i * 1.6, .45)); e.style.opacity = k; e.style.transform = `translateY(${(1 - k) * 50}px) rotate(${(i - 1) * 1.5}deg)`; });
+  // ===== 收尾（53–60）=====
+  const cl = t >= 53; close.root.style.display = cl ? 'block' : 'none';
+  if (cl) { close.a.style.opacity = eOut(seg(t, 53.2, .5)); const q = eOut(seg(t, 56.7, .5)); close.q.style.opacity = q; close.q.style.transform = `translateY(${(1 - q) * 30}px)`; }
+  // ===== 常驻 HUD（5 秒起）=====
+  const hs = eOut(seg(t, 5.0, .6)); hud.root.style.opacity = hs; const g = hud.cv.getContext('2d'); g.clearRect(0, 0, W, H);
+  const where = idx >= 0 ? N[idx].where : null, flyK = where === 'fly' ? eIO(seg(t, 41.6, 2.4)) : (t >= 47 ? 1 : 0);
+  drawMap(g, t, t >= 47 ? 'nb' : where, flyK); drawBar(g, t, idx, idx >= 0 ? N[idx].m : 0);
+  const dateTxt = t < 9 ? '2026.11.25' : idx >= 0 ? N[idx].date : '2024.10', lab = t < 9 ? '公安部披露' : t >= 47 ? '立案 → 归案' : N[idx].title;
+  hud.date.textContent = dateTxt; hud.lab.textContent = lab;
+  const flip = t < 9 ? 5.0 : idx >= 0 ? N[idx].t : 9;      // 日期翻动只由当前时间决定（并行截帧也一致）
+  const f = eOut(seg(t, flip, .35)); hud.date.style.transform = `translateY(${(1 - f) * -24}px)`; hud.date.style.opacity = f;
+  hud.mon.textContent = t >= 9 ? `第 ${idx >= 0 ? N[idx].m + 1 : 1} 个月` : '';
+};
+
+(async () => {
+  P = await (await fetch('plan.json')).json(); DOTS = await (await fetch('assets/dots.json')).json(); stage = document.getElementById('stage');
+  const bg = el('img', 'L', null, stage); bg.src = paper();
+  // 开场
+  hook.root = el('div', 'L', null, stage); css(hook.root, 'width:1920px;height:1080px');
+  hook.num = css(el('div', 'L', '', hook.root), 'left:0;width:1920px;top:250px;text-align:center;font:400 300px Oswald;color:#1B1A18');
+  hook.sub = css(el('div', 'L', '经济犯罪嫌疑人 · 从俄罗斯被引渡回国', hook.root), 'left:0;width:1920px;top:620px;text-align:center;font:900 64px Serif;color:#1B1A18');
+  hook.st = css(el('div', 'stamp', '引渡回国', hook.root), 'left:1260px;top:180px');
+  hook.card = css(el('div', 'card', '<div class="d">2026.11.25</div><div class="h">公安部披露</div><div class="b">一起跨国追逃：涉嫌非法吸收公众存款</div>', hook.root), 'left:520px;top:380px;width:880px');
+  hook.line = css(el('div', 'L', '', hook.card), 'left:32px;top:250px;height:8px;background:#D9601C');
+  // 时间轴
+  tl = css(el('div', 'L', null, stage), `width:${xm(26) + 600}px;height:1080px`); tlCanvas = el('canvas', 'L', null, tl); tlCanvas.width = xm(26) + 600; tlCanvas.height = 1080;
+  P.nodes.forEach((n, i) => { const x = xm(n.m); const dot = css(el('div', 'L', '', tl), `left:${x - 22}px;top:448px;width:44px;height:44px;border-radius:50%;background:${ORANGE};border:6px solid #FBF8F1;box-shadow:0 0 0 3px ${INK}`);
+    const up = i % 2 === 1, card = css(el('div', 'card', `<div class="d">${n.date}</div><div class="h">${n.title}</div><div class="b">${n.body}</div>`, tl), `left:${x - 60}px;top:${up ? 150 : 560}px`);
+    nodesEl.push({ dot, card }); });
+  // 案情描述
+  desc.root = css(el('div', 'L', null, stage), 'width:1920px;height:1080px;background:rgba(237,230,216,.94)');
+  css(el('div', 'L', '据通报', desc.root), 'left:160px;top:330px;font:900 56px Sans;color:#D9601C');
+  desc.items = [['没有资质', '不具备吸收公众存款资质'], ['虚构产品', '虚构理财产品'], ['高额收益', '承诺高额年化收益，面向不特定人群']].map(([h, b], i) =>
+    css(el('div', 'card', `<div class="h">${h}</div><div class="b" style="white-space:normal">${b}</div>`, desc.root), `left:${160 + i * 560}px;top:430px;width:440px;height:330px;box-sizing:border-box`));
+  // 收尾
+  close.root = css(el('div', 'L', null, stage), 'width:1920px;height:1080px;background:rgba(237,230,216,.9)');
+  close.a = css(el('div', 'card', '<div class="d">公安部</div><div class="h">引渡在中国驻俄使馆协助下完成</div>', close.root), 'left:160px;top:360px');
+  close.q = css(el('div', 'L', '钱去了哪里？投资人能追回多少？<br><span style="font:700 40px Sans;color:#7A746A">目前还没有公开信息</span>', close.root), 'left:160px;top:640px;font:900 72px Serif;color:#1B1A18;line-height:1.4');
+  // HUD
+  hud.root = css(el('div', 'L', null, stage), 'width:1920px;height:1080px'); hud.cv = el('canvas', 'L', null, hud.root); hud.cv.width = W; hud.cv.height = H;
+  const box = css(el('div', 'L', null, hud.root), 'left:40px;top:40px;background:#1B1A18;color:#FBF8F1;padding:14px 26px 16px;overflow:hidden');
+  hud.date = css(el('div', null, '', box), 'font:500 58px Mono;color:#FBF8F1;letter-spacing:2px'); hud.lab = css(el('div', null, '', box), 'font:700 30px Sans;color:#E8A070;margin-top:2px');
+  hud.mon = css(el('div', 'L', '', hud.root), 'left:44px;top:200px;font:700 30px Sans;color:#1B1A18;background:#FBF8F1;border:2px solid #1B1A18;padding:4px 14px');
+  css(el('div', 'src', P.sources, stage), '');
+  for (const f of ['900 60px Serif', '500 60px Mono', '400 60px Oswald', '900 60px Sans', '700 60px Sans']) await document.fonts.load(f);
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  window.render(0); window.DUR = P.dur; window.READY = true;
+})();
+</script>
+</body>
+</html>
