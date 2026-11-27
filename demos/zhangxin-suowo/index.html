@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "MaShan"; src: url("../../assets/fonts/MaShanZheng-Regular.ttf"); }
+@font-face { font-family: "WenKai"; src: url("../../assets/fonts/LXGWWenKai-Regular.ttf"); }
+@font-face { font-family: "NotoSerif"; src: url("../../assets/fonts/NotoSerifSC.ttf"); font-weight: 200 900; }
+@font-face { font-family: "NotoSans"; src: url("../../assets/fonts/NotoSansSC.ttf"); font-weight: 100 900; }
+@font-face { font-family: "InstrumentSerif"; src: url("../../assets/fonts/InstrumentSerif-Italic.ttf"); font-style: normal; }
+html, body { margin: 0; overflow: hidden; background: #000; } canvas { display: block; width: 1920px; height: 1080px; }
+</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script src="shared.js"></script>
+<script src="styleA.js"></script>
+<script src="styleB.js"></script>
+<script src="styleC.js"></script>
+<script>
+// ?style=A|B|C 。harness/render.mjs 用法：node harness/render.mjs demos/zhangxin-suowo --query style=A
+const STYLE = { A, B, C }[new URLSearchParams(location.search).get('style') || 'A'];
+const ctx = document.getElementById('c').getContext('2d');
+window.DEMO = { width: W, height: H, fps: FPS, duration: DUR };
+window.renderAt = async (t) => { BOX.length = 0; ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalAlpha = 1; ctx.clearRect(0, 0, W, H); STYLE.render(ctx, t); window.__boxes = BOX.slice(); };
+(async () => {
+  const all = SUBS.map(s => s[2]).join('') + BADGE + TITLE + QIAN + KUN + (STYLE.extra || '');
+  for (const [f] of STYLE.fonts) await document.fonts.load(f, all);
+  await document.fonts.ready;
+  window.__ready = true;
+})();
+</script></body></html>
