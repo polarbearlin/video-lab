@@ -30,7 +30,7 @@ export const SCORE = {
 function mulberry32(seed) { let a = seed >>> 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 
 /** Wind: two decorrelated low-passed noise channels (~280 Hz and a breathy ~900 Hz band) under slow gust swells. */
-function addWind(buf, from, { level = 0.035 } = {}) {
+export function addWind(buf, from, { level = 0.035 } = {}) {
   const sr = buf.sampleRate, n = buf.length;
   for (let ch = 0; ch < buf.numberOfChannels; ch++) {
     const d = buf.getChannelData(ch), r = mulberry32(911 + ch * 7);

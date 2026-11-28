@@ -35,18 +35,61 @@ function strider(legs, arms, body, legLen, stepLen) {
   };
 }
 
-export function buildFigures(H) {
+// the hot cocoa: a cream mug with a berry band, cocoa and a curl of foam on top
+const mugArt = () => piece((gg, ink) => {
+  gg.fillStyle = ink('#efe4d0'); D.rect(gg, 0.115, 0.07, 0.07, 0.13, 0.04);
+  gg.fillStyle = ink('#f7f0e2'); D.rect(gg, -0.12, 0, 0.24, 0.26, 0.04);
+  gg.fillStyle = ink('#b3343c', 'print'); D.rect(gg, -0.12, 0.09, 0.24, 0.035);
+  gg.fillStyle = ink('#6a3a24'); D.ell(gg, 0, 0.255, 0.115, 0.03);
+  gg.fillStyle = ink('#fbf3e4'); D.ell(gg, -0.03, 0.27, 0.06, 0.025); D.ell(gg, 0.04, 0.268, 0.045, 0.02);
+}, 0.34, 0.32, 'mug');
+// the handkerchief: white linen, a lace edge, folded corner down
+const kerchiefArt = () => piece((gg, ink) => {
+  gg.fillStyle = ink('#fbfaf6'); D.poly(gg, [[-0.15, 0.28], [0.15, 0.28], [0.17, 0.1], [0, -0.02], [-0.17, 0.1]]);
+  gg.fillStyle = ink('#e6e1d6', 'print'); D.poly(gg, [[-0.15, 0.28], [0.15, 0.28], [0, 0.14]]);
+  gg.fillStyle = ink('#d8d2c4', 'print'); for (let k = 0; k < 7; k++) D.ell(gg, -0.15 + k * 0.05, 0.285, 0.012, 0.012);
+}, 0.4, 0.34, 'handkerchief');
+// the cocoa moustache: two brown lobes curling up at the ends, white foam bubbles along the top (white alone vanishes
+// against her skin in the door's warm light)
+const foamArt = () => piece((gg, ink) => {
+  gg.fillStyle = ink('#6e3f22');
+  for (const [x, y, r] of [[-0.135, 0.07, 0.024], [-0.105, 0.048, 0.03], [-0.06, 0.04, 0.036], [-0.02, 0.042, 0.028], [0.02, 0.042, 0.028], [0.06, 0.04, 0.036], [0.105, 0.048, 0.03], [0.135, 0.07, 0.024]]) D.ell(gg, x, y, r, r * 0.9);
+  gg.fillStyle = ink('#fffaf0', 'print');
+  for (const [x, y, r] of [[-0.11, 0.066, 0.013], [-0.075, 0.064, 0.016], [-0.04, 0.066, 0.012], [0.035, 0.066, 0.013], [0.07, 0.064, 0.016], [0.108, 0.066, 0.012]]) D.ell(gg, x, y, r, r);
+  gg.fillStyle = ink('#9a6640', 'print'); D.ell(gg, -0.06, 0.03, 0.025, 0.01); D.ell(gg, 0.06, 0.03, 0.025, 0.01);
+}, 0.34, 0.11, 'foam');
+
+export function buildFigures(H, { blanket = false } = {}) {
   const THREE = H.THREE;
   const mk = (root, px) => ([pts, paint], seed, { x = 0, y = 0, z = 0, ry = 0, parent = root, back = 'mirror', name = '', cut = null } = {}) => {
     const m = makeCard(pts, { paint, paper: H.paper, thickness: T, edgeWidth: 0.03, pxPerUnit: px, seed, back, folds: [], geomPts: cut, contact: null });
     m.position.set(x, y, z); m.rotation.y = ry; m.name = name; parent.add(m); return m;
   };
   // pose: { walked, gait, arms: [[rx, rz], [rx, rz]] (0 = the RIGHT arm, at -x), hold: [0..1, 0..1] (how much the
-  // keyed arm pose replaces the walking swing), head: [rx, ry] }
-  const poser = (stride, arms, head) => ({ walked = 0, gait = 0, arms: A = [[0, 0], [0, 0]], hold = [0, 0], head: hd = [0, 0] } = {}) => {
-    const sw = stride(walked, gait);
+  // keyed arm pose replaces the walking swing), head: [rx, ry], roll (head about z), sit (0..1: the legs swing forward
+  // to sitAngle), lean (the body about z) }
+  const poser = (stride, arms, head, legs, body) => ({ walked = 0, gait = 0, arms: A = [[0, 0], [0, 0]], hold = [0, 0], head: hd = [0, 0], roll = 0, sit = 0, sitAngle = -1.45, lean = 0 } = {}) => {
+    const sw = stride(walked, gait * (1 - sit));
     arms.forEach((a, i) => { a.rotation.x = sw[i] * (1 - hold[i]) + A[i][0]; a.rotation.z = A[i][1]; });
-    head.rotation.x = hd[0]; head.rotation.y = hd[1];
+    head.rotation.x = hd[0]; head.rotation.y = hd[1]; head.rotation.z = roll;
+    if (sit > 0) legs.forEach((l) => { l.rotation.x = l.rotation.x * (1 - sit) + sitAngle * sit; });
+    body.rotation.z = lean;
+  };
+  // a thin card on a pivot, scaled about its centre (the mouth, the foam): drawn centred at (0, h / 2)
+  const flat = (parent, [pts, paint], seed, { x = 0, y = 0, z = 0, h = 0.1, px = 220, name = '' } = {}) => {
+    const pv = new THREE.Group(); pv.position.set(x, y, z); parent.add(pv);
+    const m = makeCard(pts, { paint, paper: H.paper, thickness: 0.012, edgeWidth: 0.008, pxPerUnit: px, seed, back: 'mirror', folds: [], contact: null });
+    m.position.y = -h / 2; m.name = name; pv.add(m); pv.visible = false; return pv;
+  };
+  const mouthArt = (w, h, name) => piece((gg, ink) => {
+    gg.fillStyle = ink('#5a1e26'); D.ell(gg, 0, h / 2, w / 2, h / 2);
+    gg.fillStyle = ink('#c85a5e', 'print'); D.ell(gg, 0, h * 0.28, w * 0.3, h * 0.2);
+  }, w * 1.1, h * 1.1, name);
+  // a prop held in a hand: a group at the hand (the scene keeps it upright), the card centred on it
+  const prop = (arm, handY, [pts, paint], seed, { z = 0.11, lift = 0, name = '', back = 'mirror' } = {}) => {
+    const pv = new THREE.Group(); pv.position.set(0, handY, z); arm.add(pv);
+    const m = makeCard(pts, { paint, paper: H.paper, thickness: 0.035, edgeWidth: 0.02, pxPerUnit: 160, seed, back, folds: [], contact: null });
+    m.position.y = lift; m.name = name; pv.add(m); pv.visible = false; return pv;
   };
 
   // ---------------------------------------------------------------- the lady (~3.3 tall)
@@ -54,7 +97,17 @@ export function buildFigures(H) {
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body); g.name = 'lady';
     const card = mk(body, 120);
     const skin = '#f9e4d6', blush = '#f2a594', hair = '#5c3424', hairHi = '#82533a', hairDk = '#3b2016';
-    const pj = '#f5eddd', pjS = '#e3d5bc', pip = '#c4a77c', coat = '#b8875c', coatHi = '#cfa47a', coatS = '#9c7048';
+    const pj = '#f5eddd', pjS = '#e3d5bc', pip = '#c4a77c';
+    // the coat of the demo, or (blanket) a soft oatmeal wool blanket with a rose-brown plaid wrapped round her
+    const [coat, coatHi, coatS] = blanket ? ['#d6b98e', '#e6cfa8', '#b8976a'] : ['#b8875c', '#cfa47a', '#9c7048'];
+    const plaid = (gg, ink, x0, x1, y0, y1) => {
+      if (!blanket) return;
+      gg.fillStyle = ink(P2.rgba('#9a564c', 0.55), 'print');
+      for (let x = x0 + 0.08; x < x1; x += 0.2) D.rect(gg, x, y0, 0.03, y1 - y0);
+      for (let y = y0 + 0.1; y < y1; y += 0.24) D.rect(gg, x0, y, x1 - x0, 0.03);
+      gg.fillStyle = ink(P2.rgba('#fff6e6', 0.5), 'print');
+      for (let x = x0 + 0.17; x < x1; x += 0.2) D.rect(gg, x, y0, 0.012, y1 - y0);
+    };
     const slip = '#f8f2e8', slipS = '#e2d5c2', pearl = '#fbf8f0', eye = '#2b1a14', lip = '#cf6a60';
     const Z = { lock: 0.15, face: 0.085, coat: 0, legs: -0.17 };
     // legs: wide ivory satin trousers with piping at the hem and the outer seam, a fluffy slipper at the foot
@@ -89,7 +142,8 @@ export function buildFigures(H) {
       gg.fillStyle = ink('#efe6d4', 'print'); for (const y of [0.3, 0.55, 0.8]) D.ell(gg, 0.04, y, 0.028, 0.028);
       gg.fillStyle = ink(pjS); D.poly(gg, [[-0.21, 1.32], [-0.03, 1.02], [-0.11, 1.07], [-0.25, 1.22]]); D.poly(gg, [[0.21, 1.32], [0.03, 1.02], [0.11, 1.07], [0.25, 1.22]]);
       gg.fillStyle = ink(coatHi); D.poly(gg, [[-0.37, 1.32], [-0.17, 1.32], [-0.08, 0.5], [-0.2, 0.56]]); D.poly(gg, [[0.37, 1.32], [0.17, 1.32], [0.08, 0.5], [0.2, 0.56]]);
-      gg.fillStyle = ink(coatS); D.rect(gg, -0.41, 0.28, 0.17, 0.2, 0.05); D.rect(gg, 0.24, 0.28, 0.17, 0.2, 0.05);
+      if (blanket) { plaid(gg, ink, -0.46, -0.2, 0.1, 1.3); plaid(gg, ink, 0.2, 0.46, 0.1, 1.3); gg.fillStyle = ink(coatHi); for (let k = 0; k < 12; k++) D.rect(gg, -0.44 + k * 0.08, 0.0, 0.025, 0.1, 0.01); }
+      else { gg.fillStyle = ink(coatS); D.rect(gg, -0.41, 0.28, 0.17, 0.2, 0.05); D.rect(gg, 0.24, 0.28, 0.17, 0.2, 0.05); }
       gg.fillStyle = ink(P2.rgba('#fff8ec', 0.55), 'print'); for (let k = 0; k < 70; k++) { const x = -0.44 + ((k * 37) % 88) / 100, y = 0.12 + ((k * 53) % 117) / 100; if (Math.abs(x) > 0.2) D.ell(gg, x, y, 0.016, 0.012); }
     }, 1.1, 1.36, 'lady coat');
     const coatY = 1.08, cx = ext(coatFront), coatTop = coatY + cx.y1;
@@ -103,6 +157,7 @@ export function buildFigures(H) {
     // arms: coat sleeves with an ivory pyjama cuff, beside the coat on shoulder pivots
     const armArt = (c, name) => piece((gg, ink) => {
       gg.fillStyle = ink(c); D.rect(gg, -0.13, 0.17, 0.26, 0.86, 0.12); bumps(gg, -0.11, 0.11, 0.2, 0.04, 3);
+      plaid(gg, ink, -0.13, 0.13, 0.22, 1.0);
       gg.fillStyle = ink(pj); D.rect(gg, -0.1, 0.12, 0.2, 0.09, 0.03);
       gg.fillStyle = ink(pip, 'print'); D.rect(gg, -0.1, 0.135, 0.2, 0.016);
       gg.fillStyle = ink(skin); D.ell(gg, 0, 0.08, 0.085, 0.085);
@@ -169,8 +224,11 @@ export function buildFigures(H) {
     const scarf = scarfArt('worn');
     mk(scarfPivot, 120)(scarf, 460, { y: -ext(scarf).y1, back: plain('#9a2c32'), name: 'lady scarf' });
     scarfPivot.visible = false;
+    const mouth = flat(head, mouthArt(0.075, 0.06, 'lady mouth'), 470, { y: 0.3, z: Z.face + T / 2 + 0.014, h: 0.066, px: 700, name: 'lady mouth' });
+    const foam = flat(head, foamArt(), 471, { y: 0.35, z: Z.face + T / 2 + 0.03, h: 0.12, px: 900, name: 'lady foam' });
+    const mug = prop(arms[0], -0.92, mugArt(), 472, { lift: -0.06, name: 'lady mug' });
     const stride = strider(legs, arms, body, hipY, 0.62);
-    g.userData = { body, arms, head, legs, scarfPivot, pose: poser(stride, arms, head), height: coatTop + 0.9, handY: shoulderY - 0.92 };
+    g.userData = { body, arms, head, legs, scarfPivot, mouth, foam, mug, hipY, pose: poser(stride, arms, head, legs, body), height: coatTop + 0.9, handY: shoulderY - 0.92 };
     return g;
   }
 
@@ -291,8 +349,11 @@ export function buildFigures(H) {
     hcard(headSide, 552, { z: headSideZ, ry: PROFILE, name: 'butler head side', cut: band(headSide[0], 0.06, 0.7) });
     const hairBack = piece((gg, ink) => { gg.fillStyle = ink(hair); D.rect(gg, -0.3, 0.3, 0.6, 0.32, 0.12); }, 0.8, 1.0, 'butler hair back');   // no crown: it would stand over his head in the high camera
     hcard(hairBack, 553, { z: headBack - T / 2 - GAP, back: plain(hair), name: 'butler hair back' });
+    const mouth = flat(head, mouthArt(0.085, 0.06, 'butler mouth'), 570, { y: 0.285, z: Z.face + T / 2 + 0.014, h: 0.066, px: 700, name: 'butler mouth' });
+    const mug = prop(arms[0], -1.05, mugArt(), 571, { lift: -0.06, name: 'butler mug' });
+    const kerchief = prop(arms[0], -1.05, kerchiefArt(), 572, { lift: -0.1, name: 'handkerchief' });
     const stride = strider(legs, arms, body, hipY, 0.78);
-    g.userData = { body, arms, head, legs, carry, pose: poser(stride, arms, head), height: jTop + 0.95 };
+    g.userData = { body, arms, head, legs, carry, mouth, mug, kerchief, hipY, pose: poser(stride, arms, head, legs, body), height: jTop + 0.95 };
     return g;
   }
 

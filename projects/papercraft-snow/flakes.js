@@ -58,7 +58,7 @@ const sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
  * returns { mesh, material, geometry, update(t, cameraPosition) }.
  */
 export function createFlakes({ scene, box, top = 15, count = 700, size = [0.3, 0.7], fall = [0.9, 1.4], rest = [5, 9], wind = [0.32, 0.1],
-  landAt = () => ({ y: 0, n: [0, 1, 0] }), near = [6, 10], seed = 11, color = '#f4f6fb', emissive = '#28304c' } = {}) {
+  landAt = () => ({ y: 0, n: [0, 1, 0] }), near = [6, 10], seed = 11, active = null, color = '#f4f6fb', emissive = '#28304c' } = {}) {
   const map = flakeTexture(), geometry = flakeGeometry();
   const material = paperMaterial({ color, map, alphaTest: 0.5, side: THREE.DoubleSide });
   if (emissive) { material.emissive = new THREE.Color(emissive); material.emissiveIntensity = 1; }
@@ -84,6 +84,7 @@ export function createFlakes({ scene, box, top = 15, count = 700, size = [0.3, 0
   };
   const restQ = (L, f, out) => { nv.set(...L.n).normalize(); out.setFromUnitVectors(Z, nv); qs.setFromAxisAngle(nv, f.roll); return out.premultiply(qs); };
   function update(t, cam) {
+    const live = active ? active(t) * count : count;   // active(t): the falling fraction (the snow thickening)
     for (let i = 0; i < count; i++) {
       const f = F[i], fallT = top / f.v, period = fallT + f.rest, T = t + f.off, k = Math.floor(T / period), tau = T - k * period;
       const x0 = box.x0 + hash(i * 31 + 7, k) * (box.x1 - box.x0) - wind[0] * fallT * 0.5;
@@ -105,6 +106,7 @@ export function createFlakes({ scene, box, top = 15, count = 700, size = [0.3, 0
         s *= 1 - sm(0.55, 1, (tau - tL) / f.rest);      // and shrinks away on the page
       }
       if (cam) open *= sm(near[0], near[1], pos.distanceTo(cam));   // folds shut right in front of the lens
+      if (i >= live) s = 0;
       sc.set(s * Math.max(0.001, open), s, s);
       m4.compose(pos, q, sc); mesh.setMatrixAt(i, m4);
     }
