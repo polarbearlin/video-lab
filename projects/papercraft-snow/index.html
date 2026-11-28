@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>第一场雪 - papercraft snow demo</title>
+<link rel="icon" href="data:,">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1a2142; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js", "papercraft/": "./" } }</script>
+</head>
+<body>
+<!-- A 10 s pop-up-book film: a paper cottage on a snowy night, a butler leads a young lady out into the first snow.
+     harness.js and lib/ are the papercraft skill's (MIT), unchanged; scene.js, figures.js, flakes.js and score.js are
+     this film. Serve this folder over http and open it; ?capture for captures (scripts/capture.py), ?test for the
+     material check. -->
+<script type="module" src="./scene.js"></script>
+</body>
+</html>
